@@ -1,4 +1,5 @@
 {% extends "layout.html" %} {% block content %}
+<!-- Hero Banner Energético -->
 <div class="row">
   <div class="col-md-12 mb-4">
     <div id="carouselGym" class="carousel slide" data-bs-ride="carousel">
@@ -21,56 +22,187 @@
         ></button>
       </div>
       <div class="carousel-inner rounded shadow">
+        <!-- Slide 1: Energía -->
         <div class="carousel-item active">
           <div
-            class="d-block w-100 bg-gradient"
-            style="
-              height: 400px;
-              background: linear-gradient(135deg, #ff5f6d, #ffc371);
-            "
+            class="d-block w-100 bg-dark position-relative"
+            style="height: 450px; overflow: hidden"
           >
-            <div class="carousel-caption">
-              <h1 class="display-4 fw-bold">¡Bienvenido al Gimnasio!</h1>
-              <p class="lead">Sistema de gestión para tu negocio</p>
-              <a href="/usuarios" class="btn btn-lg btn-light"
-                >Gestionar Usuarios</a
-              >
+            <div
+              class="position-absolute w-100 h-100"
+              style="
+                background: radial-gradient(
+                    circle at center,
+                    rgba(0, 0, 0, 0.7) 0%,
+                    rgba(0, 0, 0, 0.9) 100%
+                  ),
+                  url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')
+                    no-repeat center center;
+                background-size: cover;
+              "
+            ></div>
+            <div
+              class="carousel-caption text-start position-absolute top-50 start-50 translate-middle w-100 px-4"
+            >
+              <div class="row align-items-center">
+                <div class="col-lg-8 text-lg-start text-center">
+                  <h1
+                    class="display-4 fw-bold"
+                    style="
+                      color: #ffd700;
+                      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+                    "
+                  >
+                    ¡POTENCIA TU GIMNASIO!
+                  </h1>
+                  <p class="lead text-white mb-4">
+                    Sistema de gestión completo para maximizar tu rendimiento
+                  </p>
+                  <div
+                    class="d-flex flex-wrap gap-2 justify-content-lg-start justify-content-center"
+                  >
+                    <a
+                      href="/usuarios"
+                      class="btn btn-lg"
+                      style="
+                        background-color: #ffd700;
+                        color: #000;
+                        font-weight: 700;
+                      "
+                    >
+                      <i class="fas fa-bolt me-2"></i>Comenzar Ahora
+                    </a>
+                    <a href="/finanzas" class="btn btn-lg btn-outline-light">
+                      <i class="fas fa-chart-line me-2"></i>Ver Finanzas
+                    </a>
+                  </div>
+                </div>
+                <div class="col-lg-4 d-none d-lg-block">
+                  <div class="animated-icon text-center">
+                    <i
+                      class="fas fa-dumbbell fa-5x"
+                      style="
+                        color: #ffd700;
+                        text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+                      "
+                    ></i>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Slide 2: Control -->
         <div class="carousel-item">
           <div
-            class="d-block w-100"
-            style="
-              height: 400px;
-              background: linear-gradient(135deg, #43cea2, #185a9d);
-            "
+            class="d-block w-100 bg-dark position-relative"
+            style="height: 450px; overflow: hidden"
           >
-            <div class="carousel-caption">
-              <h1 class="display-4 fw-bold">Control de Asistencias</h1>
-              <p class="lead">Seguimiento preciso de tus clientes</p>
-              <a href="/asistencia" class="btn btn-lg btn-light"
-                >Registrar Asistencia</a
+            <div
+              class="position-absolute w-100 h-100"
+              style="
+                background: linear-gradient(
+                    135deg,
+                    rgba(0, 0, 0, 0.9) 0%,
+                    rgba(33, 33, 33, 0.8) 100%
+                  ),
+                  url('https://images.unsplash.com/photo-1554284126-aa88f22d8b74?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')
+                    no-repeat center center;
+                background-size: cover;
+              "
+            ></div>
+            <div
+              class="carousel-caption text-center position-absolute top-50 start-50 translate-middle w-100 px-4"
+            >
+              <h1
+                class="display-4 fw-bold"
+                style="
+                  color: #ffd700;
+                  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+                "
               >
+                CONTROL TOTAL
+              </h1>
+              <p class="lead text-white mb-4">
+                Seguimiento preciso de asistencias y membresías
+              </p>
+              <a
+                href="/asistencia"
+                class="btn btn-lg"
+                style="background-color: #ffd700; color: #000; font-weight: 700"
+              >
+                <i class="fas fa-calendar-check me-2"></i>Registrar Asistencia
+              </a>
             </div>
           </div>
         </div>
+
+        <!-- Slide 3: Resultados -->
         <div class="carousel-item">
           <div
-            class="d-block w-100"
-            style="
-              height: 400px;
-              background: linear-gradient(135deg, #834d9b, #d04ed6);
-            "
+            class="d-block w-100 bg-dark position-relative"
+            style="height: 450px; overflow: hidden"
           >
-            <div class="carousel-caption">
-              <h1 class="display-4 fw-bold">Análisis Financiero</h1>
-              <p class="lead">Controla tus ingresos y el rendimiento</p>
-              <a href="/finanzas" class="btn btn-lg btn-light">Ver Finanzas</a>
+            <div
+              class="position-absolute w-100 h-100"
+              style="
+                background: linear-gradient(
+                    135deg,
+                    rgba(33, 33, 33, 0.9) 0%,
+                    rgba(0, 0, 0, 0.9) 100%
+                  ),
+                  url('https://images.unsplash.com/photo-1605296867304-46d5465a13f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')
+                    no-repeat center center;
+                background-size: cover;
+              "
+            ></div>
+            <div
+              class="carousel-caption text-end position-absolute top-50 start-50 translate-middle w-100 px-4"
+            >
+              <div class="row align-items-center">
+                <div class="col-lg-4 d-none d-lg-block">
+                  <div class="animated-charts text-center">
+                    <i
+                      class="fas fa-chart-bar fa-5x"
+                      style="
+                        color: #ffd700;
+                        text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+                      "
+                    ></i>
+                  </div>
+                </div>
+                <div class="col-lg-8 text-lg-end text-center">
+                  <h1
+                    class="display-4 fw-bold"
+                    style="
+                      color: #ffd700;
+                      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+                    "
+                  >
+                    MAXIMIZA RESULTADOS
+                  </h1>
+                  <p class="lead text-white mb-4">
+                    Análisis financiero y márgenes de ganancia detallados
+                  </p>
+                  <a
+                    href="/finanzas"
+                    class="btn btn-lg"
+                    style="
+                      background-color: #ffd700;
+                      color: #000;
+                      font-weight: 700;
+                    "
+                  >
+                    <i class="fas fa-chart-line me-2"></i>Analizar Finanzas
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
       <button
         class="carousel-control-prev"
         type="button"
@@ -91,99 +223,263 @@
   </div>
 </div>
 
-<div class="row mt-4">
+<!-- Tarjetas de Funcionalidades -->
+<div class="row mt-5">
+  <div class="col-12 text-center mb-4">
+    <h2 class="mb-4">FUNCIONALIDADES PRINCIPALES</h2>
+    <p class="lead text-muted">
+      Todo lo que necesitas para gestionar tu gimnasio de manera efectiva
+    </p>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Tarjeta Usuarios -->
   <div class="col-md-4 mb-4">
-    <div class="card h-100 border-0 shadow-sm">
-      <div
-        class="card-body text-center"
-        style="background: linear-gradient(to bottom, #f7f7f7, #e6e6e6)"
-      >
-        <div class="mb-4">
-          <i class="fas fa-users fa-4x" style="color: #ff5f6d"></i>
+    <div class="card h-100 border-0">
+      <div class="card-body text-center p-4">
+        <div
+          class="feature-icon mb-4 rounded-circle mx-auto d-flex align-items-center justify-content-center"
+          style="width: 80px; height: 80px; background-color: #212121"
+        >
+          <i class="fas fa-users fa-2x" style="color: #ffd700"></i>
         </div>
         <h3 class="card-title">Usuarios</h3>
         <p class="card-text">
-          Registra y gestiona a todos los miembros del gimnasio de manera fácil
-          y rápida.
+          Registra y gestiona a todos los miembros del gimnasio con diferentes
+          planes y opciones de pago.
         </p>
-        <a
-          href="/usuarios"
-          class="btn btn-primary"
-          style="background-color: #ff5f6d; border-color: #ff5f6d"
-          >Ir a Usuarios</a
+        <a href="/usuarios" class="btn btn-primary stretched-link"
+          >Gestionar Usuarios</a
         >
       </div>
     </div>
   </div>
 
+  <!-- Tarjeta Asistencias -->
   <div class="col-md-4 mb-4">
-    <div class="card h-100 border-0 shadow-sm">
-      <div
-        class="card-body text-center"
-        style="background: linear-gradient(to bottom, #f7f7f7, #e6e6e6)"
-      >
-        <div class="mb-4">
-          <i class="fas fa-calendar-check fa-4x" style="color: #43cea2"></i>
+    <div class="card h-100 border-0">
+      <div class="card-body text-center p-4">
+        <div
+          class="feature-icon mb-4 rounded-circle mx-auto d-flex align-items-center justify-content-center"
+          style="width: 80px; height: 80px; background-color: #212121"
+        >
+          <i class="fas fa-calendar-check fa-2x" style="color: #ffd700"></i>
         </div>
         <h3 class="card-title">Asistencias</h3>
         <p class="card-text">
-          Controla la asistencia diaria, visualiza patrones y genera reportes
-          detallados.
+          Control de acceso diario, históricos detallados y verificación de
+          vencimiento de planes.
         </p>
-        <a
-          href="/asistencia"
-          class="btn btn-primary"
-          style="background-color: #43cea2; border-color: #43cea2"
-          >Ir a Asistencias</a
+        <a href="/asistencia" class="btn btn-primary stretched-link"
+          >Controlar Asistencias</a
         >
       </div>
     </div>
   </div>
 
+  <!-- Tarjeta Ventas -->
   <div class="col-md-4 mb-4">
-    <div class="card h-100 border-0 shadow-sm">
-      <div
-        class="card-body text-center"
-        style="background: linear-gradient(to bottom, #f7f7f7, #e6e6e6)"
-      >
-        <div class="mb-4">
-          <i class="fas fa-chart-line fa-4x" style="color: #834d9b"></i>
+    <div class="card h-100 border-0">
+      <div class="card-body text-center p-4">
+        <div
+          class="feature-icon mb-4 rounded-circle mx-auto d-flex align-items-center justify-content-center"
+          style="width: 80px; height: 80px; background-color: #212121"
+        >
+          <i class="fas fa-shopping-cart fa-2x" style="color: #ffd700"></i>
+        </div>
+        <h3 class="card-title">Ventas</h3>
+        <p class="card-text">
+          Gestión de productos, inventario y registro de ventas para aumentar
+          tus ingresos.
+        </p>
+        <a href="/ventas" class="btn btn-primary stretched-link"
+          >Administrar Ventas</a
+        >
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Segunda fila de tarjetas -->
+<div class="row mt-2">
+  <!-- Tarjeta Productos -->
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 border-0">
+      <div class="card-body text-center p-4">
+        <div
+          class="feature-icon mb-4 rounded-circle mx-auto d-flex align-items-center justify-content-center"
+          style="width: 80px; height: 80px; background-color: #212121"
+        >
+          <i class="fas fa-box fa-2x" style="color: #ffd700"></i>
+        </div>
+        <h3 class="card-title">Productos</h3>
+        <p class="card-text">
+          Administra tu inventario de suplementos, ropa deportiva y accesorios
+          para tu gimnasio.
+        </p>
+        <a href="/productos" class="btn btn-primary stretched-link"
+          >Ver Productos</a
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Tarjeta Pagos -->
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 border-0">
+      <div class="card-body text-center p-4">
+        <div
+          class="feature-icon mb-4 rounded-circle mx-auto d-flex align-items-center justify-content-center"
+          style="width: 80px; height: 80px; background-color: #212121"
+        >
+          <i
+            class="fas fa-file-invoice-dollar fa-2x"
+            style="color: #ffd700"
+          ></i>
+        </div>
+        <h3 class="card-title">Pagos</h3>
+        <p class="card-text">
+          Seguimiento de pagos de membresías, control de vencimientos y
+          renovaciones.
+        </p>
+        <a href="/pagos" class="btn btn-primary stretched-link"
+          >Administrar Pagos</a
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Tarjeta Finanzas -->
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 border-0">
+      <div class="card-body text-center p-4">
+        <div
+          class="feature-icon mb-4 rounded-circle mx-auto d-flex align-items-center justify-content-center"
+          style="width: 80px; height: 80px; background-color: #212121"
+        >
+          <i class="fas fa-chart-line fa-2x" style="color: #ffd700"></i>
         </div>
         <h3 class="card-title">Finanzas</h3>
         <p class="card-text">
-          Analiza tus ingresos, seguimiento de pagos y visualiza métricas
-          importantes.
+          Reportes detallados, márgenes de ganancia y análisis de ingresos
+          diarios, semanales y mensuales.
         </p>
-        <a
-          href="/finanzas"
-          class="btn btn-primary"
-          style="background-color: #834d9b; border-color: #834d9b"
-          >Ir a Finanzas</a
+        <a href="/finanzas" class="btn btn-primary stretched-link"
+          >Analizar Finanzas</a
         >
       </div>
     </div>
   </div>
 </div>
 {% endblock %} {% block styles %}
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-/>
 <style>
-  .carousel-item {
-    transition: transform 1.2s ease-in-out;
+  /* Estilos específicos para la página de inicio */
+
+  /* Animación del icono en el carrusel */
+  .animated-icon {
+    animation: pulse 2s infinite;
   }
 
+  .animated-charts {
+    animation: floatUp 3s infinite alternate;
+  }
+
+  /* Mejora de las tarjetas */
   .card {
-    transition: transform 0.3s;
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    overflow: hidden;
   }
 
   .card:hover {
     transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
   }
 
-  .btn-primary:hover {
-    filter: brightness(110%);
+  .feature-icon {
+    transition: all 0.3s ease;
+  }
+
+  .card:hover .feature-icon {
+    transform: scale(1.1);
+    background-color: var(--primary-color) !important;
+  }
+
+  .card:hover .feature-icon i {
+    color: var(--dark-color) !important;
+  }
+
+  /* Animaciones */
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes floatUp {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-12px);
+    }
+  }
+
+  /* Mejoras del carrusel */
+  .carousel-item {
+    transition: transform 1.2s ease-in-out;
+  }
+
+  .carousel-caption {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Mejoras responsivas */
+  @media (max-width: 992px) {
+    .display-4 {
+      font-size: 2.5rem;
+    }
+
+    .carousel-item > div {
+      height: 400px !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .display-4 {
+      font-size: 2rem;
+    }
+
+    .carousel-item > div {
+      height: 350px !important;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .display-4 {
+      font-size: 1.7rem;
+    }
+
+    .lead {
+      font-size: 1rem;
+    }
+
+    .btn-lg {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+
+    .carousel-item > div {
+      height: 300px !important;
+    }
   }
 </style>
 {% endblock %}

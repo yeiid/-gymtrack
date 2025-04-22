@@ -2,80 +2,154 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>Gimnasio</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+    />
+    <title>Sistema de Gestión de Gimnasio</title>
+
+    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+
+    <!-- Fuentes de Google -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome para íconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Nuestros estilos personalizados -->
     <link
       href="{{ url_for('static', filename='css/custom.css') }}"
       rel="stylesheet"
     />
-    {% block styles %}{% endblock %}
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      href="{{ url_for('static', filename='css/responsive.css') }}"
       rel="stylesheet"
     />
+
+    <!-- Estilos específicos de cada página -->
+    {% block styles %}{% endblock %}
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="/"
-          ><span style="color: #ff5f6d">🏋️</span> Gimnasio</a
-        >
+    <!-- Barra de navegación energética -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+          <i class="fas fa-dumbbell me-2"></i>
+          <span>PowerGym</span>
+        </a>
         <button
           class="navbar-toggler"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-              <a class="nav-link" href="/usuarios"
-                ><i class="fas fa-users me-1"></i> Usuarios</a
-              >
+              <a class="nav-link" href="/usuarios">
+                <i class="fas fa-users me-1"></i>
+                <span>Usuarios</span>
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/asistencia"
-                ><i class="fas fa-calendar-check me-1"></i> Asistencia</a
-              >
+              <a class="nav-link" href="/asistencia">
+                <i class="fas fa-calendar-check me-1"></i>
+                <span>Asistencia</span>
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/pagos"
-                ><i class="fas fa-file-invoice-dollar me-1"></i> Pagos</a
-              >
+              <a class="nav-link" href="/pagos">
+                <i class="fas fa-file-invoice-dollar me-1"></i>
+                <span>Pagos</span>
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/productos"
-                ><i class="fas fa-box me-1"></i> Productos</a
-              >
+              <a class="nav-link" href="/productos">
+                <i class="fas fa-box me-1"></i>
+                <span>Productos</span>
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/ventas"
-                ><i class="fas fa-shopping-cart me-1"></i> Ventas</a
-              >
+              <a class="nav-link" href="/ventas">
+                <i class="fas fa-shopping-cart me-1"></i>
+                <span>Ventas</span>
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/finanzas"
-                ><i class="fas fa-chart-line me-1"></i> Finanzas</a
-              >
+              <a class="nav-link" href="/finanzas">
+                <i class="fas fa-chart-line me-1"></i>
+                <span>Finanzas</span>
+              </a>
             </li>
           </ul>
         </div>
       </div>
     </nav>
 
-    <div class="container">{% block content %}{% endblock %}</div>
+    <!-- Contenido principal -->
+    <main class="py-4">
+      <div class="container">{% block content %}{% endblock %}</div>
+    </main>
 
-    <footer class="bg-dark text-light text-center py-3 mt-5">
-      <p class="mb-0">Sistema de Gestión de Gimnasio &copy; 2024</p>
+    <!-- Footer -->
+    <footer class="mt-5 py-4">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6 text-center text-md-start">
+            <p class="mb-0">Sistema de Gestión de Gimnasio &copy; 2024</p>
+          </div>
+          <div class="col-md-6 text-center text-md-end">
+            <p class="mb-0">
+              <i class="fas fa-bolt text-warning me-1"></i>
+              Energiza tu negocio
+            </p>
+          </div>
+        </div>
+      </div>
     </footer>
 
+    <!-- Scripts de Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+    <!-- Scripts específicos de cada página -->
     {% block scripts %}{% endblock %}
+
+    <!-- Script para marcar el menú activo -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Obtiene la URL actual
+        var currentLocation = window.location.pathname;
+
+        // Encuentra todos los enlaces del menú
+        var navLinks = document.querySelectorAll(".navbar-nav .nav-link");
+
+        // Recorre los enlaces y marca el activo
+        navLinks.forEach(function (link) {
+          var linkHref = link.getAttribute("href");
+          if (
+            currentLocation === linkHref ||
+            (linkHref !== "/" && currentLocation.startsWith(linkHref))
+          ) {
+            link.classList.add("active");
+            link.style.color = "var(--primary-color)";
+          }
+        });
+      });
+    </script>
   </body>
 </html>
