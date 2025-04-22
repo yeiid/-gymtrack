@@ -1,0 +1,189 @@
+{% extends "layout.html" %} {% block content %}
+<div class="row">
+  <div class="col-md-12 mb-4">
+    <div id="carouselGym" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-indicators">
+        <button
+          type="button"
+          data-bs-target="#carouselGym"
+          data-bs-slide-to="0"
+          class="active"
+        ></button>
+        <button
+          type="button"
+          data-bs-target="#carouselGym"
+          data-bs-slide-to="1"
+        ></button>
+        <button
+          type="button"
+          data-bs-target="#carouselGym"
+          data-bs-slide-to="2"
+        ></button>
+      </div>
+      <div class="carousel-inner rounded shadow">
+        <div class="carousel-item active">
+          <div
+            class="d-block w-100 bg-gradient"
+            style="
+              height: 400px;
+              background: linear-gradient(135deg, #ff5f6d, #ffc371);
+            "
+          >
+            <div class="carousel-caption">
+              <h1 class="display-4 fw-bold">¡Bienvenido al Gimnasio!</h1>
+              <p class="lead">Sistema de gestión para tu negocio</p>
+              <a href="/usuarios" class="btn btn-lg btn-light"
+                >Gestionar Usuarios</a
+              >
+            </div>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <div
+            class="d-block w-100"
+            style="
+              height: 400px;
+              background: linear-gradient(135deg, #43cea2, #185a9d);
+            "
+          >
+            <div class="carousel-caption">
+              <h1 class="display-4 fw-bold">Control de Asistencias</h1>
+              <p class="lead">Seguimiento preciso de tus clientes</p>
+              <a href="/asistencia" class="btn btn-lg btn-light"
+                >Registrar Asistencia</a
+              >
+            </div>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <div
+            class="d-block w-100"
+            style="
+              height: 400px;
+              background: linear-gradient(135deg, #834d9b, #d04ed6);
+            "
+          >
+            <div class="carousel-caption">
+              <h1 class="display-4 fw-bold">Análisis Financiero</h1>
+              <p class="lead">Controla tus ingresos y el rendimiento</p>
+              <a href="/finanzas" class="btn btn-lg btn-light">Ver Finanzas</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button
+        class="carousel-control-prev"
+        type="button"
+        data-bs-target="#carouselGym"
+        data-bs-slide="prev"
+      >
+        <span class="carousel-control-prev-icon"></span>
+      </button>
+      <button
+        class="carousel-control-next"
+        type="button"
+        data-bs-target="#carouselGym"
+        data-bs-slide="next"
+      >
+        <span class="carousel-control-next-icon"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 border-0 shadow-sm">
+      <div
+        class="card-body text-center"
+        style="background: linear-gradient(to bottom, #f7f7f7, #e6e6e6)"
+      >
+        <div class="mb-4">
+          <i class="fas fa-users fa-4x" style="color: #ff5f6d"></i>
+        </div>
+        <h3 class="card-title">Usuarios</h3>
+        <p class="card-text">
+          Registra y gestiona a todos los miembros del gimnasio de manera fácil
+          y rápida.
+        </p>
+        <a
+          href="/usuarios"
+          class="btn btn-primary"
+          style="background-color: #ff5f6d; border-color: #ff5f6d"
+          >Ir a Usuarios</a
+        >
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 border-0 shadow-sm">
+      <div
+        class="card-body text-center"
+        style="background: linear-gradient(to bottom, #f7f7f7, #e6e6e6)"
+      >
+        <div class="mb-4">
+          <i class="fas fa-calendar-check fa-4x" style="color: #43cea2"></i>
+        </div>
+        <h3 class="card-title">Asistencias</h3>
+        <p class="card-text">
+          Controla la asistencia diaria, visualiza patrones y genera reportes
+          detallados.
+        </p>
+        <a
+          href="/asistencia"
+          class="btn btn-primary"
+          style="background-color: #43cea2; border-color: #43cea2"
+          >Ir a Asistencias</a
+        >
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 border-0 shadow-sm">
+      <div
+        class="card-body text-center"
+        style="background: linear-gradient(to bottom, #f7f7f7, #e6e6e6)"
+      >
+        <div class="mb-4">
+          <i class="fas fa-chart-line fa-4x" style="color: #834d9b"></i>
+        </div>
+        <h3 class="card-title">Finanzas</h3>
+        <p class="card-text">
+          Analiza tus ingresos, seguimiento de pagos y visualiza métricas
+          importantes.
+        </p>
+        <a
+          href="/finanzas"
+          class="btn btn-primary"
+          style="background-color: #834d9b; border-color: #834d9b"
+          >Ir a Finanzas</a
+        >
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block styles %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+<style>
+  .carousel-item {
+    transition: transform 1.2s ease-in-out;
+  }
+
+  .card {
+    transition: transform 0.3s;
+  }
+
+  .card:hover {
+    transform: translateY(-10px);
+  }
+
+  .btn-primary:hover {
+    filter: brightness(110%);
+  }
+</style>
+{% endblock %}

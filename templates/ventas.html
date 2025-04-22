@@ -1,0 +1,133 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+  <div class="row mb-3">
+    <div class="col-md-12 d-flex justify-content-between align-items-center">
+      <h2>Historial de Ventas</h2>
+      <a href="{{ url_for('main.registrar_venta') }}" class="btn btn-success">
+        <i class="fas fa-plus-circle me-1"></i> Nueva Venta
+      </a>
+    </div>
+  </div>
+
+  {% if success %}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong><i class="fas fa-check-circle"></i> Éxito:</strong> {{ success }}
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <div
+      class="card-header bg-info text-white d-flex justify-content-between align-items-center"
+    >
+      <h5 class="card-title mb-0">Registro de Ventas</h5>
+      <div class="col-md-4">
+        <input
+          type="text"
+          id="buscar-venta"
+          class="form-control"
+          placeholder="Buscar venta..."
+        />
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover">
+          <thead
+            style="
+              background: linear-gradient(135deg, #3498db, #2980b9);
+              color: white;
+            "
+          >
+            <tr>
+              <th>Fecha</th>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Precio Unit.</th>
+              <th>Total</th>
+              <th>Cliente</th>
+              <th>Método Pago</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-ventas">
+            {% for venta, producto, usuario in ventas %}
+            <tr class="align-middle">
+              <td>{{ venta.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+              <td class="fw-bold">{{ producto.nombre }}</td>
+              <td class="text-center">{{ venta.cantidad }}</td>
+              <td class="text-end">
+                ${{ "{:,.0f}".format(venta.precio_unitario) }}
+              </td>
+              <td class="text-end fw-bold">
+                ${{ "{:,.0f}".format(venta.total) }}
+              </td>
+              <td>
+                {% if usuario %}
+                <a
+                  href="{{ url_for('main.ver_usuario', usuario_id=usuario.id) }}"
+                  class="text-decoration-none"
+                >
+                  {{ usuario.nombre }}
+                </a>
+                {% else %}
+                <span class="text-muted">Cliente no registrado</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge bg-light text-dark"
+                  >{{ venta.metodo_pago }}</span
+                >
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document
+      .getElementById("buscar-venta")
+      .addEventListener("keyup", function () {
+        var texto = this.value.toLowerCase();
+        var filas = document
+          .getElementById("tabla-ventas")
+          .getElementsByTagName("tr");
+
+        for (var i = 0; i < filas.length; i++) {
+          var fecha = filas[i]
+            .getElementsByTagName("td")[0]
+            .textContent.toLowerCase();
+          var producto = filas[i]
+            .getElementsByTagName("td")[1]
+            .textContent.toLowerCase();
+          var cliente = filas[i]
+            .getElementsByTagName("td")[5]
+            .textContent.toLowerCase();
+          var metodo = filas[i]
+            .getElementsByTagName("td")[6]
+            .textContent.toLowerCase();
+
+          if (
+            fecha.indexOf(texto) > -1 ||
+            producto.indexOf(texto) > -1 ||
+            cliente.indexOf(texto) > -1 ||
+            metodo.indexOf(texto) > -1
+          ) {
+            filas[i].style.display = "";
+          } else {
+            filas[i].style.display = "none";
+          }
+        }
+      });
+  });
+</script>
+{% endblock %}

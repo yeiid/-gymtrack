@@ -1,0 +1,127 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Asistencia</h2>
+
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Marcar Asistencia</h5>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <input type="text" id="buscador" class="form-control" placeholder="Buscar por nombre o cédula...">
+        </div>
+        <table class="table table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>Nombre</th>
+              <th>Cédula</th>
+              <th>Plan</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-usuarios">
+            {% for usuario in usuarios %}
+            <tr>
+              <td>{{ usuario.nombre }}</td>
+              <td>{{ usuario.cedula }}</td>
+              <td>{{ usuario.plan }}</td>
+              <td>
+                <a href="/marcar_asistencia/{{ usuario.id }}" class="btn btn-primary btn-sm">Marcar</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0">Calendario de Asistencias</h5>
+      </div>
+      <div class="card-body">
+        <div id="calendario"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-4">
+  <div class="card-header bg-success text-white">
+    <h5 class="mb-0">Historial de Asistencias</h5>
+  </div>
+  <div class="card-body">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Fecha</th>
+          <th>Hora</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for asistencia in asistencias %}
+        <tr>
+          <td>{{ asistencia.usuario.nombre }}</td>
+          <td>{{ asistencia.fecha.strftime('%d/%m/%Y') }}</td>
+          <td>{{ asistencia.fecha.strftime('%H:%M') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.css">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/locales/es.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar calendario
+    var calendarEl = document.getElementById('calendario');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      locale: 'es',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,listWeek'
+      },
+      events: [
+        {% for asistencia in asistencias %}
+        {
+          title: '{{ asistencia.usuario.nombre }}',
+          start: '{{ asistencia.fecha.strftime("%Y-%m-%d") }}',
+        },
+        {% endfor %}
+      ]
+    });
+    calendar.render();
+    
+    // Búsqueda de usuarios
+    document.getElementById('buscador').addEventListener('keyup', function() {
+      var texto = this.value.toLowerCase();
+      var filas = document.getElementById('tabla-usuarios').getElementsByTagName('tr');
+      
+      for (var i = 0; i < filas.length; i++) {
+        var nombre = filas[i].getElementsByTagName('td')[0].textContent.toLowerCase();
+        var cedula = filas[i].getElementsByTagName('td')[1].textContent.toLowerCase();
+        
+        if (nombre.indexOf(texto) > -1 || cedula.indexOf(texto) > -1) {
+          filas[i].style.display = "";
+        } else {
+          filas[i].style.display = "none";
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

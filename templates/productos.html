@@ -1,0 +1,219 @@
+{% extends "layout.html" %} {% block content %}
+<h2>Gestión de Productos</h2>
+
+{% if error %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  <strong><i class="fas fa-exclamation-circle"></i> Error:</strong> {{ error }}
+  <button
+    type="button"
+    class="btn-close"
+    data-bs-dismiss="alert"
+    aria-label="Close"
+  ></button>
+</div>
+{% endif %} {% if success %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+  <strong><i class="fas fa-check-circle"></i> Éxito:</strong> {{ success }}
+  <button
+    type="button"
+    class="btn-close"
+    data-bs-dismiss="alert"
+    aria-label="Close"
+  ></button>
+</div>
+{% endif %}
+
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Registrar Nuevo Producto</h5>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="/agregar_producto" class="row g-3">
+          <div class="col-md-4">
+            <input
+              type="text"
+              class="form-control"
+              name="nombre"
+              placeholder="Nombre del producto"
+              required
+            />
+          </div>
+          <div class="col-md-8">
+            <input
+              type="text"
+              class="form-control"
+              name="descripcion"
+              placeholder="Descripción"
+            />
+          </div>
+          <div class="col-md-3">
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input
+                type="number"
+                class="form-control"
+                name="precio"
+                placeholder="Precio"
+                min="0"
+                step="0.01"
+                required
+              />
+            </div>
+          </div>
+          <div class="col-md-3">
+            <input
+              type="number"
+              class="form-control"
+              name="stock"
+              placeholder="Stock"
+              min="0"
+              value="0"
+              required
+            />
+          </div>
+          <div class="col-md-3">
+            <select class="form-select" name="categoria">
+              <option value="Suplementos">Suplementos</option>
+              <option value="Ropa">Ropa</option>
+              <option value="Accesorios">Accesorios</option>
+              <option value="Bebidas">Bebidas</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+          <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-success w-100">
+              <i class="fas fa-plus-circle me-1"></i> Agregar Producto
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div
+    class="card-header bg-info text-white d-flex justify-content-between align-items-center"
+  >
+    <h5 class="card-title mb-0">Listado de Productos</h5>
+    <div class="col-md-4">
+      <input
+        type="text"
+        id="buscar-producto"
+        class="form-control"
+        placeholder="Buscar producto..."
+      />
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped table-hover">
+        <thead
+          style="
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+          "
+        >
+          <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Categoría</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-productos">
+          {% for producto in productos %}
+          <tr class="align-middle">
+            <td class="fw-bold">{{ producto.nombre }}</td>
+            <td>{{ producto.descripcion }}</td>
+            <td>
+              {% if producto.categoria == 'Suplementos' %}
+              <span class="badge bg-info">Suplementos</span>
+              {% elif producto.categoria == 'Ropa' %}
+              <span class="badge bg-success">Ropa</span>
+              {% elif producto.categoria == 'Accesorios' %}
+              <span class="badge bg-warning text-dark">Accesorios</span>
+              {% elif producto.categoria == 'Bebidas' %}
+              <span class="badge bg-primary">Bebidas</span>
+              {% else %}
+              <span class="badge bg-secondary">{{ producto.categoria }}</span>
+              {% endif %}
+            </td>
+            <td class="text-end">${{ "{:,.0f}".format(producto.precio) }}</td>
+            <td class="text-center">
+              {% if producto.stock > 0 %}
+              <span class="badge bg-success">{{ producto.stock }}</span>
+              {% else %}
+              <span class="badge bg-danger">Agotado</span>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              <a
+                href="/editar_producto/{{ producto.id }}"
+                class="btn btn-sm btn-warning text-white"
+              >
+                <i class="fas fa-edit me-1"></i> Editar
+              </a>
+              <a
+                href="/eliminar_producto/{{ producto.id }}"
+                class="btn btn-sm btn-danger"
+                onclick="return confirm('¿Estás seguro de eliminar este producto?')"
+              >
+                <i class="fas fa-trash me-1"></i> Eliminar
+              </a>
+              {% if producto.stock > 0 %}
+              <a
+                href="/registrar_venta?producto_id={{ producto.id }}"
+                class="btn btn-sm btn-success"
+              >
+                <i class="fas fa-shopping-cart me-1"></i> Vender
+              </a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document
+      .getElementById("buscar-producto")
+      .addEventListener("keyup", function () {
+        var texto = this.value.toLowerCase();
+        var filas = document
+          .getElementById("tabla-productos")
+          .getElementsByTagName("tr");
+
+        for (var i = 0; i < filas.length; i++) {
+          var nombre = filas[i]
+            .getElementsByTagName("td")[0]
+            .textContent.toLowerCase();
+          var descripcion = filas[i]
+            .getElementsByTagName("td")[1]
+            .textContent.toLowerCase();
+          var categoria = filas[i]
+            .getElementsByTagName("td")[2]
+            .textContent.toLowerCase();
+
+          if (
+            nombre.indexOf(texto) > -1 ||
+            descripcion.indexOf(texto) > -1 ||
+            categoria.indexOf(texto) > -1
+          ) {
+            filas[i].style.display = "";
+          } else {
+            filas[i].style.display = "none";
+          }
+        }
+      });
+  });
+</script>
+{% endblock %}

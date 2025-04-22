@@ -1,0 +1,181 @@
+{% extends "layout.html" %} {% block content %}
+<h2>Usuarios</h2>
+
+{% if error %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  <strong><i class="fas fa-exclamation-circle"></i> Error:</strong> {{ error }}
+  <button
+    type="button"
+    class="btn-close"
+    data-bs-dismiss="alert"
+    aria-label="Close"
+  ></button>
+</div>
+{% endif %} {% if success %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+  <strong><i class="fas fa-check-circle"></i> Éxito:</strong> {{ success }}
+  <button
+    type="button"
+    class="btn-close"
+    data-bs-dismiss="alert"
+    aria-label="Close"
+  ></button>
+</div>
+{% endif %}
+
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Registrar Nuevo Usuario</h5>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="/registrar_usuario" class="row g-3">
+          <div class="col-md-4">
+            <input
+              type="text"
+              class="form-control"
+              name="nombre"
+              placeholder="Nombre"
+              required
+            />
+          </div>
+          <div class="col-md-2">
+            <input
+              type="text"
+              class="form-control"
+              name="cedula"
+              placeholder="Cédula"
+              required
+            />
+          </div>
+          <div class="col-md-3">
+            <select class="form-select" name="plan">
+              <option value="Diario">Diario</option>
+              <option value="Mensual">Mensual</option>
+              <option value="Personalizado">Personalizado</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select class="form-select" name="metodo_pago">
+              <option value="Efectivo">Efectivo</option>
+              <option value="Tarjeta">Tarjeta</option>
+              <option value="Transferencia">Transferencia</option>
+              <option value="Nequi">Nequi</option>
+              <option value="Daviplata">Daviplata</option>
+            </select>
+          </div>
+          <div class="col-12 text-end">
+            <button type="submit" class="btn btn-success">Registrar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div
+    class="card-header bg-info text-white d-flex justify-content-between align-items-center"
+  >
+    <h5 class="card-title mb-0">Listado de Usuarios</h5>
+    <div class="col-md-4">
+      <input
+        type="text"
+        id="buscar-usuario"
+        class="form-control"
+        placeholder="Buscar por nombre o cédula..."
+      />
+    </div>
+  </div>
+  <div class="card-body">
+    <table class="table table-bordered table-striped table-hover">
+      <thead
+        style="
+          background: linear-gradient(135deg, #3498db, #2980b9);
+          color: white;
+        "
+      >
+        <tr>
+          <th>Nombre</th>
+          <th>Cédula</th>
+          <th>Plan</th>
+          <th>Método de pago</th>
+          <th>Fecha de ingreso</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-usuarios">
+        {% for usuario in users %}
+        <tr class="align-middle">
+          <td class="fw-bold">{{ usuario.nombre }}</td>
+          <td>{{ usuario.cedula }}</td>
+          <td>
+            {% if usuario.plan == 'Diario' %}
+            <span class="badge bg-info text-dark">Diario</span>
+            {% elif usuario.plan == 'Mensual' %}
+            <span class="badge bg-success">Mensual</span>
+            {% else %}
+            <span class="badge bg-warning text-dark">Personalizado</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="badge bg-light text-dark"
+              >{{ usuario.metodo_pago }}</span
+            >
+          </td>
+          <td>{{ usuario.fecha_ingreso.strftime('%d/%m/%Y') }}</td>
+          <td class="text-center">
+            <a
+              href="/ver_usuario/{{ usuario.id }}"
+              class="btn btn-sm btn-info text-white"
+            >
+              <i class="fas fa-eye me-1"></i> Ver
+            </a>
+            <button
+              class="btn btn-sm btn-warning text-white"
+              onclick="editarUsuario({{ usuario.id }})"
+            >
+              <i class="fas fa-edit me-1"></i> Editar
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document
+      .getElementById("buscar-usuario")
+      .addEventListener("keyup", function () {
+        var texto = this.value.toLowerCase();
+        var filas = document
+          .getElementById("tabla-usuarios")
+          .getElementsByTagName("tr");
+
+        for (var i = 0; i < filas.length; i++) {
+          var nombre = filas[i]
+            .getElementsByTagName("td")[0]
+            .textContent.toLowerCase();
+          var cedula = filas[i]
+            .getElementsByTagName("td")[1]
+            .textContent.toLowerCase();
+
+          if (nombre.indexOf(texto) > -1 || cedula.indexOf(texto) > -1) {
+            filas[i].style.display = "";
+          } else {
+            filas[i].style.display = "none";
+          }
+        }
+      });
+  });
+
+  function editarUsuario(id) {
+    // Por el momento, solo redireccionar a una página de edición
+    window.location.href = "/editar_usuario/" + id;
+  }
+</script>
+{% endblock %}

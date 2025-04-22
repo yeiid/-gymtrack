@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+  <div class="row mb-3">
+    <div class="col-md-12">
+      <h2>Editar Producto</h2>
+      <a href="{{ url_for('main.productos') }}" class="btn btn-sm btn-secondary mb-3">
+        <i class="fas fa-arrow-left me-1"></i> Volver a Productos
+      </a>
+    </div>
+  </div>
+
+  {% if error %}
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong><i class="fas fa-exclamation-circle"></i> Error:</strong> {{ error }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+
+  <div class="row">
+    <div class="col-md-8 mx-auto">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title mb-0">Datos del Producto</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="{{ url_for('main.editar_producto', producto_id=producto.id) }}">
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre del Producto</label>
+              <input type="text" class="form-control" id="nombre" name="nombre" value="{{ producto.nombre }}" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="descripcion" class="form-label">Descripción</label>
+              <textarea class="form-control" id="descripcion" name="descripcion" rows="3">{{ producto.descripcion }}</textarea>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="precio" class="form-label">Precio</label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" class="form-control" id="precio" name="precio" value="{{ producto.precio }}" min="0" step="0.01" required>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <label for="stock" class="form-label">Stock</label>
+                <input type="number" class="form-control" id="stock" name="stock" value="{{ producto.stock }}" min="0" required>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="categoria" class="form-label">Categoría</label>
+              <select class="form-select" id="categoria" name="categoria">
+                <option value="Suplementos" {% if producto.categoria == 'Suplementos' %}selected{% endif %}>Suplementos</option>
+                <option value="Ropa" {% if producto.categoria == 'Ropa' %}selected{% endif %}>Ropa</option>
+                <option value="Accesorios" {% if producto.categoria == 'Accesorios' %}selected{% endif %}>Accesorios</option>
+                <option value="Bebidas" {% if producto.categoria == 'Bebidas' %}selected{% endif %}>Bebidas</option>
+                <option value="Otro" {% if producto.categoria == 'Otro' %}selected{% endif %}>Otro</option>
+              </select>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a href="{{ url_for('main.productos') }}" class="btn btn-secondary me-md-2">Cancelar</a>
+              <button type="submit" class="btn btn-success">
+                <i class="fas fa-save me-1"></i> Guardar Cambios
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,272 @@
+{% extends "layout.html" %} {% block content %}
+<h2>Finanzas</h2>
+
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card text-white bg-success">
+      <div class="card-body">
+        <h5 class="card-title">Ingresos Totales Mensuales</h5>
+        <h3 class="card-text">
+          {{ "{:,.0f}".format(ingresos_mensual_total) }} COP
+        </h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div
+      class="card text-white"
+      style="background: linear-gradient(135deg, #ff5f6d, #ffc371)"
+    >
+      <div class="card-body">
+        <h5 class="card-title">Ingresos Membresías</h5>
+        <h3 class="card-text">
+          {{ "{:,.0f}".format(ingresos_mensual_membresias) }} COP
+        </h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div
+      class="card text-white"
+      style="background: linear-gradient(135deg, #43cea2, #185a9d)"
+    >
+      <div class="card-body">
+        <h5 class="card-title">Ingresos Productos</h5>
+        <h3 class="card-text">
+          {{ "{:,.0f}".format(ingresos_mensual_productos) }} COP
+        </h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-info">
+      <div class="card-body">
+        <h5 class="card-title">Asistencias en el Mes</h5>
+        <h3 class="card-text">{{ asistencias_mes }}</h3>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Ingresos por Mes</h5>
+      </div>
+      <div class="card-body">
+        <canvas id="graficoIngresos" height="300"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header bg-info text-white">
+        <h5 class="card-title mb-0">Distribución por Plan</h5>
+      </div>
+      <div class="card-body">
+        <canvas id="graficoPlan" height="300"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header bg-success text-white">
+        <h5 class="card-title mb-0">Productos Más Vendidos</h5>
+      </div>
+      <div class="card-body">
+        <canvas id="graficoProductos" height="300"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card">
+      <div
+        class="card-header"
+        style="
+          background: linear-gradient(135deg, #ff5f6d, #ffc371);
+          color: white;
+        "
+      >
+        <h5 class="card-title mb-0">Ingresos por Producto</h5>
+      </div>
+      <div class="card-body">
+        <canvas id="graficoIngresosProductos" height="300"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header bg-secondary text-white">
+    <h5 class="card-title mb-0">Registro de Ingresos</h5>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Concepto</th>
+            <th>Cliente</th>
+            <th>Monto</th>
+            <th>Método de Pago</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pago in pagos %}
+          <tr>
+            <td>
+              {% if pago.tipo == 'Membresía' %}
+              <span class="badge bg-primary">{{ pago.tipo }}</span>
+              {% else %}
+              <span class="badge bg-success">{{ pago.tipo }}</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if pago.usuario %} {{ pago.usuario.nombre }} {% else %}
+              <span class="text-muted">Cliente no registrado</span>
+              {% endif %}
+            </td>
+            <td class="text-end fw-bold">
+              ${{ "{:,.0f}".format(pago.monto) }}
+            </td>
+            <td>
+              {% if pago.metodo_pago is defined %} {{ pago.metodo_pago }} {%
+              else %} {{ pago.usuario.metodo_pago }} {% endif %}
+            </td>
+            <td>{{ pago.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Gráfico de ingresos
+    var ctxIngresos = document.getElementById('graficoIngresos').getContext('2d');
+    var chartIngresos = new Chart(ctxIngresos, {
+      type: 'bar',
+      data: {
+        labels: {{ meses|safe }},
+        datasets: [
+          {
+            label: 'Ingresos por Membresías (COP)',
+            data: {{ datos_ingresos_membresias|safe }},
+            backgroundColor: 'rgba(255, 95, 109, 0.6)',
+            borderColor: 'rgba(255, 95, 109, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'Ingresos por Productos (COP)',
+            data: {{ datos_ingresos_productos|safe }},
+            backgroundColor: 'rgba(67, 206, 162, 0.6)',
+            borderColor: 'rgba(67, 206, 162, 1)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    // Gráfico distribución por plan
+    var ctxPlan = document.getElementById('graficoPlan').getContext('2d');
+    var chartPlan = new Chart(ctxPlan, {
+      type: 'pie',
+      data: {
+        labels: ['Diario', 'Mensual', 'Personalizado'],
+        datasets: [{
+          label: 'Usuarios por plan',
+          data: {{ datos_planes|safe }},
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.6)',
+            'rgba(54, 162, 235, 0.6)',
+            'rgba(255, 206, 86, 0.6)'
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true
+      }
+    });
+
+    // Gráfico de productos más vendidos
+    var ctxProductos = document.getElementById('graficoProductos').getContext('2d');
+    var chartProductos = new Chart(ctxProductos, {
+      type: 'bar',
+      data: {
+        labels: {{ productos_nombres|safe }},
+        datasets: [{
+          label: 'Cantidad Vendida',
+          data: {{ productos_cantidades|safe }},
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        indexAxis: 'y',
+        scales: {
+          x: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    // Gráfico de ingresos por producto
+    var ctxIngresosProductos = document.getElementById('graficoIngresosProductos').getContext('2d');
+    var chartIngresosProductos = new Chart(ctxIngresosProductos, {
+      type: 'doughnut',
+      data: {
+        labels: {{ productos_nombres|safe }},
+        datasets: [{
+          label: 'Ingresos por Producto',
+          data: {{ productos_ingresos|safe }},
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.6)',
+            'rgba(54, 162, 235, 0.6)',
+            'rgba(255, 206, 86, 0.6)',
+            'rgba(75, 192, 192, 0.6)',
+            'rgba(153, 102, 255, 0.6)'
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true
+      }
+    });
+  });
+</script>
+{% endblock %}

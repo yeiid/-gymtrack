@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+  <div class="row mb-3">
+    <div class="col-md-12">
+      <h2>Editar Usuario</h2>
+      <a href="{{ url_for('main.usuarios') }}" class="btn btn-sm btn-secondary mb-3">
+        <i class="fas fa-arrow-left me-1"></i> Volver
+      </a>
+    </div>
+  </div>
+
+  {% if error %}
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong><i class="fas fa-exclamation-circle"></i> Error:</strong> {{ error }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+
+  <div class="row">
+    <div class="col-md-8 mx-auto">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title mb-0">Datos del Usuario</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="{{ url_for('main.editar_usuario', usuario_id=usuario.id) }}">
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre Completo</label>
+              <input type="text" class="form-control" id="nombre" name="nombre" value="{{ usuario.nombre }}" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="cedula" class="form-label">Cédula</label>
+              <input type="text" class="form-control" id="cedula" name="cedula" value="{{ usuario.cedula }}" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="plan" class="form-label">Plan</label>
+              <select class="form-select" id="plan" name="plan">
+                <option value="Diario" {% if usuario.plan == 'Diario' %}selected{% endif %}>Diario</option>
+                <option value="Mensual" {% if usuario.plan == 'Mensual' %}selected{% endif %}>Mensual</option>
+                <option value="Personalizado" {% if usuario.plan == 'Personalizado' %}selected{% endif %}>Personalizado</option>
+              </select>
+            </div>
+            
+            <div class="mb-3">
+              <label for="metodo_pago" class="form-label">Método de Pago</label>
+              <select class="form-select" id="metodo_pago" name="metodo_pago">
+                <option value="Efectivo" {% if usuario.metodo_pago == 'Efectivo' %}selected{% endif %}>Efectivo</option>
+                <option value="Tarjeta" {% if usuario.metodo_pago == 'Tarjeta' %}selected{% endif %}>Tarjeta</option>
+                <option value="Transferencia" {% if usuario.metodo_pago == 'Transferencia' %}selected{% endif %}>Transferencia</option>
+                <option value="Nequi" {% if usuario.metodo_pago == 'Nequi' %}selected{% endif %}>Nequi</option>
+                <option value="Daviplata" {% if usuario.metodo_pago == 'Daviplata' %}selected{% endif %}>Daviplata</option>
+              </select>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a href="{{ url_for('main.usuarios') }}" class="btn btn-secondary me-md-2">Cancelar</a>
+              <button type="submit" class="btn btn-success">
+                <i class="fas fa-save me-1"></i> Guardar Cambios
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 
