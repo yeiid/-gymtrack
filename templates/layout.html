@@ -96,10 +96,51 @@
                 <span>Finanzas</span>
               </a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link text-danger" href="#" id="cerrarApp">
+                <i class="fas fa-power-off me-1"></i>
+                <span>Cerrar</span>
+              </a>
+            </li>
           </ul>
         </div>
       </div>
     </nav>
+
+    <!-- Modal de confirmación para cerrar -->
+    <div class="modal fade" id="modalCerrar" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title">Confirmar cierre</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>¿Estás seguro de que deseas cerrar la aplicación?</p>
+            <p class="text-muted small">
+              Se guardarán todos los cambios realizados.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmarCierre">
+              <i class="fas fa-power-off me-1"></i> Cerrar aplicación
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Contenido principal -->
     <main class="py-4">
@@ -142,12 +183,50 @@
         navLinks.forEach(function (link) {
           var linkHref = link.getAttribute("href");
           if (
-            currentLocation === linkHref ||
-            (linkHref !== "/" && currentLocation.startsWith(linkHref))
+            linkHref &&
+            linkHref !== "#" &&
+            (currentLocation === linkHref ||
+              (linkHref !== "/" && currentLocation.startsWith(linkHref)))
           ) {
             link.classList.add("active");
             link.style.color = "var(--primary-color)";
           }
+        });
+
+        // Modal de cierre de aplicación
+        const cerrarAppBtn = document.getElementById("cerrarApp");
+        const modalCerrar = new bootstrap.Modal(
+          document.getElementById("modalCerrar")
+        );
+        const confirmarCierreBtn = document.getElementById("confirmarCierre");
+
+        cerrarAppBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          modalCerrar.show();
+        });
+
+        confirmarCierreBtn.addEventListener("click", function () {
+          // Mostrar indicador de carga
+          confirmarCierreBtn.innerHTML =
+            '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Cerrando...';
+          confirmarCierreBtn.disabled = true;
+
+          // Llamar al endpoint para cerrar la aplicación
+          fetch("/cerrar-aplicacion", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log("Cerrando aplicación:", data);
+              // No necesitamos hacer nada más aquí, ya que el servidor se cerrará
+            })
+            .catch((error) => {
+              console.error("Error al cerrar la aplicación:", error);
+              // El error es normal ya que el servidor se cierra antes de completar la respuesta
+            });
         });
       });
     </script>
