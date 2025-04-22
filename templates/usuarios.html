@@ -51,9 +51,11 @@
           </div>
           <div class="col-md-3">
             <select class="form-select" name="plan">
-              <option value="Diario">Diario</option>
-              <option value="Mensual">Mensual</option>
-              <option value="Personalizado">Personalizado</option>
+              <option value="Diario">Diario - $5.000</option>
+              <option value="Quincenal">Quincenal - $35.000</option>
+              <option value="Mensual">Mensual - $70.000</option>
+              <option value="Dirigido">Dirigido - $130.000</option>
+              <option value="Personalizado">Personalizado - $250.000</option>
             </select>
           </div>
           <div class="col-md-3">
@@ -113,10 +115,20 @@
           <td>
             {% if usuario.plan == 'Diario' %}
             <span class="badge bg-info text-dark">Diario</span>
+            {% elif usuario.plan == 'Quincenal' %}
+            <span class="badge bg-primary text-white">Quincenal</span>
             {% elif usuario.plan == 'Mensual' %}
             <span class="badge bg-success">Mensual</span>
+            {% elif usuario.plan == 'Dirigido' %}
+            <span class="badge bg-warning text-dark">Dirigido</span>
             {% else %}
-            <span class="badge bg-warning text-dark">Personalizado</span>
+            <span class="badge bg-danger text-white">Personalizado</span>
+            {% endif %} {% if usuario.fecha_vencimiento_plan %}
+            <br />
+            <small class="text-muted"
+              >Vence: {{ usuario.fecha_vencimiento_plan.strftime('%d/%m/%Y')
+              }}</small
+            >
             {% endif %}
           </td>
           <td>

@@ -38,10 +38,19 @@
             <div class="mb-3">
               <label for="plan" class="form-label">Plan</label>
               <select class="form-select" id="plan" name="plan">
-                <option value="Diario" {% if usuario.plan == 'Diario' %}selected{% endif %}>Diario</option>
-                <option value="Mensual" {% if usuario.plan == 'Mensual' %}selected{% endif %}>Mensual</option>
-                <option value="Personalizado" {% if usuario.plan == 'Personalizado' %}selected{% endif %}>Personalizado</option>
+                <option value="Diario" {% if usuario.plan == 'Diario' %}selected{% endif %}>Diario - $5.000</option>
+                <option value="Quincenal" {% if usuario.plan == 'Quincenal' %}selected{% endif %}>Quincenal - $35.000</option>
+                <option value="Mensual" {% if usuario.plan == 'Mensual' %}selected{% endif %}>Mensual - $70.000</option>
+                <option value="Dirigido" {% if usuario.plan == 'Dirigido' %}selected{% endif %}>Dirigido - $130.000</option>
+                <option value="Personalizado" {% if usuario.plan == 'Personalizado' %}selected{% endif %}>Personalizado - $250.000</option>
               </select>
+            </div>
+            
+            <div class="mb-3">
+              <label for="fecha_vencimiento_plan" class="form-label">Fecha de Vencimiento del Plan</label>
+              <input type="date" class="form-control" id="fecha_vencimiento_plan" name="fecha_vencimiento_plan" 
+                     value="{{ usuario.fecha_vencimiento_plan.strftime('%Y-%m-%d') if usuario.fecha_vencimiento_plan else '' }}">
+              <small class="text-muted">Dejar en blanco para plan diario sin fecha de vencimiento</small>
             </div>
             
             <div class="mb-3">

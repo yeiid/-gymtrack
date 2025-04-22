@@ -1,0 +1,110 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+  <div class="row mb-3">
+    <div class="col-md-12">
+      <h2>Historial de Pagos</h2>
+    </div>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="card-title mb-0">Historial de Pagos de Planes</h5>
+      <div class="col-md-4">
+        <input type="text" id="buscar-pago" class="form-control" placeholder="Buscar por nombre o cédula...">
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="table table-bordered table-striped table-hover">
+        <thead style="background: linear-gradient(135deg, #3498db, #2980b9); color: white;">
+          <tr>
+            <th>Fecha de Pago</th>
+            <th>Usuario</th>
+            <th>Plan</th>
+            <th>Monto</th>
+            <th>Método de Pago</th>
+            <th>Vigencia</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-pagos">
+          {% for pago in pagos %}
+          <tr class="align-middle">
+            <td>{{ pago.fecha_pago.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>
+              <a href="{{ url_for('main.ver_usuario', usuario_id=pago.usuario.id) }}">
+                {{ pago.usuario.nombre }}
+              </a>
+              <br>
+              <small class="text-muted">{{ pago.usuario.cedula }}</small>
+            </td>
+            <td>
+              {% if pago.plan == 'Diario' %}
+                <span class="badge bg-info text-dark">Diario</span>
+              {% elif pago.plan == 'Quincenal' %}
+                <span class="badge bg-primary text-white">Quincenal</span>
+              {% elif pago.plan == 'Mensual' %}
+                <span class="badge bg-success">Mensual</span>
+              {% elif pago.plan == 'Dirigido' %}
+                <span class="badge bg-warning text-dark">Dirigido</span>
+              {% else %}
+                <span class="badge bg-danger text-white">Personalizado</span>
+              {% endif %}
+            </td>
+            <td>${{ "%.2f"|format(pago.monto) }}</td>
+            <td>
+              <span class="badge bg-light text-dark">{{ pago.metodo_pago }}</span>
+            </td>
+            <td>
+              Del {{ pago.fecha_inicio.strftime('%d/%m/%Y') }} al {{ pago.fecha_fin.strftime('%d/%m/%Y') }}
+              <br>
+              {% set dias_restantes = (pago.fecha_fin - now.date()).days %}
+              {% if dias_restantes < 0 %}
+                <span class="badge bg-danger">Vencido ({{ dias_restantes }} días)</span>
+              {% elif dias_restantes == 0 %}
+                <span class="badge bg-warning text-dark">Vence hoy</span>
+              {% elif dias_restantes <= 3 %}
+                <span class="badge bg-warning text-dark">{{ dias_restantes }} días restantes</span>
+              {% else %}
+                <span class="badge bg-success">{{ dias_restantes }} días restantes</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('buscar-pago').addEventListener('keyup', function() {
+      var texto = this.value.toLowerCase();
+      var filas = document.getElementById('tabla-pagos').getElementsByTagName('tr');
+      
+      for (var i = 0; i < filas.length; i++) {
+        var usuario = filas[i].getElementsByTagName('td')[1].textContent.toLowerCase();
+        
+        if (usuario.indexOf(texto) > -1) {
+          filas[i].style.display = "";
+        } else {
+          filas[i].style.display = "none";
+        }
+      }
+    });
+  });
+</script>
+{% endblock %} 

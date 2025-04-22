@@ -29,7 +29,51 @@
             </tr>
             <tr>
               <th>Plan:</th>
-              <td><span class="badge bg-info">{{ usuario.plan }}</span></td>
+              <td>
+                {% if usuario.plan == 'Diario' %}
+                <span class="badge bg-info text-dark">Diario</span>
+                {% elif usuario.plan == 'Quincenal' %}
+                <span class="badge bg-primary text-white">Quincenal</span>
+                {% elif usuario.plan == 'Mensual' %}
+                <span class="badge bg-success">Mensual</span>
+                {% elif usuario.plan == 'Dirigido' %}
+                <span class="badge bg-warning text-dark">Dirigido</span>
+                {% else %}
+                <span class="badge bg-danger text-white">Personalizado</span>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th>Precio:</th>
+              <td>
+                ${{ "%.2f"|format(usuario.precio_plan if usuario.precio_plan
+                else 0) }}
+              </td>
+            </tr>
+            <tr>
+              <th>Vencimiento:</th>
+              <td>
+                {% if usuario.fecha_vencimiento_plan %} {{
+                usuario.fecha_vencimiento_plan.strftime('%d/%m/%Y') }} {% set
+                dias_restantes = (usuario.fecha_vencimiento_plan -
+                today.date()).days %} {% if dias_restantes < 0 %}
+                <span class="badge bg-danger"
+                  >Vencido ({{ dias_restantes }} días)</span
+                >
+                {% elif dias_restantes == 0 %}
+                <span class="badge bg-warning text-dark">Vence hoy</span>
+                {% elif dias_restantes <= 3 %}
+                <span class="badge bg-warning text-dark"
+                  >{{ dias_restantes }} días restantes</span
+                >
+                {% else %}
+                <span class="badge bg-success"
+                  >{{ dias_restantes }} días restantes</span
+                >
+                {% endif %} {% else %}
+                <span class="text-muted">No establecido</span>
+                {% endif %}
+              </td>
             </tr>
             <tr>
               <th>Método de pago:</th>
@@ -126,6 +170,75 @@
           <p class="text-center">
             No hay asistencias registradas para este usuario.
           </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header bg-success text-white">
+          <h5 class="card-title mb-0">Historial de Pagos</h5>
+        </div>
+        <div class="card-body">
+          {% if pagos|length > 0 %}
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Fecha de Pago</th>
+                <th>Plan</th>
+                <th>Monto</th>
+                <th>Método</th>
+                <th>Vigencia</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pago in pagos %}
+              <tr>
+                <td>{{ pago.fecha_pago.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>
+                  {% if pago.plan == 'Diario' %}
+                  <span class="badge bg-info text-dark">Diario</span>
+                  {% elif pago.plan == 'Quincenal' %}
+                  <span class="badge bg-primary text-white">Quincenal</span>
+                  {% elif pago.plan == 'Mensual' %}
+                  <span class="badge bg-success">Mensual</span>
+                  {% elif pago.plan == 'Dirigido' %}
+                  <span class="badge bg-warning text-dark">Dirigido</span>
+                  {% else %}
+                  <span class="badge bg-danger text-white">Personalizado</span>
+                  {% endif %}
+                </td>
+                <td>${{ "%.2f"|format(pago.monto) }}</td>
+                <td>{{ pago.metodo_pago }}</td>
+                <td>
+                  Del {{ pago.fecha_inicio.strftime('%d/%m/%Y') }} al {{
+                  pago.fecha_fin.strftime('%d/%m/%Y') }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <div class="text-center mt-3">
+            <a
+              href="{{ url_for('main.renovar_plan', usuario_id=usuario.id) }}"
+              class="btn btn-success"
+            >
+              <i class="fas fa-sync-alt me-1"></i> Renovar Plan
+            </a>
+          </div>
+          {% else %}
+          <p class="text-center">No hay pagos registrados para este usuario.</p>
+          <div class="text-center mt-3">
+            <a
+              href="{{ url_for('main.renovar_plan', usuario_id=usuario.id) }}"
+              class="btn btn-success"
+            >
+              <i class="fas fa-sync-alt me-1"></i> Registrar Primer Pago
+            </a>
+          </div>
           {% endif %}
         </div>
       </div>

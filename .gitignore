@@ -1,11 +1,15 @@
-/__pycache__
-/venv
-*.pyc
-*.pyo
-*.db
-*.sqlite
-*.sqlite3
+__pycache__/
+*/__pycache__/
+*.py[cod]
+*.class
+venv/
+env/
 .env
-.vscode/
 .idea/
+.vscode/
 .DS_Store
+# Archivos de PyInstaller
+build/
+dist/
+# Logs
+*.log

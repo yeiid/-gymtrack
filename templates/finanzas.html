@@ -1,6 +1,7 @@
 {% extends "layout.html" %} {% block content %}
 <h2>Finanzas</h2>
 
+<!-- Resumen de ingresos -->
 <div class="row mb-4">
   <div class="col-md-3">
     <div class="card text-white bg-success">
@@ -48,11 +49,49 @@
   </div>
 </div>
 
+<!-- Márgenes de Ganancia -->
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card text-white" style="background-color: #ff6b6b">
+      <div class="card-body">
+        <h5 class="card-title">Margen de Ganancia (Hoy)</h5>
+        <h3 class="card-text">{{ "{:,.0f}".format(margen_diario) }} COP</h3>
+        <p class="mb-0">
+          Ingresos: {{ "{:,.0f}".format(ingresos_diarios_total) }} COP
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-white" style="background-color: #4ecdc4">
+      <div class="card-body">
+        <h5 class="card-title">Margen de Ganancia (Semana)</h5>
+        <h3 class="card-text">{{ "{:,.0f}".format(margen_semanal) }} COP</h3>
+        <p class="mb-0">
+          Ingresos: {{ "{:,.0f}".format(ingresos_semanales_total) }} COP
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-white" style="background-color: #6c5ce7">
+      <div class="card-body">
+        <h5 class="card-title">Margen de Ganancia (Mes)</h5>
+        <h3 class="card-text">{{ "{:,.0f}".format(margen_mensual) }} COP</h3>
+        <p class="mb-0">
+          Ingresos: {{ "{:,.0f}".format(ingresos_mensual_total) }} COP
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Gráfico de Ingresos y Márgenes -->
 <div class="row mb-4">
   <div class="col-md-8">
     <div class="card">
       <div class="card-header bg-primary text-white">
-        <h5 class="card-title mb-0">Ingresos por Mes</h5>
+        <h5 class="card-title mb-0">Ingresos y Márgenes por Mes</h5>
       </div>
       <div class="card-body">
         <canvas id="graficoIngresos" height="300"></canvas>
@@ -152,7 +191,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Gráfico de ingresos
+    // Gráfico de ingresos y márgenes
     var ctxIngresos = document.getElementById('graficoIngresos').getContext('2d');
     var chartIngresos = new Chart(ctxIngresos, {
       type: 'bar',
@@ -172,6 +211,17 @@
             backgroundColor: 'rgba(67, 206, 162, 0.6)',
             borderColor: 'rgba(67, 206, 162, 1)',
             borderWidth: 1
+          },
+          {
+            label: 'Margen de Ganancia (COP)',
+            data: {{ datos_margenes|safe }},
+            type: 'line',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 2,
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: 'rgba(75, 192, 192, 1)'
           }
         ]
       },
@@ -179,7 +229,21 @@
         responsive: true,
         scales: {
           y: {
-            beginAtZero: true
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return '$' + value.toLocaleString('es-CO');
+              }
+            }
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': $' + context.parsed.y.toLocaleString('es-CO');
+              }
+            }
           }
         }
       }
@@ -190,25 +254,34 @@
     var chartPlan = new Chart(ctxPlan, {
       type: 'pie',
       data: {
-        labels: ['Diario', 'Mensual', 'Personalizado'],
+        labels: {{ planes_nombres|safe }},
         datasets: [{
           label: 'Usuarios por plan',
           data: {{ datos_planes|safe }},
           backgroundColor: [
             'rgba(255, 99, 132, 0.6)',
             'rgba(54, 162, 235, 0.6)',
-            'rgba(255, 206, 86, 0.6)'
+            'rgba(255, 206, 86, 0.6)',
+            'rgba(75, 192, 192, 0.6)',
+            'rgba(153, 102, 255, 0.6)'
           ],
           borderColor: [
             'rgba(255, 99, 132, 1)',
             'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)'
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)'
           ],
           borderWidth: 1
         }]
       },
       options: {
-        responsive: true
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'right'
+          }
+        }
       }
     });
 
@@ -238,33 +311,41 @@
     });
 
     // Gráfico de ingresos por producto
-    var ctxIngresosProductos = document.getElementById('graficoIngresosProductos').getContext('2d');
-    var chartIngresosProductos = new Chart(ctxIngresosProductos, {
-      type: 'doughnut',
+    var ctxIngresosProd = document.getElementById('graficoIngresosProductos').getContext('2d');
+    var chartIngresosProd = new Chart(ctxIngresosProd, {
+      type: 'bar',
       data: {
         labels: {{ productos_nombres|safe }},
         datasets: [{
-          label: 'Ingresos por Producto',
+          label: 'Ingresos (COP)',
           data: {{ productos_ingresos|safe }},
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.6)',
-            'rgba(54, 162, 235, 0.6)',
-            'rgba(255, 206, 86, 0.6)',
-            'rgba(75, 192, 192, 0.6)',
-            'rgba(153, 102, 255, 0.6)'
-          ],
-          borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)'
-          ],
+          backgroundColor: 'rgba(255, 159, 64, 0.6)',
+          borderColor: 'rgba(255, 159, 64, 1)',
           borderWidth: 1
         }]
       },
       options: {
-        responsive: true
+        responsive: true,
+        indexAxis: 'y',
+        scales: {
+          x: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return '$' + value.toLocaleString('es-CO');
+              }
+            }
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': $' + context.parsed.x.toLocaleString('es-CO');
+              }
+            }
+          }
+        }
       }
     });
   });
