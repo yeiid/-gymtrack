@@ -13,7 +13,7 @@ Sistema completo para administrar un gimnasio, incluyendo gestión de usuarios, 
 ## Requisitos
 
 - Python 3.8 o superior
-- Navegador web moderno
+- Navegador web moderno (Google Chrome o Microsoft Edge recomendados)
 
 ## Instalación y Ejecución
 
@@ -33,29 +33,24 @@ Sistema completo para administrar un gimnasio, incluyendo gestión de usuarios, 
    ```
 5. Ejecutar la aplicación:
    ```
-   python app.py
+   python run_app.py
    ```
-6. Abrir el navegador en http://127.0.0.1:5000
+6. Se abrirá automáticamente un navegador con la aplicación
+7. Si no se abre, accede a http://127.0.0.1:5000
 
-### Método 2: Usando el Ejecutable (después de compilar)
+### Método 2: Usando el Ejecutable (Windows)
 
-1. Ejecute el archivo GimnasioDB (o GimnasioDB.exe en Windows)
-2. Se abrirá automáticamente un navegador con la aplicación
-3. Si el navegador no se abre, ingrese a http://127.0.0.1:5000 en su navegador
-
-## Compilar el Ejecutable
-
-Para crear un ejecutable independiente que pueda ejecutarse sin necesidad de instalar Python:
-
-1. Asegúrese de tener PyInstaller instalado:
+1. Ejecuta el script de generación de Windows:
    ```
-   pip install pyinstaller
+   build_windows.bat
    ```
-2. Ejecute el script de construcción:
-   ```
-   python build_exe.py
-   ```
-3. El ejecutable se generará en la carpeta `dist`
+2. Espera a que termine el proceso:
+   - Se instalarán las dependencias necesarias
+   - Se generará el ejecutable en la carpeta `dist\GimnasioDB`
+3. Ejecuta la aplicación:
+   - Navega a la carpeta `dist\GimnasioDB`
+   - Haz doble clic en `GimnasioDB.exe`
+   - Se abrirá un navegador web con la aplicación
 
 ## Estructura del Proyecto
 
@@ -76,6 +71,34 @@ El sistema incluye los siguientes planes predefinidos:
 - **Mensual**: $70,000 COP (30 días)
 - **Dirigido**: $130,000 COP (30 días con entrenamiento dirigido)
 - **Personalizado**: $250,000 COP (30 días con entrenador personal)
+
+## Resolución de problemas
+
+### Si hay errores al instalar dependencias
+
+1. Asegúrate de tener permisos de administrador
+   - En Windows: Ejecuta CMD como administrador (clic derecho > Ejecutar como administrador)
+2. Actualiza pip
+   ```
+   python -m pip install --upgrade pip
+   ```
+
+### Si hay errores al generar el ejecutable
+
+1. Asegúrate de tener instalado PyInstaller
+   ```
+   pip install pyinstaller
+   ```
+2. Verifica que todas las dependencias estén instaladas
+   ```
+   pip install -r requirements.txt
+   ```
+
+### Si el ejecutable no funciona
+
+1. Intenta ejecutarlo desde la línea de comandos para ver mensajes de error
+2. Asegúrate de que el firewall no esté bloqueando la aplicación
+3. No muevas archivos individuales fuera de la carpeta `dist\GimnasioDB`
 
 ## Licencia
 

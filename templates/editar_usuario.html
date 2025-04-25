@@ -41,6 +41,7 @@
                 <option value="Diario" {% if usuario.plan == 'Diario' %}selected{% endif %}>Diario - $5.000</option>
                 <option value="Quincenal" {% if usuario.plan == 'Quincenal' %}selected{% endif %}>Quincenal - $35.000</option>
                 <option value="Mensual" {% if usuario.plan == 'Mensual' %}selected{% endif %}>Mensual - $70.000</option>
+                <option value="Estudiantil" {% if usuario.plan == 'Estudiantil' %}selected{% endif %}>Estudiantil - $50.000</option>
                 <option value="Dirigido" {% if usuario.plan == 'Dirigido' %}selected{% endif %}>Dirigido - $130.000</option>
                 <option value="Personalizado" {% if usuario.plan == 'Personalizado' %}selected{% endif %}>Personalizado - $250.000</option>
               </select>
@@ -50,7 +51,21 @@
               <label for="fecha_vencimiento_plan" class="form-label">Fecha de Vencimiento del Plan</label>
               <input type="date" class="form-control" id="fecha_vencimiento_plan" name="fecha_vencimiento_plan" 
                      value="{{ usuario.fecha_vencimiento_plan.strftime('%Y-%m-%d') if usuario.fecha_vencimiento_plan else '' }}">
-              <small class="text-muted">Dejar en blanco para plan diario sin fecha de vencimiento</small>
+            </div>
+            
+            <div class="mb-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="ajustar_dias" name="ajustar_dias" onchange="toggleDiasRestantes()">
+                <label class="form-check-label" for="ajustar_dias">
+                  Ajustar días restantes manualmente
+                </label>
+              </div>
+            </div>
+            
+            <div class="mb-3" id="div_dias_restantes" style="display: none;">
+              <label for="dias_restantes" class="form-label">Días restantes del plan</label>
+              <input type="number" class="form-control" id="dias_restantes" name="dias_restantes" min="1" max="365" value="{% if usuario.fecha_vencimiento_plan %}{{ ((usuario.fecha_vencimiento_plan - today.date()).days)|default(30, true) }}{% else %}30{% endif %}">
+              <div class="form-text">Ingrese el número de días que desea que dure el plan a partir de hoy</div>
             </div>
             
             <div class="mb-3">
@@ -76,4 +91,22 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function toggleDiasRestantes() {
+    const checkAjustarDias = document.getElementById('ajustar_dias');
+    const divDiasRestantes = document.getElementById('div_dias_restantes');
+    const fechaVencimiento = document.getElementById('fecha_vencimiento_plan');
+    
+    if (checkAjustarDias.checked) {
+      divDiasRestantes.style.display = 'block';
+      fechaVencimiento.disabled = true;
+    } else {
+      divDiasRestantes.style.display = 'none';
+      fechaVencimiento.disabled = false;
+    }
+  }
+</script>
 {% endblock %} 

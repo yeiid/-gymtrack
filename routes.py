@@ -1,11 +1,38 @@
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify, flash
-from models import db, Usuario, Asistencia, Producto, VentaProducto, PagoMensualidad
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify, flash, session
+from models import db, Usuario, Asistencia, Producto, VentaProducto, PagoMensualidad, MedidasCorporales, ObjetivoPersonal, Admin
 from datetime import datetime, timedelta
 from sqlalchemy import func, extract, desc
 import json
 import random
+from functools import wraps
 
 main = Blueprint('main', __name__)
+
+# Decorador para verificar autenticación
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'admin_id' not in session:
+            flash('Debe iniciar sesión para acceder a esta sección', 'warning')
+            return redirect(url_for('main.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Decorador para verificar si es administrador
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'admin_id' not in session:
+            flash('Debe iniciar sesión para acceder a esta sección', 'warning')
+            return redirect(url_for('main.login'))
+        
+        admin = Admin.query.get(session['admin_id'])
+        if admin.rol != 'administrador':
+            flash('No tiene permisos para acceder a esta sección', 'danger')
+            return redirect(url_for('main.index'))
+        
+        return f(*args, **kwargs)
+    return decorated_function
 
 @main.route('/')
 def index():
@@ -33,25 +60,51 @@ def registrar_usuario():
                              users=Usuario.query.all(),
                              error="¡Usuario con cédula " + cedula + " ya existe en el sistema!")
     
+    # Verificar si el usuario tiene un plan activo con días restantes personalizados
+    plan_activo = 'plan_activo' in request.form
+    
     # Calcular fecha de vencimiento y precio según el plan
     fecha_vencimiento = None
     precio_plan = None
     
-    if plan == 'Diario':
-        precio_plan = Usuario.PRECIO_DIARIO
-        fecha_vencimiento = datetime.now().date() + timedelta(days=1)
-    elif plan == 'Quincenal':
-        precio_plan = Usuario.PRECIO_QUINCENAL
-        fecha_vencimiento = datetime.now().date() + timedelta(days=15)
-    elif plan == 'Mensual':
-        precio_plan = Usuario.PRECIO_MENSUAL
-        fecha_vencimiento = datetime.now().date() + timedelta(days=30)
-    elif plan == 'Dirigido':
-        precio_plan = Usuario.PRECIO_DIRIGIDO
-        fecha_vencimiento = datetime.now().date() + timedelta(days=30)
-    elif plan == 'Personalizado':
-        precio_plan = Usuario.PRECIO_PERSONALIZADO
-        fecha_vencimiento = datetime.now().date() + timedelta(days=30)
+    if plan_activo and request.form.get('dias_restantes'):
+        # Usuario con plan activo y días restantes personalizados
+        dias_restantes = int(request.form.get('dias_restantes'))
+        fecha_vencimiento = datetime.now().date() + timedelta(days=dias_restantes)
+        
+        # Asignar el precio según el plan seleccionado
+        if plan == 'Diario':
+            precio_plan = Usuario.PRECIO_DIARIO
+        elif plan == 'Quincenal':
+            precio_plan = Usuario.PRECIO_QUINCENAL
+        elif plan == 'Mensual':
+            precio_plan = Usuario.PRECIO_MENSUAL
+        elif plan == 'Estudiantil':
+            precio_plan = Usuario.PRECIO_ESTUDIANTIL
+        elif plan == 'Dirigido':
+            precio_plan = Usuario.PRECIO_DIRIGIDO
+        elif plan == 'Personalizado':
+            precio_plan = Usuario.PRECIO_PERSONALIZADO
+    else:
+        # Cálculo normal para nuevos planes
+        if plan == 'Diario':
+            precio_plan = Usuario.PRECIO_DIARIO
+            fecha_vencimiento = datetime.now().date() + timedelta(days=1)
+        elif plan == 'Quincenal':
+            precio_plan = Usuario.PRECIO_QUINCENAL
+            fecha_vencimiento = datetime.now().date() + timedelta(days=15)
+        elif plan == 'Mensual':
+            precio_plan = Usuario.PRECIO_MENSUAL
+            fecha_vencimiento = datetime.now().date() + timedelta(days=30)
+        elif plan == 'Estudiantil':
+            precio_plan = Usuario.PRECIO_ESTUDIANTIL
+            fecha_vencimiento = datetime.now().date() + timedelta(days=30)
+        elif plan == 'Dirigido':
+            precio_plan = Usuario.PRECIO_DIRIGIDO
+            fecha_vencimiento = datetime.now().date() + timedelta(days=30)
+        elif plan == 'Personalizado':
+            precio_plan = Usuario.PRECIO_PERSONALIZADO
+            fecha_vencimiento = datetime.now().date() + timedelta(days=30)
     
     # Si no existe, crear nuevo usuario
     usuario = Usuario(
@@ -487,20 +540,26 @@ def editar_usuario(usuario_id):
         usuario.plan = request.form['plan']
         usuario.metodo_pago = request.form['metodo_pago']
         
-        # Procesar fecha de vencimiento del plan
-        fecha_vencimiento_str = request.form.get('fecha_vencimiento_plan')
-        if fecha_vencimiento_str:
-            usuario.fecha_vencimiento_plan = datetime.strptime(fecha_vencimiento_str, '%Y-%m-%d').date()
+        # Verificar si se está ajustando manualmente los días restantes
+        if 'ajustar_dias' in request.form and request.form.get('dias_restantes'):
+            # Calcular fecha de vencimiento a partir de los días restantes
+            dias_restantes = int(request.form.get('dias_restantes'))
+            usuario.fecha_vencimiento_plan = datetime.now().date() + timedelta(days=dias_restantes)
         else:
-            # Si el plan es diario y no se especificó fecha, establecer vencimiento a mañana
-            if usuario.plan == 'Diario':
-                usuario.fecha_vencimiento_plan = datetime.now().date() + timedelta(days=1)
-            # Para otros planes sin fecha específica, establecer según el plan
-            elif plan_anterior != usuario.plan:  # Si cambió el plan
-                if usuario.plan == 'Quincenal':
-                    usuario.fecha_vencimiento_plan = datetime.now().date() + timedelta(days=15)
-                else:  # Mensual, Dirigido o Personalizado
-                    usuario.fecha_vencimiento_plan = datetime.now().date() + timedelta(days=30)
+            # Procesar fecha de vencimiento del plan normal
+            fecha_vencimiento_str = request.form.get('fecha_vencimiento_plan')
+            if fecha_vencimiento_str:
+                usuario.fecha_vencimiento_plan = datetime.strptime(fecha_vencimiento_str, '%Y-%m-%d').date()
+            else:
+                # Si el plan es diario y no se especificó fecha, establecer vencimiento a mañana
+                if usuario.plan == 'Diario':
+                    usuario.fecha_vencimiento_plan = datetime.now().date() + timedelta(days=1)
+                # Para otros planes sin fecha específica, establecer según el plan
+                elif plan_anterior != usuario.plan:  # Si cambió el plan
+                    if usuario.plan == 'Quincenal':
+                        usuario.fecha_vencimiento_plan = datetime.now().date() + timedelta(days=15)
+                    else:  # Mensual, Dirigido o Personalizado
+                        usuario.fecha_vencimiento_plan = datetime.now().date() + timedelta(days=30)
         
         # Actualizar el precio del plan
         if usuario.plan == 'Diario':
@@ -509,13 +568,15 @@ def editar_usuario(usuario_id):
             usuario.precio_plan = Usuario.PRECIO_QUINCENAL
         elif usuario.plan == 'Mensual':
             usuario.precio_plan = Usuario.PRECIO_MENSUAL
+        elif usuario.plan == 'Estudiantil':
+            usuario.precio_plan = Usuario.PRECIO_ESTUDIANTIL
         elif usuario.plan == 'Dirigido':
             usuario.precio_plan = Usuario.PRECIO_DIRIGIDO
         elif usuario.plan == 'Personalizado':
             usuario.precio_plan = Usuario.PRECIO_PERSONALIZADO
         
-        # Si cambió el plan, registrar un nuevo pago
-        if plan_anterior != usuario.plan:
+        # Si cambió el plan o se ajustaron los días manualmente, registrar un nuevo pago
+        if plan_anterior != usuario.plan or 'ajustar_dias' in request.form:
             pago = PagoMensualidad(
                 usuario=usuario,
                 monto=usuario.precio_plan,
@@ -529,4 +590,263 @@ def editar_usuario(usuario_id):
         db.session.commit()
         return redirect(url_for('main.usuarios', success="Usuario actualizado correctamente"))
     
-    return render_template('editar_usuario.html', usuario=usuario)
+    return render_template('editar_usuario.html', usuario=usuario, today=datetime.now())
+
+@main.route('/medidas/<int:usuario_id>', methods=['GET', 'POST'])
+def medidas(usuario_id):
+    usuario = Usuario.query.get_or_404(usuario_id)
+    
+    # Verificar si el usuario tiene un plan dirigido o personalizado
+    if usuario.plan not in ['Dirigido', 'Personalizado']:
+        flash('Solo los usuarios con plan Dirigido o Personalizado pueden acceder a esta función', 'warning')
+        return redirect(url_for('main.ver_usuario', usuario_id=usuario_id))
+    
+    if request.method == 'POST':
+        # Registrar nuevas medidas
+        medida = MedidasCorporales(
+            usuario_id=usuario_id,
+            peso=request.form.get('peso', type=float),
+            altura=request.form.get('altura', type=float),
+            pecho=request.form.get('pecho', type=float),
+            cintura=request.form.get('cintura', type=float),
+            cadera=request.form.get('cadera', type=float),
+            brazo_izquierdo=request.form.get('brazo_izquierdo', type=float),
+            brazo_derecho=request.form.get('brazo_derecho', type=float),
+            pierna_izquierda=request.form.get('pierna_izquierda', type=float),
+            pierna_derecha=request.form.get('pierna_derecha', type=float),
+            notas=request.form.get('notas')
+        )
+        
+        # Calcular IMC si hay peso y altura
+        if medida.peso and medida.altura:
+            altura_metros = medida.altura / 100  # convertir cm a metros
+            medida.imc = medida.peso / (altura_metros * altura_metros)
+        
+        db.session.add(medida)
+        db.session.commit()
+        
+        flash('Medidas registradas correctamente', 'success')
+        return redirect(url_for('main.medidas', usuario_id=usuario_id))
+    
+    # Obtener historial de medidas
+    historial_medidas = MedidasCorporales.query.filter_by(usuario_id=usuario_id).order_by(MedidasCorporales.fecha.desc()).all()
+    
+    return render_template('medidas.html', 
+                          usuario=usuario, 
+                          historial=historial_medidas,
+                          ultima_medida=historial_medidas[0] if historial_medidas else None)
+
+@main.route('/objetivos/<int:usuario_id>', methods=['GET', 'POST'])
+def objetivos(usuario_id):
+    usuario = Usuario.query.get_or_404(usuario_id)
+    
+    # Verificar si el usuario tiene un plan dirigido o personalizado
+    if usuario.plan not in ['Dirigido', 'Personalizado']:
+        flash('Solo los usuarios con plan Dirigido o Personalizado pueden acceder a esta función', 'warning')
+        return redirect(url_for('main.ver_usuario', usuario_id=usuario_id))
+    
+    if request.method == 'POST':
+        # Registrar nuevo objetivo
+        objetivo = ObjetivoPersonal(
+            usuario_id=usuario_id,
+            descripcion=request.form.get('descripcion'),
+            fecha_objetivo=datetime.strptime(request.form.get('fecha_objetivo'), '%Y-%m-%d').date() if request.form.get('fecha_objetivo') else None,
+            progreso=request.form.get('progreso', type=int, default=0)
+        )
+        
+        db.session.add(objetivo)
+        db.session.commit()
+        
+        flash('Objetivo registrado correctamente', 'success')
+        return redirect(url_for('main.objetivos', usuario_id=usuario_id))
+    
+    # Obtener objetivos actuales
+    objetivos_activos = ObjetivoPersonal.query.filter_by(usuario_id=usuario_id, completado=False).order_by(ObjetivoPersonal.fecha_creacion.desc()).all()
+    objetivos_completados = ObjetivoPersonal.query.filter_by(usuario_id=usuario_id, completado=True).order_by(ObjetivoPersonal.fecha_creacion.desc()).all()
+    
+    return render_template('objetivos.html', 
+                          usuario=usuario, 
+                          objetivos_activos=objetivos_activos,
+                          objetivos_completados=objetivos_completados)
+
+@main.route('/actualizar_objetivo/<int:objetivo_id>', methods=['POST'])
+def actualizar_objetivo(objetivo_id):
+    objetivo = ObjetivoPersonal.query.get_or_404(objetivo_id)
+    
+    progreso = request.form.get('progreso', type=int)
+    completado = request.form.get('completado') == 'on'
+    
+    objetivo.progreso = progreso
+    objetivo.completado = completado
+    
+    db.session.commit()
+    
+    flash('Objetivo actualizado correctamente', 'success')
+    return redirect(url_for('main.objetivos', usuario_id=objetivo.usuario_id))
+
+# Rutas de autenticación
+@main.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        usuario = request.form['usuario']
+        password = request.form['password']
+        
+        admin = Admin.query.filter_by(usuario=usuario).first()
+        
+        if admin and admin.check_password(password):
+            session['admin_id'] = admin.id
+            session['admin_nombre'] = admin.nombre
+            session['admin_rol'] = admin.rol
+            
+            admin.ultimo_acceso = datetime.now()
+            db.session.commit()
+            
+            return redirect(url_for('main.index'))
+        else:
+            flash('Usuario o contraseña incorrectos', 'danger')
+    
+    return render_template('login.html')
+
+@main.route('/logout')
+def logout():
+    session.pop('admin_id', None)
+    session.pop('admin_nombre', None)
+    session.pop('admin_rol', None)
+    flash('Sesión cerrada correctamente', 'success')
+    return redirect(url_for('main.login'))
+
+@main.route('/admin/crear_admin', methods=['GET', 'POST'])
+@admin_required
+def crear_admin():
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        usuario = request.form['usuario']
+        password = request.form['password']
+        rol = request.form['rol']
+        
+        # Verificar si ya existe un admin con ese usuario
+        admin_existente = Admin.query.filter_by(usuario=usuario).first()
+        
+        if admin_existente:
+            flash('El nombre de usuario ya existe', 'danger')
+            return render_template('crear_admin.html')
+        
+        nuevo_admin = Admin(nombre=nombre, usuario=usuario, rol=rol)
+        nuevo_admin.set_password(password)
+        
+        db.session.add(nuevo_admin)
+        db.session.commit()
+        
+        flash('Administrador creado correctamente', 'success')
+        return redirect(url_for('main.lista_admins'))
+    
+    return render_template('crear_admin.html')
+
+@main.route('/admin/lista_admins')
+@admin_required
+def lista_admins():
+    admins = Admin.query.all()
+    return render_template('lista_admins.html', admins=admins)
+
+@main.route('/finanzas_diarias')
+@login_required
+def finanzas_diarias():
+    # Obtener la fecha para el análisis (hoy por defecto)
+    fecha_str = request.args.get('fecha')
+    
+    if fecha_str:
+        try:
+            fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+        except ValueError:
+            fecha = datetime.now().date()
+    else:
+        fecha = datetime.now().date()
+    
+    # Inicio y fin del día
+    inicio_dia = datetime.combine(fecha, datetime.min.time())
+    fin_dia = datetime.combine(fecha, datetime.max.time())
+    
+    # 1. Obtener ingresos por membresías del día
+    pagos_membresia = PagoMensualidad.query.filter(
+        PagoMensualidad.fecha_pago >= inicio_dia,
+        PagoMensualidad.fecha_pago <= fin_dia
+    ).all()
+    
+    total_membresias = sum(pago.monto for pago in pagos_membresia)
+    
+    # Agrupar por tipo de plan
+    ingresos_por_plan = {}
+    for pago in pagos_membresia:
+        if pago.plan in ingresos_por_plan:
+            ingresos_por_plan[pago.plan] += pago.monto
+        else:
+            ingresos_por_plan[pago.plan] = pago.monto
+    
+    # 2. Obtener ingresos por ventas de productos del día
+    ventas_productos = VentaProducto.query.filter(
+        VentaProducto.fecha >= inicio_dia,
+        VentaProducto.fecha <= fin_dia
+    ).all()
+    
+    total_productos = sum(venta.total for venta in ventas_productos)
+    
+    # Agrupar por categoría
+    productos_por_categoria = {}
+    for venta in ventas_productos:
+        producto = venta.producto
+        if producto.categoria in productos_por_categoria:
+            productos_por_categoria[producto.categoria] += venta.total
+        else:
+            productos_por_categoria[producto.categoria] = venta.total
+    
+    # Detalle de productos vendidos
+    detalle_productos = {}
+    for venta in ventas_productos:
+        nombre_producto = venta.producto.nombre
+        if nombre_producto in detalle_productos:
+            detalle_productos[nombre_producto]['cantidad'] += venta.cantidad
+            detalle_productos[nombre_producto]['total'] += venta.total
+        else:
+            detalle_productos[nombre_producto] = {
+                'cantidad': venta.cantidad,
+                'precio_unitario': venta.precio_unitario,
+                'total': venta.total
+            }
+    
+    # 3. Calcular totales
+    total_ingresos = total_membresias + total_productos
+    
+    # 4. Método de pago
+    ingresos_por_metodo = {}
+    
+    # Métodos de pago de membresías
+    for pago in pagos_membresia:
+        if pago.metodo_pago in ingresos_por_metodo:
+            ingresos_por_metodo[pago.metodo_pago] += pago.monto
+        else:
+            ingresos_por_metodo[pago.metodo_pago] = pago.monto
+    
+    # Métodos de pago de productos
+    for venta in ventas_productos:
+        if venta.metodo_pago in ingresos_por_metodo:
+            ingresos_por_metodo[venta.metodo_pago] += venta.total
+        else:
+            ingresos_por_metodo[venta.metodo_pago] = venta.total
+    
+    # 5. Obtener asistencias del día
+    asistencias = Asistencia.query.filter(
+        Asistencia.fecha == fecha
+    ).count()
+    
+    return render_template('finanzas_diarias.html',
+                          fecha=fecha,
+                          pagos_membresia=pagos_membresia,
+                          ventas_productos=ventas_productos,
+                          total_membresias=total_membresias,
+                          total_productos=total_productos,
+                          total_ingresos=total_ingresos,
+                          ingresos_por_plan=ingresos_por_plan,
+                          productos_por_categoria=productos_por_categoria,
+                          detalle_productos=detalle_productos,
+                          ingresos_por_metodo=ingresos_por_metodo,
+                          asistencias=asistencias)

@@ -1,0 +1,396 @@
+{% extends "layout.html" %} {% block content %}
+<div class="row mb-4">
+  <div class="col-md-8">
+    <h2>Informe Diario de Finanzas</h2>
+    <h4 class="text-muted">{{ fecha.strftime('%d/%m/%Y') }}</h4>
+  </div>
+  <div class="col-md-4">
+    <form class="d-flex" method="get">
+      <input
+        type="date"
+        name="fecha"
+        class="form-control"
+        value="{{ fecha.strftime('%Y-%m-%d') }}"
+      />
+      <button type="submit" class="btn btn-primary ms-2">Ver</button>
+    </form>
+  </div>
+</div>
+
+<!-- Resumen general -->
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card text-white bg-success">
+      <div class="card-body">
+        <h5 class="card-title">Ingresos Totales</h5>
+        <h3 class="card-text">${{ "{:,.0f}".format(total_ingresos) }}</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div
+      class="card text-white"
+      style="background: linear-gradient(135deg, #ff5f6d, #ffc371)"
+    >
+      <div class="card-body">
+        <h5 class="card-title">Ingresos Membresías</h5>
+        <h3 class="card-text">${{ "{:,.0f}".format(total_membresias) }}</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div
+      class="card text-white"
+      style="background: linear-gradient(135deg, #43cea2, #185a9d)"
+    >
+      <div class="card-body">
+        <h5 class="card-title">Ingresos Productos</h5>
+        <h3 class="card-text">${{ "{:,.0f}".format(total_productos) }}</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-info">
+      <div class="card-body">
+        <h5 class="card-title">Asistencias</h5>
+        <h3 class="card-text">{{ asistencias }}</h3>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Desglose por categorías -->
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Ingresos por Plan</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Plan</th>
+                <th class="text-end">Monto</th>
+                <th class="text-end">Porcentaje</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for plan, monto in ingresos_por_plan.items() %}
+              <tr>
+                <td>{{ plan }}</td>
+                <td class="text-end">${{ "{:,.0f}".format(monto) }}</td>
+                <td class="text-end">
+                  {% if total_membresias > 0 %} {{ "{:.1f}%".format((monto /
+                  total_membresias) * 100) }} {% else %} 0% {% endif %}
+                </td>
+              </tr>
+              {% endfor %} {% if ingresos_por_plan|length == 0 %}
+              <tr>
+                <td colspan="3" class="text-center">
+                  No hay datos para mostrar
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+            <tfoot>
+              <tr class="table-dark">
+                <th>Total</th>
+                <th class="text-end">
+                  ${{ "{:,.0f}".format(total_membresias) }}
+                </th>
+                <th class="text-end">100%</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card">
+      <div
+        class="card-header"
+        style="
+          background: linear-gradient(135deg, #43cea2, #185a9d);
+          color: white;
+        "
+      >
+        <h5 class="card-title mb-0">Ventas por Categoría</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Categoría</th>
+                <th class="text-end">Monto</th>
+                <th class="text-end">Porcentaje</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for categoria, monto in productos_por_categoria.items() %}
+              <tr>
+                <td>{{ categoria }}</td>
+                <td class="text-end">${{ "{:,.0f}".format(monto) }}</td>
+                <td class="text-end">
+                  {% if total_productos > 0 %} {{ "{:.1f}%".format((monto /
+                  total_productos) * 100) }} {% else %} 0% {% endif %}
+                </td>
+              </tr>
+              {% endfor %} {% if productos_por_categoria|length == 0 %}
+              <tr>
+                <td colspan="3" class="text-center">
+                  No hay datos para mostrar
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+            <tfoot>
+              <tr class="table-dark">
+                <th>Total</th>
+                <th class="text-end">
+                  ${{ "{:,.0f}".format(total_productos) }}
+                </th>
+                <th class="text-end">100%</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detalles por método de pago y productos -->
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header bg-info text-white">
+        <h5 class="card-title mb-0">Ingresos por Método de Pago</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Método</th>
+                <th class="text-end">Monto</th>
+                <th class="text-end">Porcentaje</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for metodo, monto in ingresos_por_metodo.items() %}
+              <tr>
+                <td>{{ metodo }}</td>
+                <td class="text-end">${{ "{:,.0f}".format(monto) }}</td>
+                <td class="text-end">
+                  {% if total_ingresos > 0 %} {{ "{:.1f}%".format((monto /
+                  total_ingresos) * 100) }} {% else %} 0% {% endif %}
+                </td>
+              </tr>
+              {% endfor %} {% if ingresos_por_metodo|length == 0 %}
+              <tr>
+                <td colspan="3" class="text-center">
+                  No hay datos para mostrar
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+            <tfoot>
+              <tr class="table-dark">
+                <th>Total</th>
+                <th class="text-end">
+                  ${{ "{:,.0f}".format(total_ingresos) }}
+                </th>
+                <th class="text-end">100%</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header bg-success text-white">
+        <h5 class="card-title mb-0">Detalle de Productos Vendidos</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th class="text-end">Cantidad</th>
+                <th class="text-end">Precio Unit.</th>
+                <th class="text-end">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for producto, datos in detalle_productos.items() %}
+              <tr>
+                <td>{{ producto }}</td>
+                <td class="text-end">{{ datos.cantidad }}</td>
+                <td class="text-end">
+                  ${{ "{:,.0f}".format(datos.precio_unitario) }}
+                </td>
+                <td class="text-end">${{ "{:,.0f}".format(datos.total) }}</td>
+              </tr>
+              {% endfor %} {% if detalle_productos|length == 0 %}
+              <tr>
+                <td colspan="4" class="text-center">
+                  No hay datos para mostrar
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+            <tfoot>
+              <tr class="table-dark">
+                <th colspan="3">Total</th>
+                <th class="text-end">
+                  ${{ "{:,.0f}".format(total_productos) }}
+                </th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Registro detallado de transacciones -->
+<div class="card">
+  <div class="card-header bg-secondary text-white">
+    <h5 class="card-title mb-0">Registro de Transacciones del Día</h5>
+  </div>
+  <div class="card-body">
+    <ul class="nav nav-tabs" id="transaccionesTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link active"
+          id="membresias-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#membresias"
+          type="button"
+          role="tab"
+        >
+          Membresías
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          id="productos-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#productos"
+          type="button"
+          role="tab"
+        >
+          Productos
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content pt-3" id="transaccionesTabContent">
+      <!-- Tab Membresías -->
+      <div class="tab-pane fade show active" id="membresias" role="tabpanel">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Plan</th>
+                <th>Método de Pago</th>
+                <th class="text-end">Monto</th>
+                <th>Hora</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pago in pagos_membresia %}
+              <tr>
+                <td>{{ pago.usuario.nombre }}</td>
+                <td>{{ pago.plan }}</td>
+                <td>{{ pago.metodo_pago }}</td>
+                <td class="text-end">${{ "{:,.0f}".format(pago.monto) }}</td>
+                <td>{{ pago.fecha_pago.strftime('%H:%M:%S') }}</td>
+              </tr>
+              {% endfor %} {% if pagos_membresia|length == 0 %}
+              <tr>
+                <td colspan="5" class="text-center">
+                  No hay pagos de membresías para mostrar
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Productos -->
+      <div class="tab-pane fade" id="productos" role="tabpanel">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Cliente</th>
+                <th class="text-end">Cantidad</th>
+                <th class="text-end">Precio Unit.</th>
+                <th class="text-end">Total</th>
+                <th>Método de Pago</th>
+                <th>Hora</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for venta in ventas_productos %}
+              <tr>
+                <td>{{ venta.producto.nombre }}</td>
+                <td>
+                  {% if venta.usuario %} {{ venta.usuario.nombre }} {% else %}
+                  <span class="text-muted">Cliente no registrado</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">{{ venta.cantidad }}</td>
+                <td class="text-end">
+                  ${{ "{:,.0f}".format(venta.precio_unitario) }}
+                </td>
+                <td class="text-end">${{ "{:,.0f}".format(venta.total) }}</td>
+                <td>{{ venta.metodo_pago }}</td>
+                <td>{{ venta.fecha.strftime('%H:%M:%S') }}</td>
+              </tr>
+              {% endfor %} {% if ventas_productos|length == 0 %}
+              <tr>
+                <td colspan="7" class="text-center">
+                  No hay ventas de productos para mostrar
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Activar los tabs de Bootstrap
+    const triggerTabList = document.querySelectorAll(
+      "#transaccionesTabs button"
+    );
+    triggerTabList.forEach((triggerEl) => {
+      const tabTrigger = new bootstrap.Tab(triggerEl);
+      triggerEl.addEventListener("click", (event) => {
+        event.preventDefault();
+        tabTrigger.show();
+      });
+    });
+  });
+</script>
+{% endblock %}

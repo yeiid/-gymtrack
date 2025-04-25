@@ -1,0 +1,102 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2>Crear Nuevo Administrador</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('main.lista_admins') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Volver a la Lista
+        </a>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Información del Administrador</h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="nombre" class="form-label">Nombre Completo</label>
+                    <input type="text" class="form-control" id="nombre" name="nombre" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="usuario" class="form-label">Nombre de Usuario</label>
+                    <input type="text" class="form-control" id="usuario" name="usuario" required>
+                    <div class="form-text">Este será el nombre para iniciar sesión</div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="rol" class="form-label">Rol</label>
+                    <select class="form-select" id="rol" name="rol" required>
+                        <option value="recepcionista">Recepcionista</option>
+                        <option value="administrador">Administrador</option>
+                    </select>
+                    <div class="form-text">Los administradores tienen acceso completo al sistema</div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-1"></i> Guardar
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="card-title mb-0">Roles del Sistema</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header">Recepcionista</div>
+                    <div class="card-body">
+                        <p>Los recepcionistas pueden:</p>
+                        <ul>
+                            <li>Registrar y editar usuarios</li>
+                            <li>Marcar asistencias</li>
+                            <li>Vender productos</li>
+                            <li>Registrar pagos de mensualidades</li>
+                            <li>Ver reportes básicos</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">Administrador</div>
+                    <div class="card-body">
+                        <p>Los administradores pueden:</p>
+                        <ul>
+                            <li>Todo lo que puede hacer un recepcionista</li>
+                            <li>Gestionar inventario y productos</li>
+                            <li>Acceder a todos los reportes financieros</li>
+                            <li>Crear y gestionar otros administradores</li>
+                            <li>Modificar configuraciones del sistema</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

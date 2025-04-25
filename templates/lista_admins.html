@@ -1,0 +1,138 @@
+{% extends "layout.html" %} {% block content %}
+<div class="row mb-4">
+  <div class="col-md-8">
+    <h2>Administradores del Sistema</h2>
+  </div>
+  <div class="col-md-4 text-end">
+    <a href="{{ url_for('main.crear_admin') }}" class="btn btn-primary">
+      <i class="fas fa-user-plus me-1"></i> Nuevo Administrador
+    </a>
+  </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %} {% if messages
+%} {% for category, message in messages %}
+<div class="alert alert-{{ category }}">{{ message }}</div>
+{% endfor %} {% endif %} {% endwith %}
+
+<div class="card">
+  <div class="card-header bg-secondary text-white">
+    <h5 class="card-title mb-0">Lista de Administradores</h5>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Usuario</th>
+            <th>Rol</th>
+            <th>Fecha de Creación</th>
+            <th>Último Acceso</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for admin in admins %}
+          <tr>
+            <td>{{ admin.id }}</td>
+            <td>{{ admin.nombre }}</td>
+            <td>{{ admin.usuario }}</td>
+            <td>
+              {% if admin.rol == 'administrador' %}
+              <span class="badge bg-danger">Administrador</span>
+              {% else %}
+              <span class="badge bg-primary">Recepcionista</span>
+              {% endif %}
+            </td>
+            <td>{{ admin.fecha_creacion.strftime('%d/%m/%Y') }}</td>
+            <td>
+              {% if admin.ultimo_acceso %} {{
+              admin.ultimo_acceso.strftime('%d/%m/%Y %H:%M') }} {% else %}
+              <span class="text-muted">Nunca</span>
+              {% endif %}
+            </td>
+            <td>
+              <button
+                type="button"
+                class="btn btn-sm btn-warning"
+                data-bs-toggle="modal"
+                data-bs-target="#modalResetPass{{ admin.id }}"
+              >
+                <i class="fas fa-key"></i>
+              </button>
+            </td>
+          </tr>
+          {% endfor %} {% if admins|length == 0 %}
+          <tr>
+            <td colspan="7" class="text-center">
+              No hay administradores registrados
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modales para Restablecer Contraseña -->
+{% for admin in admins %}
+<div
+  class="modal fade"
+  id="modalResetPass{{ admin.id }}"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title">Restablecer Contraseña</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <form
+        action="{{ url_for('main.reset_password', admin_id=admin.id) }}"
+        method="post"
+      >
+        <div class="modal-body">
+          <p>
+            ¿Está seguro de restablecer la contraseña para
+            <strong>{{ admin.nombre }}</strong>?
+          </p>
+
+          <div class="mb-3">
+            <label for="new_password{{ admin.id }}" class="form-label"
+              >Nueva Contraseña</label
+            >
+            <input
+              type="password"
+              class="form-control"
+              id="new_password{{ admin.id }}"
+              name="new_password"
+              required
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-warning">
+            <i class="fas fa-key me-1"></i> Restablecer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %} {% endblock %}
