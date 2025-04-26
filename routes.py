@@ -42,7 +42,7 @@ def index():
 def usuarios():
     usuarios = Usuario.query.all()
     success = request.args.get('success')
-    return render_template('usuarios.html', users=usuarios, success=success)
+    return render_template('usuarios/usuarios.html', users=usuarios, success=success)
 
 @main.route('/registrar_usuario', methods=['POST'])
 def registrar_usuario():
@@ -56,7 +56,7 @@ def registrar_usuario():
     
     if usuario_existente:
         # Usuario ya existe, mostrar mensaje
-        return render_template('usuarios.html', 
+        return render_template('usuarios/usuarios.html', 
                              users=Usuario.query.all(),
                              error="¡Usuario con cédula " + cedula + " ya existe en el sistema!")
     
@@ -140,7 +140,7 @@ def ver_usuario(usuario_id):
     # Recuperar historial de pagos
     pagos = PagoMensualidad.query.filter_by(usuario_id=usuario_id).order_by(PagoMensualidad.fecha_pago.desc()).limit(5).all()
     
-    return render_template('ver_usuario.html', 
+    return render_template('usuarios/ver_usuario.html', 
                            usuario=usuario, 
                            asistencias=asistencias, 
                            pagos=pagos,
@@ -160,7 +160,7 @@ def asistencia():
         asistencia.usuario = usuario
         asistencias_con_usuario.append(asistencia)
     
-    return render_template('asistencia.html', usuarios=usuarios, asistencias=asistencias_con_usuario)
+    return render_template('asistencia/asistencia.html', usuarios=usuarios, asistencias=asistencias_con_usuario)
 
 @main.route('/marcar_asistencia/<int:usuario_id>')
 def marcar_asistencia(usuario_id):
@@ -198,7 +198,7 @@ def renovar_plan(usuario_id):
         
         # Registrar el pago
         pago = PagoMensualidad(
-            usuario=usuario,
+            usuario_id=usuario_id,
             monto=usuario.precio_plan,
             metodo_pago=metodo_pago,
             plan=usuario.plan,
@@ -208,27 +208,26 @@ def renovar_plan(usuario_id):
         db.session.add(pago)
         db.session.commit()
         
-        # Registrar asistencia
-        asistencia = Asistencia(usuario_id=usuario_id)
-        db.session.add(asistencia)
-        db.session.commit()
+        # Registrar asistencia automáticamente para planes diarios
+        if usuario.plan == 'Diario':
+            asistencia = Asistencia(usuario_id=usuario_id)
+            db.session.add(asistencia)
+            db.session.commit()
+            return redirect(url_for('main.asistencia'))
         
-        flash(f'Plan {usuario.plan} renovado correctamente hasta el {usuario.fecha_vencimiento_plan.strftime("%d/%m/%Y")}', 'success')
-        return redirect(url_for('main.asistencia'))
+        return redirect(url_for('main.ver_usuario', usuario_id=usuario_id))
     
-    return render_template('renovar_plan.html', usuario=usuario, now=datetime.now())
+    return render_template('pagos/renovar_plan.html', usuario=usuario, now=datetime.now())
 
 @main.route('/pagos')
 def pagos():
     pagos = PagoMensualidad.query.order_by(PagoMensualidad.fecha_pago.desc()).all()
-    return render_template('pagos.html', pagos=pagos, now=datetime.now())
+    return render_template('pagos/pagos.html', pagos=pagos, now=datetime.now())
 
 @main.route('/productos')
 def productos():
     productos = Producto.query.all()
-    success = request.args.get('success')
-    error = request.args.get('error')
-    return render_template('productos.html', productos=productos, success=success, error=error)
+    return render_template('productos/productos.html', productos=productos)
 
 @main.route('/agregar_producto', methods=['POST'])
 def agregar_producto():
@@ -262,24 +261,13 @@ def editar_producto(producto_id):
     producto = Producto.query.get_or_404(producto_id)
     
     if request.method == 'POST':
-        # Verificar si el nombre ya existe y no es el de este producto
-        if request.form['nombre'] != producto.nombre:
-            producto_existente = Producto.query.filter_by(nombre=request.form['nombre']).first()
-            if producto_existente:
-                return render_template('editar_producto.html', producto=producto, 
-                                     error="Ya existe un producto con este nombre")
-        
-        # Actualizar datos
         producto.nombre = request.form['nombre']
-        producto.descripcion = request.form['descripcion']
         producto.precio = float(request.form['precio'])
         producto.stock = int(request.form['stock'])
-        producto.categoria = request.form['categoria']
-        
         db.session.commit()
-        return redirect(url_for('main.productos', success="Producto actualizado correctamente"))
+        return redirect(url_for('main.productos'))
     
-    return render_template('editar_producto.html', producto=producto)
+    return render_template('productos/editar_producto.html', producto=producto)
 
 @main.route('/eliminar_producto/<int:producto_id>')
 def eliminar_producto(producto_id):
@@ -309,10 +297,11 @@ def registrar_venta():
         
         # Verificar stock
         if producto.stock < cantidad:
-            return render_template('registrar_venta.html', 
+            return render_template('productos/registrar_venta.html', 
                                 productos=Producto.query.all(),
                                 usuarios=Usuario.query.all(),
-                                error=f"Stock insuficiente. Solo hay {producto.stock} unidades disponibles.")
+                                error=f"Stock insuficiente. Solo hay {producto.stock} unidades disponibles.",
+                                hoy=datetime.now().strftime('%Y-%m-%d'))
         
         # Calcular total
         precio_unitario = producto.precio
@@ -338,7 +327,10 @@ def registrar_venta():
     
     productos = Producto.query.filter(Producto.stock > 0).all()
     usuarios = Usuario.query.all()
-    return render_template('registrar_venta.html', productos=productos, usuarios=usuarios)
+    return render_template('productos/registrar_venta.html', 
+                           productos=productos, 
+                           usuarios=usuarios, 
+                           hoy=datetime.now().strftime('%Y-%m-%d'))
 
 @main.route('/ventas')
 def ventas():
@@ -350,7 +342,7 @@ def ventas():
     
     success = request.args.get('success')
     
-    return render_template('ventas.html', ventas=ventas, success=success)
+    return render_template('productos/ventas.html', ventas=ventas, success=success)
 
 @main.route('/finanzas')
 def finanzas():
@@ -497,7 +489,7 @@ def finanzas():
     pagos = pagos_memb_formateados + pagos_productos
     pagos.sort(key=lambda x: x.fecha, reverse=True)
     
-    return render_template('finanzas.html',
+    return render_template('finanzas/finanzas.html',
                           usuarios_activos=usuarios_activos,
                           asistencias_mes=asistencias_mes,
                           ingresos_mensual_membresias=ingresos_mensual_membresias,
@@ -528,7 +520,7 @@ def editar_usuario(usuario_id):
         if request.form['cedula'] != usuario.cedula:
             usuario_existente = Usuario.query.filter_by(cedula=request.form['cedula']).first()
             if usuario_existente:
-                return render_template('editar_usuario.html', usuario=usuario, 
+                return render_template('usuarios/editar_usuario.html', usuario=usuario, 
                                      error="La cédula ya está registrada para otro usuario")
         
         # Guardar el plan anterior para comprobar si cambió
@@ -590,7 +582,7 @@ def editar_usuario(usuario_id):
         db.session.commit()
         return redirect(url_for('main.usuarios', success="Usuario actualizado correctamente"))
     
-    return render_template('editar_usuario.html', usuario=usuario, today=datetime.now())
+    return render_template('usuarios/editar_usuario.html', usuario=usuario)
 
 @main.route('/medidas/<int:usuario_id>', methods=['GET', 'POST'])
 def medidas(usuario_id):
@@ -631,7 +623,7 @@ def medidas(usuario_id):
     # Obtener historial de medidas
     historial_medidas = MedidasCorporales.query.filter_by(usuario_id=usuario_id).order_by(MedidasCorporales.fecha.desc()).all()
     
-    return render_template('medidas.html', 
+    return render_template('usuarios/medidas.html', 
                           usuario=usuario, 
                           historial=historial_medidas,
                           ultima_medida=historial_medidas[0] if historial_medidas else None)
@@ -664,7 +656,7 @@ def objetivos(usuario_id):
     objetivos_activos = ObjetivoPersonal.query.filter_by(usuario_id=usuario_id, completado=False).order_by(ObjetivoPersonal.fecha_creacion.desc()).all()
     objetivos_completados = ObjetivoPersonal.query.filter_by(usuario_id=usuario_id, completado=True).order_by(ObjetivoPersonal.fecha_creacion.desc()).all()
     
-    return render_template('objetivos.html', 
+    return render_template('usuarios/objetivos.html', 
                           usuario=usuario, 
                           objetivos_activos=objetivos_activos,
                           objetivos_completados=objetivos_completados)
@@ -729,7 +721,7 @@ def crear_admin():
         
         if admin_existente:
             flash('El nombre de usuario ya existe', 'danger')
-            return render_template('crear_admin.html')
+            return render_template('admin/crear_admin.html')
         
         nuevo_admin = Admin(nombre=nombre, usuario=usuario, rol=rol)
         nuevo_admin.set_password(password)
@@ -740,13 +732,13 @@ def crear_admin():
         flash('Administrador creado correctamente', 'success')
         return redirect(url_for('main.lista_admins'))
     
-    return render_template('crear_admin.html')
+    return render_template('admin/crear_admin.html')
 
 @main.route('/admin/lista_admins')
 @admin_required
 def lista_admins():
     admins = Admin.query.all()
-    return render_template('lista_admins.html', admins=admins)
+    return render_template('admin/lista_admins.html', admins=admins)
 
 @main.route('/finanzas_diarias')
 @login_required
@@ -838,7 +830,7 @@ def finanzas_diarias():
         Asistencia.fecha == fecha
     ).count()
     
-    return render_template('finanzas_diarias.html',
+    return render_template('finanzas/finanzas_diarias.html',
                           fecha=fecha,
                           pagos_membresia=pagos_membresia,
                           ventas_productos=ventas_productos,
