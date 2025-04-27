@@ -25,58 +25,88 @@
         </div>
         <div class="card-body">
           <form method="POST" action="{{ url_for('main.editar_usuario', usuario_id=usuario.id) }}">
-            <div class="mb-3">
-              <label for="nombre" class="form-label">Nombre Completo</label>
-              <input type="text" class="form-control" id="nombre" name="nombre" value="{{ usuario.nombre }}" required>
-            </div>
-            
-            <div class="mb-3">
-              <label for="cedula" class="form-label">Cédula</label>
-              <input type="text" class="form-control" id="cedula" name="cedula" value="{{ usuario.cedula }}" required>
-            </div>
-            
-            <div class="mb-3">
-              <label for="plan" class="form-label">Plan</label>
-              <select class="form-select" id="plan" name="plan">
-                <option value="Diario" {% if usuario.plan == 'Diario' %}selected{% endif %}>Diario - $5.000</option>
-                <option value="Quincenal" {% if usuario.plan == 'Quincenal' %}selected{% endif %}>Quincenal - $35.000</option>
-                <option value="Mensual" {% if usuario.plan == 'Mensual' %}selected{% endif %}>Mensual - $70.000</option>
-                <option value="Estudiantil" {% if usuario.plan == 'Estudiantil' %}selected{% endif %}>Estudiantil - $50.000</option>
-                <option value="Dirigido" {% if usuario.plan == 'Dirigido' %}selected{% endif %}>Dirigido - $130.000</option>
-                <option value="Personalizado" {% if usuario.plan == 'Personalizado' %}selected{% endif %}>Personalizado - $250.000</option>
-              </select>
-            </div>
-            
-            <div class="mb-3">
-              <label for="fecha_vencimiento_plan" class="form-label">Fecha de Vencimiento del Plan</label>
-              <input type="date" class="form-control" id="fecha_vencimiento_plan" name="fecha_vencimiento_plan" 
-                     value="{{ usuario.fecha_vencimiento_plan.strftime('%Y-%m-%d') if usuario.fecha_vencimiento_plan else '' }}">
-            </div>
-            
-            <div class="mb-3">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="ajustar_dias" name="ajustar_dias" onchange="toggleDiasRestantes()">
-                <label class="form-check-label" for="ajustar_dias">
-                  Ajustar días restantes manualmente
-                </label>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="nombre" class="form-label">Nombre Completo</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" value="{{ usuario.nombre }}" required>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="telefono" class="form-label">Teléfono</label>
+                <input type="text" class="form-control" id="telefono" name="telefono" value="{{ usuario.telefono }}" required>
               </div>
             </div>
             
-            <div class="mb-3" id="div_dias_restantes" style="display: none;">
-              <label for="dias_restantes" class="form-label">Días restantes del plan</label>
-              <input type="number" class="form-control" id="dias_restantes" name="dias_restantes" min="1" max="365" value="{% if usuario.fecha_vencimiento_plan %}{{ ((usuario.fecha_vencimiento_plan - today.date()).days)|default(30, true) }}{% else %}30{% endif %}">
-              <div class="form-text">Ingrese el número de días que desea que dure el plan a partir de hoy</div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="plan" class="form-label">Plan</label>
+                <select class="form-select" id="plan" name="plan" onchange="actualizarPlan()">
+                  <option value="Diario" {% if usuario.plan == 'Diario' %}selected{% endif %}>Diario - $5.000</option>
+                  <option value="Quincenal" {% if usuario.plan == 'Quincenal' %}selected{% endif %}>Quincenal - $35.000</option>
+                  <option value="Mensual" {% if usuario.plan == 'Mensual' %}selected{% endif %}>Mensual - $70.000</option>
+                  <option value="Estudiantil" {% if usuario.plan == 'Estudiantil' %}selected{% endif %}>Estudiantil - $50.000</option>
+                  <option value="Dirigido" {% if usuario.plan == 'Dirigido' %}selected{% endif %}>Dirigido - $130.000</option>
+                  <option value="Personalizado" {% if usuario.plan == 'Personalizado' %}selected{% endif %}>Personalizado - $250.000</option>
+                </select>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="metodo_pago" class="form-label">Método de Pago</label>
+                <select class="form-select" id="metodo_pago" name="metodo_pago">
+                  <option value="Efectivo" {% if usuario.metodo_pago == 'Efectivo' %}selected{% endif %}>Efectivo</option>
+                  <option value="Tarjeta" {% if usuario.metodo_pago == 'Tarjeta' %}selected{% endif %}>Tarjeta</option>
+                  <option value="Transferencia" {% if usuario.metodo_pago == 'Transferencia' %}selected{% endif %}>Transferencia</option>
+                  <option value="Nequi" {% if usuario.metodo_pago == 'Nequi' %}selected{% endif %}>Nequi</option>
+                  <option value="Daviplata" {% if usuario.metodo_pago == 'Daviplata' %}selected{% endif %}>Daviplata</option>
+                </select>
+              </div>
             </div>
             
-            <div class="mb-3">
-              <label for="metodo_pago" class="form-label">Método de Pago</label>
-              <select class="form-select" id="metodo_pago" name="metodo_pago">
-                <option value="Efectivo" {% if usuario.metodo_pago == 'Efectivo' %}selected{% endif %}>Efectivo</option>
-                <option value="Tarjeta" {% if usuario.metodo_pago == 'Tarjeta' %}selected{% endif %}>Tarjeta</option>
-                <option value="Transferencia" {% if usuario.metodo_pago == 'Transferencia' %}selected{% endif %}>Transferencia</option>
-                <option value="Nequi" {% if usuario.metodo_pago == 'Nequi' %}selected{% endif %}>Nequi</option>
-                <option value="Daviplata" {% if usuario.metodo_pago == 'Daviplata' %}selected{% endif %}>Daviplata</option>
-              </select>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="fecha_pago" class="form-label">Fecha de Pago</label>
+                <input type="date" class="form-control" id="fecha_pago" name="fecha_pago" 
+                       value="{{ today.strftime('%Y-%m-%d') }}">
+                <div class="form-text">Si se realiza un nuevo pago, esta será la fecha de inicio</div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="fecha_vencimiento_plan" class="form-label">Fecha de Vencimiento</label>
+                <input type="date" class="form-control" id="fecha_vencimiento_plan" name="fecha_vencimiento_plan" 
+                       value="{{ usuario.fecha_vencimiento_plan.strftime('%Y-%m-%d') if usuario.fecha_vencimiento_plan else '' }}">
+                <div class="form-text" id="info_vencimiento">Fecha actual de vencimiento del plan</div>
+              </div>
+            </div>
+            
+            <div class="row mb-4">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-body bg-light">
+                    <h6 class="card-title">Información del Plan Actual</h6>
+                    <p class="mb-1"><strong>Plan:</strong> {{ usuario.plan }}</p>
+                    <p class="mb-1"><strong>Precio:</strong> ${{ "{:,.0f}".format(usuario.precio_plan) }}</p>
+                    {% if usuario.fecha_vencimiento_plan %}
+                    <p class="mb-1">
+                      <strong>Vence:</strong> {{ usuario.fecha_vencimiento_plan.strftime('%d/%m/%Y') }} 
+                      ({% set dias_restantes = (usuario.fecha_vencimiento_plan - today.date()).days %}
+                      {% if dias_restantes > 0 %}
+                        faltan {{ dias_restantes }} día(s)
+                      {% elif dias_restantes == 0 %}
+                        vence hoy
+                      {% else %}
+                        <span class="text-danger">venció hace {{ dias_restantes|abs }} día(s)</span>
+                      {% endif %})
+                    </p>
+                    {% endif %}
+                    <div class="form-check mt-2">
+                      <input class="form-check-input" type="checkbox" id="renovar_plan" name="renovar_plan">
+                      <label class="form-check-label" for="renovar_plan">
+                        <strong>Renovar plan</strong> (registrar un nuevo pago)
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
@@ -95,18 +125,75 @@
 
 {% block scripts %}
 <script>
-  function toggleDiasRestantes() {
-    const checkAjustarDias = document.getElementById('ajustar_dias');
-    const divDiasRestantes = document.getElementById('div_dias_restantes');
-    const fechaVencimiento = document.getElementById('fecha_vencimiento_plan');
+  document.addEventListener("DOMContentLoaded", function() {
+    // Inicializar campos
+    setupRenovarPlanListener();
+  });
+  
+  function setupRenovarPlanListener() {
+    const renovarPlanCheck = document.getElementById('renovar_plan');
+    const fechaPagoInput = document.getElementById('fecha_pago');
+    const planSelect = document.getElementById('plan');
     
-    if (checkAjustarDias.checked) {
-      divDiasRestantes.style.display = 'block';
-      fechaVencimiento.disabled = true;
-    } else {
-      divDiasRestantes.style.display = 'none';
-      fechaVencimiento.disabled = false;
+    renovarPlanCheck.addEventListener('change', function() {
+      if (this.checked) {
+        // Si se va a renovar, activar campos de fecha de pago y plan
+        fechaPagoInput.disabled = false;
+        planSelect.disabled = false;
+        actualizarPlan();
+      } else {
+        // Si no se renueva, usar los valores actuales
+        fechaPagoInput.disabled = true;
+      }
+    });
+    
+    // Inicialmente desactivar fecha de pago
+    fechaPagoInput.disabled = !renovarPlanCheck.checked;
+  }
+  
+  function actualizarPlan() {
+    const plan = document.getElementById("plan").value;
+    const fechaPago = document.getElementById("fecha_pago");
+    const fechaVencimiento = document.getElementById("fecha_vencimiento_plan");
+    const infoVencimiento = document.getElementById("info_vencimiento");
+    const renovarPlanCheck = document.getElementById('renovar_plan');
+    
+    // Solo actualizar si se está renovando el plan
+    if (!renovarPlanCheck.checked) return;
+    
+    let dias = 1;
+
+    switch (plan) {
+      case "Diario":
+        dias = 1;
+        break;
+      case "Quincenal":
+        dias = 15;
+        break;
+      case "Mensual":
+      case "Estudiantil":
+      case "Dirigido":
+      case "Personalizado":
+        dias = 30;
+        break;
+    }
+    
+    // Calcular fecha de vencimiento automáticamente
+    if (fechaPago.value) {
+      const fechaInicio = new Date(fechaPago.value);
+      fechaInicio.setDate(fechaInicio.getDate() + dias);
+      const yyyy = fechaInicio.getFullYear();
+      const mm = String(fechaInicio.getMonth() + 1).padStart(2, '0');
+      const dd = String(fechaInicio.getDate()).padStart(2, '0');
+      fechaVencimiento.value = `${yyyy}-${mm}-${dd}`;
+      
+      infoVencimiento.textContent = `Plan válido por ${dias} día(s) desde la fecha de pago`;
     }
   }
+  
+  // Listeners para actualizar fechas
+  document.getElementById("fecha_pago").addEventListener("change", actualizarPlan);
+  document.getElementById("plan").addEventListener("change", actualizarPlan);
+  document.getElementById("renovar_plan").addEventListener("change", actualizarPlan);
 </script>
 {% endblock %} 

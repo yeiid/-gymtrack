@@ -32,25 +32,30 @@
       <div class="card-body">
         <form method="POST" action="/registrar_usuario" class="row g-3">
           <div class="col-md-4">
+            <label for="nombre" class="form-label">Nombre Completo</label>
             <input
               type="text"
               class="form-control"
+              id="nombre"
               name="nombre"
-              placeholder="Nombre"
-              required
-            />
-          </div>
-          <div class="col-md-2">
-            <input
-              type="text"
-              class="form-control"
-              name="cedula"
-              placeholder="Cédula"
+              placeholder="Nombre completo"
               required
             />
           </div>
           <div class="col-md-3">
-            <select class="form-select" name="plan" id="plan" onchange="actualizarPrecio()">
+            <label for="telefono" class="form-label">Teléfono</label>
+            <input
+              type="text"
+              class="form-control"
+              id="telefono"
+              name="telefono"
+              placeholder="Número de teléfono"
+              required
+            />
+          </div>
+          <div class="col-md-3">
+            <label for="plan" class="form-label">Plan</label>
+            <select class="form-select" name="plan" id="plan" onchange="actualizarPlan()">
               <option value="Diario">Diario - $5.000</option>
               <option value="Quincenal">Quincenal - $35.000</option>
               <option value="Mensual">Mensual - $70.000</option>
@@ -59,8 +64,9 @@
               <option value="Personalizado">Personalizado - $250.000</option>
             </select>
           </div>
-          <div class="col-md-3">
-            <select class="form-select" name="metodo_pago">
+          <div class="col-md-2">
+            <label for="metodo_pago" class="form-label">Método de Pago</label>
+            <select class="form-select" name="metodo_pago" id="metodo_pago">
               <option value="Efectivo">Efectivo</option>
               <option value="Tarjeta">Tarjeta</option>
               <option value="Transferencia">Transferencia</option>
@@ -69,23 +75,45 @@
             </select>
           </div>
           
-          <div class="col-md-12 mt-2">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="plan_activo" name="plan_activo" onchange="toggleDiasRestantes()">
-              <label class="form-check-label" for="plan_activo">
-                El usuario ya tiene un plan activo en otro gimnasio
-              </label>
+          <div class="col-md-3">
+            <label for="fecha_pago" class="form-label">Fecha de Pago</label>
+            <input 
+              type="date" 
+              class="form-control" 
+              id="fecha_pago" 
+              name="fecha_pago" 
+              value="{{ now.strftime('%Y-%m-%d') }}"
+              required
+            />
+          </div>
+          
+          <div class="col-md-3">
+            <label for="fecha_vencimiento" class="form-label">Fecha de Vencimiento</label>
+            <input 
+              type="date" 
+              class="form-control" 
+              id="fecha_vencimiento" 
+              name="fecha_vencimiento" 
+              required
+            />
+            <div class="form-text" id="info_vencimiento"></div>
+          </div>
+          
+          <div class="col-md-6 mt-4">
+            <div class="card">
+              <div class="card-body bg-light">
+                <h6 class="card-title">Resumen del Plan</h6>
+                <p class="mb-1"><strong>Plan:</strong> <span id="resumen_plan">Diario</span></p>
+                <p class="mb-1"><strong>Precio:</strong> <span id="resumen_precio">$5.000</span></p>
+                <p class="mb-1"><strong>Duración:</strong> <span id="resumen_duracion">1 día</span></p>
+              </div>
             </div>
           </div>
           
-          <div class="col-md-6 mt-2" id="div_dias_restantes" style="display: none;">
-            <label for="dias_restantes" class="form-label">Días restantes del plan actual</label>
-            <input type="number" class="form-control" id="dias_restantes" name="dias_restantes" min="1" max="365" value="30">
-            <div class="form-text">Ingrese los días restantes del plan que el usuario ya tiene activo</div>
-          </div>
-          
           <div class="col-12 text-end">
-            <button type="submit" class="btn btn-success">Registrar</button>
+            <button type="submit" class="btn btn-success">
+              <i class="fas fa-user-plus me-1"></i> Registrar Usuario
+            </button>
           </div>
         </form>
       </div>
@@ -103,7 +131,7 @@
         type="text"
         id="buscar-usuario"
         class="form-control"
-        placeholder="Buscar por nombre o cédula..."
+        placeholder="Buscar por nombre o teléfono..."
       />
     </div>
   </div>
@@ -117,7 +145,7 @@
       >
         <tr>
           <th>Nombre</th>
-          <th>Cédula</th>
+          <th>Teléfono</th>
           <th>Plan</th>
           <th>Método de pago</th>
           <th>Fecha de ingreso</th>
@@ -128,7 +156,7 @@
         {% for usuario in users %}
         <tr class="align-middle">
           <td class="fw-bold">{{ usuario.nombre }}</td>
-          <td>{{ usuario.cedula }}</td>
+          <td>{{ usuario.telefono }}</td>
           <td>
             {% if usuario.plan == 'Diario' %}
             <span class="badge bg-info text-dark">Diario</span>
@@ -136,6 +164,8 @@
             <span class="badge bg-primary text-white">Quincenal</span>
             {% elif usuario.plan == 'Mensual' %}
             <span class="badge bg-success">Mensual</span>
+            {% elif usuario.plan == 'Estudiantil' %}
+            <span class="badge bg-secondary">Estudiantil</span>
             {% elif usuario.plan == 'Dirigido' %}
             <span class="badge bg-warning text-dark">Dirigido</span>
             {% else %}
@@ -177,6 +207,10 @@
 {% endblock %} {% block scripts %}
 <script>
   document.addEventListener("DOMContentLoaded", function () {
+    // Inicializar campos
+    actualizarPlan();
+    
+    // Buscar usuario
     document
       .getElementById("buscar-usuario")
       .addEventListener("keyup", function () {
@@ -189,11 +223,11 @@
           var nombre = filas[i]
             .getElementsByTagName("td")[0]
             .textContent.toLowerCase();
-          var cedula = filas[i]
+          var telefono = filas[i]
             .getElementsByTagName("td")[1]
             .textContent.toLowerCase();
 
-          if (nombre.indexOf(texto) > -1 || cedula.indexOf(texto) > -1) {
+          if (nombre.indexOf(texto) > -1 || telefono.indexOf(texto) > -1) {
             filas[i].style.display = "";
           } else {
             filas[i].style.display = "none";
@@ -203,61 +237,73 @@
   });
 
   function editarUsuario(id) {
-    // Por el momento, solo redireccionar a una página de edición
     window.location.href = "/editar_usuario/" + id;
   }
 
-  function actualizarPrecio() {
+  function actualizarPlan() {
     const plan = document.getElementById("plan").value;
-    const precioPlanElement = document.getElementById("precio-plan");
-    const duracionPlanElement = document.getElementById("duracion-plan");
-
+    const resumenPlan = document.getElementById("resumen_plan");
+    const resumenPrecio = document.getElementById("resumen_precio");
+    const resumenDuracion = document.getElementById("resumen_duracion");
+    const fechaPago = document.getElementById("fecha_pago");
+    const fechaVencimiento = document.getElementById("fecha_vencimiento");
+    const infoVencimiento = document.getElementById("info_vencimiento");
+    
     let precio = "";
     let duracion = "";
+    let dias = 1;
 
     switch (plan) {
       case "Diario":
-        precio = "$5,000";
+        precio = "$5.000";
         duracion = "1 día";
+        dias = 1;
         break;
       case "Quincenal":
-        precio = "$35,000";
+        precio = "$35.000";
         duracion = "15 días";
+        dias = 15;
         break;
       case "Mensual":
-        precio = "$70,000";
+        precio = "$70.000";
         duracion = "30 días";
+        dias = 30;
         break;
       case "Estudiantil":
-        precio = "$50,000";
+        precio = "$50.000";
         duracion = "30 días";
+        dias = 30;
         break;
       case "Dirigido":
-        precio = "$130,000";
+        precio = "$130.000";
         duracion = "30 días (incluye entrenamiento dirigido)";
+        dias = 30;
         break;
       case "Personalizado":
-        precio = "$250,000";
+        precio = "$250.000";
         duracion = "30 días (incluye entrenador personal)";
+        dias = 30;
         break;
     }
 
-    precioPlanElement.textContent = precio;
-    duracionPlanElement.textContent = "Duración: " + duracion;
-  }
-
-  function toggleDiasRestantes() {
-    const checkPlanActivo = document.getElementById('plan_activo');
-    const divDiasRestantes = document.getElementById('div_dias_restantes');
-    const infoPlan = document.getElementById('info-plan');
+    resumenPlan.textContent = plan;
+    resumenPrecio.textContent = precio;
+    resumenDuracion.textContent = duracion;
     
-    if (checkPlanActivo.checked) {
-      divDiasRestantes.style.display = 'block';
-      infoPlan.style.display = 'none';
-    } else {
-      divDiasRestantes.style.display = 'none';
-      infoPlan.style.display = 'block';
+    // Calcular fecha de vencimiento automáticamente
+    if (fechaPago.value) {
+      const fechaInicio = new Date(fechaPago.value);
+      fechaInicio.setDate(fechaInicio.getDate() + dias);
+      const yyyy = fechaInicio.getFullYear();
+      const mm = String(fechaInicio.getMonth() + 1).padStart(2, '0');
+      const dd = String(fechaInicio.getDate()).padStart(2, '0');
+      fechaVencimiento.value = `${yyyy}-${mm}-${dd}`;
+      
+      infoVencimiento.textContent = `Plan válido por ${dias} día(s)`;
     }
   }
+  
+  // Actualizar fecha de vencimiento cuando cambie la fecha de pago
+  document.getElementById("fecha_pago").addEventListener("change", actualizarPlan);
 </script>
 {% endblock %}

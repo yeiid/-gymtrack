@@ -43,7 +43,10 @@ def index():
 def usuarios():
     usuarios = Usuario.query.all()
     success = request.args.get('success')
-    return render_template('usuarios/usuarios.html', users=usuarios, success=success)
+    return render_template('usuarios/usuarios.html', 
+                          users=usuarios, 
+                          success=success,
+                          now=datetime.now())
 
 @main.route('/registrar_usuario', methods=['POST'])
 def registrar_usuario():
@@ -51,6 +54,8 @@ def registrar_usuario():
     telefono = request.form['telefono']
     plan = request.form['plan']
     metodo_pago = request.form['metodo_pago']
+    fecha_pago_str = request.form.get('fecha_pago')
+    fecha_vencimiento_str = request.form.get('fecha_vencimiento')
     
     # Verificar si ya existe un usuario con el mismo teléfono
     usuario_existente = Usuario.query.filter_by(telefono=telefono).first()
@@ -61,51 +66,25 @@ def registrar_usuario():
                              users=Usuario.query.all(),
                              error="¡Usuario con teléfono " + telefono + " ya existe en el sistema!")
     
-    # Verificar si el usuario tiene un plan activo con días restantes personalizados
-    plan_activo = 'plan_activo' in request.form
+    # Convertir fechas de string a objetos date
+    fecha_pago = datetime.strptime(fecha_pago_str, '%Y-%m-%d').date() if fecha_pago_str else datetime.now().date()
+    fecha_vencimiento = datetime.strptime(fecha_vencimiento_str, '%Y-%m-%d').date() if fecha_vencimiento_str else None
     
-    # Calcular fecha de vencimiento y precio según el plan
-    fecha_vencimiento = None
-    precio_plan = None
-    
-    if plan_activo and request.form.get('dias_restantes'):
-        # Usuario con plan activo y días restantes personalizados
-        dias_restantes = int(request.form.get('dias_restantes'))
-        fecha_vencimiento = datetime.now().date() + timedelta(days=dias_restantes)
-        
-        # Asignar el precio según el plan seleccionado
-        if plan == 'Diario':
-            precio_plan = Usuario.PRECIO_DIARIO
-        elif plan == 'Quincenal':
-            precio_plan = Usuario.PRECIO_QUINCENAL
-        elif plan == 'Mensual':
-            precio_plan = Usuario.PRECIO_MENSUAL
-        elif plan == 'Estudiantil':
-            precio_plan = Usuario.PRECIO_ESTUDIANTIL
-        elif plan == 'Dirigido':
-            precio_plan = Usuario.PRECIO_DIRIGIDO
-        elif plan == 'Personalizado':
-            precio_plan = Usuario.PRECIO_PERSONALIZADO
+    # Calcular precio según el plan seleccionado
+    if plan == 'Diario':
+        precio_plan = Usuario.PRECIO_DIARIO
+    elif plan == 'Quincenal':
+        precio_plan = Usuario.PRECIO_QUINCENAL
+    elif plan == 'Mensual':
+        precio_plan = Usuario.PRECIO_MENSUAL
+    elif plan == 'Estudiantil':
+        precio_plan = Usuario.PRECIO_ESTUDIANTIL
+    elif plan == 'Dirigido':
+        precio_plan = Usuario.PRECIO_DIRIGIDO
+    elif plan == 'Personalizado':
+        precio_plan = Usuario.PRECIO_PERSONALIZADO
     else:
-        # Cálculo normal para nuevos planes
-        if plan == 'Diario':
-            precio_plan = Usuario.PRECIO_DIARIO
-            fecha_vencimiento = datetime.now().date() + timedelta(days=1)
-        elif plan == 'Quincenal':
-            precio_plan = Usuario.PRECIO_QUINCENAL
-            fecha_vencimiento = datetime.now().date() + timedelta(days=15)
-        elif plan == 'Mensual':
-            precio_plan = Usuario.PRECIO_MENSUAL
-            fecha_vencimiento = datetime.now().date() + timedelta(days=30)
-        elif plan == 'Estudiantil':
-            precio_plan = Usuario.PRECIO_ESTUDIANTIL
-            fecha_vencimiento = datetime.now().date() + timedelta(days=30)
-        elif plan == 'Dirigido':
-            precio_plan = Usuario.PRECIO_DIRIGIDO
-            fecha_vencimiento = datetime.now().date() + timedelta(days=30)
-        elif plan == 'Personalizado':
-            precio_plan = Usuario.PRECIO_PERSONALIZADO
-            fecha_vencimiento = datetime.now().date() + timedelta(days=30)
+        precio_plan = 0
     
     # Crear el nuevo usuario
     nuevo_usuario = Usuario(
@@ -114,7 +93,8 @@ def registrar_usuario():
         plan=plan,
         metodo_pago=metodo_pago,
         fecha_vencimiento_plan=fecha_vencimiento,
-        precio_plan=precio_plan
+        precio_plan=precio_plan,
+        fecha_ingreso=fecha_pago  # Usar la fecha de pago como fecha de ingreso
     )
     
     db.session.add(nuevo_usuario)
@@ -125,8 +105,9 @@ def registrar_usuario():
         monto=precio_plan,
         metodo_pago=metodo_pago,
         plan=plan,
-        fecha_inicio=datetime.now().date(),
-        fecha_fin=fecha_vencimiento
+        fecha_inicio=fecha_pago,
+        fecha_fin=fecha_vencimiento,
+        fecha_pago=datetime.now()  # La fecha de registro del pago es ahora
     )
     db.session.add(pago)
     
@@ -522,69 +503,70 @@ def editar_usuario(usuario_id):
         if request.form['telefono'] != usuario.telefono:
             usuario_existente = Usuario.query.filter_by(telefono=request.form['telefono']).first()
             if usuario_existente:
-                return render_template('usuarios/editar_usuario.html', usuario=usuario, 
-                                     error="El teléfono ya está registrado para otro usuario")
+                return render_template('usuarios/editar_usuario.html', 
+                                      usuario=usuario, 
+                                      today=datetime.now(),
+                                      error="El teléfono ya está registrado para otro usuario")
         
         # Guardar el plan anterior para comprobar si cambió
         plan_anterior = usuario.plan
         
-        # Actualizar datos
+        # Actualizar datos básicos
         usuario.nombre = request.form['nombre']
         usuario.telefono = request.form['telefono']
         usuario.plan = request.form['plan']
         usuario.metodo_pago = request.form['metodo_pago']
         
-        # Verificar si se está ajustando manualmente los días restantes
-        if 'ajustar_dias' in request.form and request.form.get('dias_restantes'):
-            # Calcular fecha de vencimiento a partir de los días restantes
-            dias_restantes = int(request.form.get('dias_restantes'))
-            usuario.fecha_vencimiento_plan = datetime.now().date() + timedelta(days=dias_restantes)
-        else:
-            # Procesar fecha de vencimiento del plan normal
+        # Verificar si se está renovando el plan
+        renovar_plan = 'renovar_plan' in request.form
+        
+        if renovar_plan:
+            # Procesar fecha de pago
+            fecha_pago_str = request.form.get('fecha_pago')
+            fecha_pago = datetime.strptime(fecha_pago_str, '%Y-%m-%d').date() if fecha_pago_str else datetime.now().date()
+            
+            # Procesar fecha de vencimiento
             fecha_vencimiento_str = request.form.get('fecha_vencimiento_plan')
-            if fecha_vencimiento_str:
-                usuario.fecha_vencimiento_plan = datetime.strptime(fecha_vencimiento_str, '%Y-%m-%d').date()
-            else:
-                # Si el plan es diario y no se especificó fecha, establecer vencimiento a mañana
-                if usuario.plan == 'Diario':
-                    usuario.fecha_vencimiento_plan = datetime.now().date() + timedelta(days=1)
-                # Para otros planes sin fecha específica, establecer según el plan
-                elif plan_anterior != usuario.plan:  # Si cambió el plan
-                    if usuario.plan == 'Quincenal':
-                        usuario.fecha_vencimiento_plan = datetime.now().date() + timedelta(days=15)
-                    else:  # Mensual, Dirigido o Personalizado
-                        usuario.fecha_vencimiento_plan = datetime.now().date() + timedelta(days=30)
-        
-        # Actualizar el precio del plan
-        if usuario.plan == 'Diario':
-            usuario.precio_plan = Usuario.PRECIO_DIARIO
-        elif usuario.plan == 'Quincenal':
-            usuario.precio_plan = Usuario.PRECIO_QUINCENAL
-        elif usuario.plan == 'Mensual':
-            usuario.precio_plan = Usuario.PRECIO_MENSUAL
-        elif usuario.plan == 'Estudiantil':
-            usuario.precio_plan = Usuario.PRECIO_ESTUDIANTIL
-        elif usuario.plan == 'Dirigido':
-            usuario.precio_plan = Usuario.PRECIO_DIRIGIDO
-        elif usuario.plan == 'Personalizado':
-            usuario.precio_plan = Usuario.PRECIO_PERSONALIZADO
-        
-        # Si cambió el plan o se ajustaron los días manualmente, registrar un nuevo pago
-        if plan_anterior != usuario.plan or 'ajustar_dias' in request.form:
+            fecha_vencimiento = datetime.strptime(fecha_vencimiento_str, '%Y-%m-%d').date() if fecha_vencimiento_str else None
+            
+            # Actualizar fecha de vencimiento
+            usuario.fecha_vencimiento_plan = fecha_vencimiento
+            
+            # Actualizar el precio del plan
+            if usuario.plan == 'Diario':
+                usuario.precio_plan = Usuario.PRECIO_DIARIO
+            elif usuario.plan == 'Quincenal':
+                usuario.precio_plan = Usuario.PRECIO_QUINCENAL
+            elif usuario.plan == 'Mensual':
+                usuario.precio_plan = Usuario.PRECIO_MENSUAL
+            elif usuario.plan == 'Estudiantil':
+                usuario.precio_plan = Usuario.PRECIO_ESTUDIANTIL
+            elif usuario.plan == 'Dirigido':
+                usuario.precio_plan = Usuario.PRECIO_DIRIGIDO
+            elif usuario.plan == 'Personalizado':
+                usuario.precio_plan = Usuario.PRECIO_PERSONALIZADO
+            
+            # Registrar un nuevo pago
             pago = PagoMensualidad(
                 usuario=usuario,
                 monto=usuario.precio_plan,
                 metodo_pago=usuario.metodo_pago,
                 plan=usuario.plan,
-                fecha_inicio=datetime.now().date(),
-                fecha_fin=usuario.fecha_vencimiento_plan
+                fecha_inicio=fecha_pago,
+                fecha_fin=fecha_vencimiento,
+                fecha_pago=datetime.now()
             )
             db.session.add(pago)
+        else:
+            # Si no se renueva el plan, solo actualizar fecha de vencimiento si se proporciona
+            fecha_vencimiento_str = request.form.get('fecha_vencimiento_plan')
+            if fecha_vencimiento_str:
+                usuario.fecha_vencimiento_plan = datetime.strptime(fecha_vencimiento_str, '%Y-%m-%d').date()
         
         db.session.commit()
         return redirect(url_for('main.usuarios', success="Usuario actualizado correctamente"))
     
-    return render_template('usuarios/editar_usuario.html', usuario=usuario)
+    return render_template('usuarios/editar_usuario.html', usuario=usuario, today=datetime.now())
 
 @main.route('/medidas/<int:usuario_id>', methods=['GET', 'POST'])
 def medidas(usuario_id):
