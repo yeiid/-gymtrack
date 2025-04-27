@@ -11,5 +11,39 @@ env/
 # Archivos de PyInstaller
 build/
 dist/
+*.spec
 # Logs
 *.log
+# Archivos de desarrollo
+probar_app.py
+dev_app.bat
+empaquetar_exe.py
+*.bat
+cookies.txt
+# Archivos generados en tiempo de ejecución
+*.bak
+*.tmp
+*.temp
+# Base de datos de prueba/desarrollo
+dev_database.db
+test_database.db
+# Carpetas de desarrollo
+dev/
+tests/
+# Archivos de caché
+.pytest_cache/
+.coverage
+htmlcov/
+# Archivos temporales de editores
+*~
+*.swp
+*.swo
+
+# Archivos locales que no se deben subir
+routes.py.bak
+app_launcher.py.bak
+*.py.bak
+database.db
+# Ignorar archivos específicos de SQLAlchemy en desarrollo
+dev/sqlalchemy_fix.py
+dev/fix_sqlalchemy_routes.py

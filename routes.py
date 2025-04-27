@@ -5,6 +5,7 @@ from sqlalchemy import func, extract, desc
 import json
 import random
 from functools import wraps
+from sqlalchemy import text
 
 main = Blueprint('main', __name__)
 
@@ -47,18 +48,18 @@ def usuarios():
 @main.route('/registrar_usuario', methods=['POST'])
 def registrar_usuario():
     nombre = request.form['nombre']
-    cedula = request.form['cedula']
+    telefono = request.form['telefono']
     plan = request.form['plan']
     metodo_pago = request.form['metodo_pago']
     
-    # Verificar si ya existe un usuario con la misma cédula
-    usuario_existente = Usuario.query.filter_by(cedula=cedula).first()
+    # Verificar si ya existe un usuario con el mismo teléfono
+    usuario_existente = Usuario.query.filter_by(telefono=telefono).first()
     
     if usuario_existente:
         # Usuario ya existe, mostrar mensaje
         return render_template('usuarios/usuarios.html', 
                              users=Usuario.query.all(),
-                             error="¡Usuario con cédula " + cedula + " ya existe en el sistema!")
+                             error="¡Usuario con teléfono " + telefono + " ya existe en el sistema!")
     
     # Verificar si el usuario tiene un plan activo con días restantes personalizados
     plan_activo = 'plan_activo' in request.form
@@ -106,20 +107,21 @@ def registrar_usuario():
             precio_plan = Usuario.PRECIO_PERSONALIZADO
             fecha_vencimiento = datetime.now().date() + timedelta(days=30)
     
-    # Si no existe, crear nuevo usuario
-    usuario = Usuario(
-        nombre=nombre, 
-        cedula=cedula, 
-        plan=plan, 
+    # Crear el nuevo usuario
+    nuevo_usuario = Usuario(
+        nombre=nombre,
+        telefono=telefono,
+        plan=plan,
         metodo_pago=metodo_pago,
         fecha_vencimiento_plan=fecha_vencimiento,
         precio_plan=precio_plan
     )
-    db.session.add(usuario)
+    
+    db.session.add(nuevo_usuario)
     
     # Registrar el pago de mensualidad
     pago = PagoMensualidad(
-        usuario=usuario,
+        usuario=nuevo_usuario,
         monto=precio_plan,
         metodo_pago=metodo_pago,
         plan=plan,
@@ -516,19 +518,19 @@ def editar_usuario(usuario_id):
     usuario = Usuario.query.get_or_404(usuario_id)
     
     if request.method == 'POST':
-        # Verificar si la cédula ya existe y no es la de este usuario
-        if request.form['cedula'] != usuario.cedula:
-            usuario_existente = Usuario.query.filter_by(cedula=request.form['cedula']).first()
+        # Verificar si el teléfono ya existe y no es el de este usuario
+        if request.form['telefono'] != usuario.telefono:
+            usuario_existente = Usuario.query.filter_by(telefono=request.form['telefono']).first()
             if usuario_existente:
                 return render_template('usuarios/editar_usuario.html', usuario=usuario, 
-                                     error="La cédula ya está registrada para otro usuario")
+                                     error="El teléfono ya está registrado para otro usuario")
         
         # Guardar el plan anterior para comprobar si cambió
         plan_anterior = usuario.plan
         
         # Actualizar datos
         usuario.nombre = request.form['nombre']
-        usuario.cedula = request.form['cedula']
+        usuario.telefono = request.form['telefono']
         usuario.plan = request.form['plan']
         usuario.metodo_pago = request.form['metodo_pago']
         
