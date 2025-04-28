@@ -5,7 +5,7 @@ Este script puede usarse tanto para desarrollo como para producción,
 y reemplaza a los scripts individuales app.py, run_app.py y standalone_app.py
 """
 from flask import Flask, request, jsonify
-from models import db, Usuario, Asistencia
+from models import db
 from routes import main
 import webbrowser
 import os
