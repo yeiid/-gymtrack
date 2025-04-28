@@ -1,6 +1,29 @@
 {% extends "layouts/layout.html" %}
 {% block content %}
-<h2>Asistencia</h2>
+<div class="row mb-3">
+  <div class="col-md-8">
+    <h2>Asistencia</h2>
+  </div>
+  <div class="col-md-4 text-end">
+    <div class="badge bg-primary p-2 fs-6">
+      <i class="fas fa-chart-bar me-1"></i> Hoy: {{ asistencias_hoy }} asistencias
+    </div>
+    <div class="badge bg-success p-2 fs-6 ms-2">
+      <i class="fas fa-chart-line me-1"></i> Este mes: {{ asistencias_mes }} asistencias
+    </div>
+  </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
 
 <div class="row mb-4">
   <div class="col-md-6">
@@ -10,13 +33,13 @@
       </div>
       <div class="card-body">
         <div class="mb-3">
-          <input type="text" id="buscador" class="form-control" placeholder="Buscar por nombre o cédula...">
+          <input type="text" id="buscador" class="form-control" placeholder="Buscar por nombre o teléfono...">
         </div>
         <table class="table table-hover">
           <thead class="table-light">
             <tr>
               <th>Nombre</th>
-              <th>Cédula</th>
+              <th>Teléfono</th>
               <th>Plan</th>
               <th>Acción</th>
             </tr>
@@ -25,10 +48,10 @@
             {% for usuario in usuarios %}
             <tr>
               <td>{{ usuario.nombre }}</td>
-              <td>{{ usuario.cedula }}</td>
+              <td>{{ usuario.telefono }}</td>
               <td>{{ usuario.plan }}</td>
               <td>
-                <a href="/marcar_asistencia/{{ usuario.id }}" class="btn btn-primary btn-sm">Marcar</a>
+                <a href="{{ url_for('main.usuarios.marcar_asistencia', usuario_id=usuario.id) }}" class="btn btn-primary btn-sm">Marcar</a>
               </td>
             </tr>
             {% endfor %}
@@ -113,9 +136,9 @@
       
       for (var i = 0; i < filas.length; i++) {
         var nombre = filas[i].getElementsByTagName('td')[0].textContent.toLowerCase();
-        var cedula = filas[i].getElementsByTagName('td')[1].textContent.toLowerCase();
+        var telefono = filas[i].getElementsByTagName('td')[1].textContent.toLowerCase();
         
-        if (nombre.indexOf(texto) > -1 || cedula.indexOf(texto) > -1) {
+        if (nombre.indexOf(texto) > -1 || telefono.indexOf(texto) > -1) {
           filas[i].style.display = "";
         } else {
           filas[i].style.display = "none";

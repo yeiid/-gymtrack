@@ -7,6 +7,10 @@ from routes.auth.routes import admin_required
 # Crear blueprint
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
+@bp.route('/')
+def index():
+    return "Módulo de Administración"
+
 @bp.route('/crear_admin', methods=['GET', 'POST'])
 @admin_required
 def crear_admin():
@@ -62,6 +66,28 @@ def reset_password(admin_id):
 @bp.route('/config', methods=['GET', 'POST'])
 @admin_required
 def configuracion():
+    # Verificación adicional de seguridad
+    try:
+        if 'admin_id' not in session:
+            flash('Debe iniciar sesión para acceder a esta sección', 'warning')
+            return redirect(url_for('main.auth.login'))
+            
+        admin = Admin.query.get(session['admin_id'])
+        if not admin:
+            # Si el admin no existe en la base de datos, cerrar sesión
+            session.pop('admin_id', None)
+            session.pop('admin_nombre', None)
+            session.pop('admin_rol', None)
+            flash('Su sesión ha expirado o ha sido eliminada. Por favor, inicie sesión nuevamente.', 'warning')
+            return redirect(url_for('main.auth.login'))
+            
+        if admin.rol != 'administrador':
+            flash('No tiene permisos para acceder a esta sección', 'danger')
+            return redirect(url_for('main.index'))
+    except Exception as e:
+        flash(f'Error de autenticación: {str(e)}', 'danger')
+        return redirect(url_for('main.auth.login'))
+            
     if request.method == 'POST':
         accion = request.form.get('accion')
         

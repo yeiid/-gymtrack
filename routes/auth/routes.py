@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from models import Admin
+from models import Admin, db
+from datetime import datetime
 from functools import wraps
 
 # Crear blueprint
@@ -24,6 +25,14 @@ def admin_required(f):
             return redirect(url_for('main.auth.login'))
         
         admin = Admin.query.get(session['admin_id'])
+        if not admin:
+            # Si el admin no existe en la base de datos, cerrar sesión
+            session.pop('admin_id', None)
+            session.pop('admin_nombre', None)
+            session.pop('admin_rol', None)
+            flash('Su sesión ha expirado o ha sido eliminada. Por favor, inicie sesión nuevamente.', 'warning')
+            return redirect(url_for('main.auth.login'))
+            
         if admin.rol != 'administrador':
             flash('No tiene permisos para acceder a esta sección', 'danger')
             return redirect(url_for('main.index'))
@@ -45,9 +54,7 @@ def login():
             session['admin_rol'] = admin.rol
             
             # Actualizar fecha de último acceso
-            from datetime import datetime
             admin.ultimo_acceso = datetime.now()
-            from models import db
             db.session.commit()
             
             flash(f'¡Bienvenido, {admin.nombre}!', 'success')

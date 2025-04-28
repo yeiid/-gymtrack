@@ -6,7 +6,7 @@ y reemplaza a los scripts individuales app.py, run_app.py y standalone_app.py
 """
 from flask import Flask, request, jsonify
 from models import db
-from routes import main
+from routes import main  # Importar el blueprint principal de la nueva estructura
 import webbrowser
 import os
 import sys
@@ -16,6 +16,17 @@ import signal
 import logging
 import io
 import argparse
+import datetime
+from dateutil import tz
+import shutil
+
+# Establecer la zona horaria local
+os.environ['TZ'] = 'America/Bogota'
+# Asegurar que datetime.now() use la zona horaria local
+try:
+    time.tzset()  # En Windows esta función no existe
+except AttributeError:
+    pass
 
 # Clase para redirigir salida en modo empaquetado
 class NullIO(io.IOBase):
@@ -34,16 +45,79 @@ def init_database(app, fresh=False):
         app: Aplicación Flask
         fresh: Si es True, recreará la base de datos
     """
+    # Crear respaldo antes de modificar la base de datos
+    crear_respaldo_automatico()
+    
     with app.app_context():
         if fresh:
             # Recrear la base de datos desde cero
             db.drop_all()
             db.create_all()
             print("Base de datos recreada.")
+            # Verificar y crear administrador por defecto después de recrear la BD
+            verificar_admin_por_defecto()
         else:
             # Solo crear las tablas si no existen
             db.create_all()
             print("Base de datos inicializada.")
+            # Verificar y crear administrador por defecto
+            verificar_admin_por_defecto()
+
+def crear_respaldo_automatico():
+    """
+    Crea un respaldo automático de la base de datos
+    """
+    # Si no existe database.db, no hay nada que respaldar
+    if not os.path.exists('database.db'):
+        return
+        
+    # Crear directorio de respaldos si no existe
+    if not os.path.exists('backups'):
+        os.makedirs('backups')
+    
+    # Generar nombre de archivo con fecha
+    fecha = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    archivo_respaldo = f'backups/database_{fecha}.db'
+    
+    # Copiar la base de datos
+    try:
+        shutil.copy2('database.db', archivo_respaldo)
+        print(f"Respaldo creado: {archivo_respaldo}")
+        
+        # Limpiar respaldos antiguos (mantener solo los últimos 7)
+        respaldos = sorted([f for f in os.listdir('backups') if f.startswith('database_')])
+        if len(respaldos) > 7:
+            for archivo in respaldos[:-7]:
+                ruta_completa = os.path.join('backups', archivo)
+                os.remove(ruta_completa)
+                print(f"Respaldo antiguo eliminado: {archivo}")
+    except Exception as e:
+        print(f"Error al crear respaldo: {str(e)}")
+
+def verificar_admin_por_defecto():
+    """
+    Verifica si existe al menos un administrador en el sistema.
+    Si no existe ninguno, crea un administrador por defecto.
+    """
+    from models import Admin
+    
+    # Verificar si hay administradores
+    admin_count = Admin.query.count()
+    
+    if admin_count == 0:
+        # No hay administradores, crear uno por defecto
+        print("No se encontraron administradores. Creando administrador por defecto...")
+        admin = Admin(
+            nombre="Administrador",
+            usuario="admin",
+            rol="administrador"
+        )
+        admin.set_password("admin123")
+        db.session.add(admin)
+        db.session.commit()
+        print("Administrador por defecto creado: usuario='admin', contraseña='admin123'")
+    else:
+        print(f"Se encontraron {admin_count} administradores en el sistema.")
 
 def create_app(mode='development'):
     """
@@ -58,6 +132,8 @@ def create_app(mode='development'):
     app = Flask(__name__)
     app.config.from_pyfile('config.py')
     db.init_app(app)
+    
+    # Registrar el blueprint principal que contiene todas las rutas
     app.register_blueprint(main)
     
     # Inicializar la base de datos (sin recrearla)
