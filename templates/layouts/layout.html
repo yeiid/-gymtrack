@@ -43,7 +43,7 @@
     <!-- Barra de navegación energética -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
       <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="/">
+        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.index') }}">
           <i class="fas fa-dumbbell me-2"></i>
           <span>Reto Fit Carlenis Ortiz</span>
         </a>
@@ -61,41 +61,123 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-              <a class="nav-link" href="/usuarios">
+              <a class="nav-link" href="{{ url_for('main.usuarios.index') }}">
                 <i class="fas fa-users me-1"></i>
                 <span>Usuarios</span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/asistencia">
-                <i class="fas fa-calendar-check me-1"></i>
+              <a class="nav-link" href="{{ url_for('main.usuarios.asistencia') }}">
+                <i class="fas fa-clipboard-check me-1"></i>
                 <span>Asistencia</span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/pagos">
-                <i class="fas fa-file-invoice-dollar me-1"></i>
-                <span>Pagos</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/productos">
-                <i class="fas fa-box me-1"></i>
+              <a class="nav-link" href="{{ url_for('main.productos.index') }}">
+                <i class="fas fa-store me-1"></i>
                 <span>Productos</span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/ventas">
-                <i class="fas fa-shopping-cart me-1"></i>
+              <a class="nav-link" href="{{ url_for('main.productos.ventas') }}">
+                <i class="fas fa-cash-register me-1"></i>
                 <span>Ventas</span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/finanzas">
+              <a class="nav-link" href="{{ url_for('main.finanzas.index') }}">
                 <i class="fas fa-chart-line me-1"></i>
                 <span>Finanzas</span>
               </a>
             </li>
+            
+            <!-- Botón de iniciar sesión si no hay sesión activa -->
+            {% if not session.get('admin_id') %}
+            <li class="nav-item">
+              <a class="nav-link btn btn-outline-light btn-sm ms-2 px-3" href="{{ url_for('main.login_directo') }}">
+                <i class="fas fa-sign-in-alt me-1"></i>
+                <span>Iniciar sesión</span>
+              </a>
+            </li>
+            {% endif %}
+            
+            <!-- Menú de debug - Solo visible en desarrollo --> 
+            {% if debug %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle text-warning" href="#" id="debugDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-bug me-1"></i>
+                <span>Debug</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="debugDropdown">
+                <li><span class="dropdown-item-text">Admin ID: {{ session.get('admin_id') }}</span></li>
+                <li><span class="dropdown-item-text">Admin Nombre: {{ session.get('admin_nombre') }}</span></li>
+                <li><span class="dropdown-item-text">Admin Rol: {{ session.get('admin_rol') }}</span></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('main.actualizar_rol_admin') }}">
+                    <i class="fas fa-user-shield me-1"></i> Forzar rol admin
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('main.emergencia_admin') }}">
+                    <i class="fas fa-exclamation-triangle me-1"></i> Emergencia
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('main.actualizar_bd') }}">
+                    <i class="fas fa-database me-1"></i> Actualizar BD
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('main.auth.debug_session') }}">
+                    <i class="fas fa-info-circle me-1"></i> Depurar sesión
+                  </a>
+                </li>
+              </ul>
+            </li>
+            {% endif %}
+            
+            <!-- MENÚ ÚNICO DE USUARIO Y ADMINISTRACIÓN -->
+            {% if session.get('admin_id') %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="userAdminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user-cog me-1"></i>
+                <span>{{ session.get('admin_nombre') }}</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userAdminDropdown">
+                <!-- Opciones de administración -->
+                <li class="dropdown-header">Administración</li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('main.admin.lista_admins') }}">
+                    <i class="fas fa-users-cog me-1"></i> Administradores
+                  </a>
+                </li>
+                {% if session.get('admin_rol') == 'administrador' %}
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('main.admin.configuracion') }}">
+                    <i class="fas fa-cogs me-1"></i> Configuración
+                  </a>
+                </li>
+                {% endif %}
+                
+                <li><hr class="dropdown-divider"></li>
+                
+                <!-- Opciones de usuario -->
+                <li class="dropdown-header">Mi cuenta</li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('main.auth.cambiar_contrasena') }}">
+                    <i class="fas fa-key me-1"></i> Cambiar contraseña
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('main.auth.logout') }}">
+                    <i class="fas fa-sign-out-alt me-1"></i> Cerrar sesión
+                  </a>
+                </li>
+              </ul>
+            </li>
+            {% endif %}
+            
             <li class="nav-item">
               <a class="nav-link text-danger" href="#" id="cerrarApp">
                 <i class="fas fa-power-off me-1"></i>

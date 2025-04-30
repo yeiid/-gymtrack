@@ -4,7 +4,7 @@
     <div class="col-md-8">
       <h2>{{ usuario.nombre }}</h2>
       <p class="text-muted mb-0">
-        <strong>CI:</strong> {{ usuario.cedula }}
+        <strong>Tel:</strong> {{ usuario.telefono }}
         <strong class="ms-3">Plan:</strong> {{ usuario.plan }}
         <strong class="ms-3">Ingreso:</strong> {{
         usuario.fecha_ingreso.strftime('%d/%m/%Y') }}
@@ -12,21 +12,31 @@
     </div>
     <div class="col-md-4 text-end">
       {% if usuario.plan in ['Dirigido', 'Personalizado'] %}
-      <a
-        href="{{ url_for('main.medidas', usuario_id=usuario.id) }}"
-        class="btn btn-info me-2"
-      >
-        <i class="fas fa-weight me-1"></i> Medidas
-      </a>
-      <a
-        href="{{ url_for('main.objetivos', usuario_id=usuario.id) }}"
-        class="btn btn-success me-2"
-      >
-        <i class="fas fa-bullseye me-1"></i> Objetivos
-      </a>
+        {% if ultima_medida %}
+        <span class="badge bg-info me-2">
+          <i class="fas fa-weight me-1"></i> Última medida: {{ ultima_medida.fecha.strftime('%d/%m/%Y') }}
+        </span>
+        {% endif %}
+        {% if objetivos_activos %}
+        <span class="badge bg-success me-2">
+          <i class="fas fa-bullseye me-1"></i> {{ objetivos_activos|length }} objetivo(s) activo(s)
+        </span>
+        {% endif %}
+        <a
+          href="{{ url_for('main.usuarios.medidas', usuario_id=usuario.id) }}"
+          class="btn btn-info me-2"
+        >
+          <i class="fas fa-weight me-1"></i> Medidas
+        </a>
+        <a
+          href="{{ url_for('main.usuarios.objetivos', usuario_id=usuario.id) }}"
+          class="btn btn-success me-2"
+        >
+          <i class="fas fa-bullseye me-1"></i> Objetivos
+        </a>
       {% endif %}
       <a
-        href="{{ url_for('main.editar_usuario', usuario_id=usuario.id) }}"
+        href="{{ url_for('main.usuarios.editar_usuario', usuario_id=usuario.id) }}"
         class="btn btn-primary"
       >
         <i class="fas fa-edit me-1"></i> Editar
@@ -38,7 +48,7 @@
     <div class="col-md-12">
       <h2>Información del Usuario</h2>
       <a
-        href="{{ url_for('main.usuarios') }}"
+        href="{{ url_for('main.usuarios.index') }}"
         class="btn btn-sm btn-secondary mb-3"
         >Volver</a
       >
@@ -58,8 +68,8 @@
               <td>{{ usuario.nombre }}</td>
             </tr>
             <tr>
-              <th>Cédula:</th>
-              <td>{{ usuario.cedula }}</td>
+              <th>Teléfono:</th>
+              <td>{{ usuario.telefono }}</td>
             </tr>
             <tr>
               <th>Plan:</th>
@@ -257,7 +267,7 @@
           </table>
           <div class="text-center mt-3">
             <a
-              href="{{ url_for('main.renovar_plan', usuario_id=usuario.id) }}"
+              href="{{ url_for('main.usuarios.renovar_plan', usuario_id=usuario.id) }}"
               class="btn btn-success"
             >
               <i class="fas fa-sync-alt me-1"></i> Renovar Plan
@@ -267,7 +277,7 @@
           <p class="text-center">No hay pagos registrados para este usuario.</p>
           <div class="text-center mt-3">
             <a
-              href="{{ url_for('main.renovar_plan', usuario_id=usuario.id) }}"
+              href="{{ url_for('main.usuarios.renovar_plan', usuario_id=usuario.id) }}"
               class="btn btn-success"
             >
               <i class="fas fa-sync-alt me-1"></i> Registrar Primer Pago
@@ -278,6 +288,38 @@
       </div>
     </div>
   </div>
+
+  {% if usuario.fecha_vencimiento_plan and usuario.fecha_vencimiento_plan < today.date() %}
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Plan vencido:</strong> El plan ha vencido el
+        {{ usuario.fecha_vencimiento_plan.strftime('%d/%m/%Y') }}
+        <a
+          href="{{ url_for('main.usuarios.renovar_plan', usuario_id=usuario.id) }}"
+          class="btn btn-sm btn-danger ms-3"
+          >Renovar Plan</a
+        >
+      </div>
+    </div>
+  </div>
+  {% elif usuario.fecha_vencimiento_plan and (usuario.fecha_vencimiento_plan - today.date()).days <= 3 %}
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="alert alert-warning">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <strong>Plan por vencer:</strong> El plan vence el
+        {{ usuario.fecha_vencimiento_plan.strftime('%d/%m/%Y') }}
+        <a
+          href="{{ url_for('main.usuarios.renovar_plan', usuario_id=usuario.id) }}"
+          class="btn btn-sm btn-warning ms-3"
+          >Renovar Plan</a
+        >
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </div>
 {% endblock %} {% block scripts %}
 <link
@@ -290,6 +332,18 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendario');
+    
+    // Crear el array de eventos de forma segura
+    var eventos = [];
+    {% for asistencia in asistencias %}
+    eventos.push({
+      title: 'Asistencia',
+      start: '{{ asistencia.fecha.strftime("%Y-%m-%d") }}',
+      backgroundColor: '#28a745',
+      borderColor: '#28a745'
+    });
+    {% endfor %}
+    
     var calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: 'dayGridMonth',
       locale: 'es',
@@ -298,17 +352,9 @@
         center: 'title',
         right: 'dayGridMonth,timeGridWeek'
       },
-      events: [
-        {% for asistencia in asistencias %}
-        {
-          title: 'Asistencia',
-          start: '{{ asistencia.fecha.strftime("%Y-%m-%d") }}',
-          backgroundColor: '#28a745',
-          borderColor: '#28a745'
-        },
-        {% endfor %}
-      ]
+      events: eventos
     });
+    
     calendar.render();
   });
 </script>

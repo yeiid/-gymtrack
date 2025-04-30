@@ -7,7 +7,7 @@ db = SQLAlchemy()
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
-    cedula = db.Column(db.String(20), unique=True)
+    telefono = db.Column(db.String(20), unique=True)
     plan = db.Column(db.String(50))
     fecha_ingreso = db.Column(db.Date, default=datetime.utcnow)
     metodo_pago = db.Column(db.String(50))
@@ -46,6 +46,7 @@ class ObjetivoPersonal(db.Model):
     descripcion = db.Column(db.Text, nullable=False)
     fecha_creacion = db.Column(db.Date, default=datetime.utcnow)
     fecha_objetivo = db.Column(db.Date, nullable=True)
+    fecha_completado = db.Column(db.Date, nullable=True)
     completado = db.Column(db.Boolean, default=False)
     progreso = db.Column(db.Integer, default=0)
     
@@ -54,7 +55,27 @@ class ObjetivoPersonal(db.Model):
 class Asistencia(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
-    fecha = db.Column(db.Date, default=datetime.utcnow)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    usuario = db.relationship('Usuario', backref='asistencias')
+
+class Instructor(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    especialidad = db.Column(db.String(50), nullable=True)
+    telefono = db.Column(db.String(20), nullable=True)
+    fecha_ingreso = db.Column(db.Date, default=datetime.utcnow)
+    
+    clases = db.relationship('Clase', backref='instructor', lazy=True)
+
+class Clase(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tipo = db.Column(db.String(50), nullable=False)
+    dia = db.Column(db.String(20), nullable=False)
+    hora = db.Column(db.String(10), nullable=False)
+    duracion = db.Column(db.Integer, default=60)  # Duración en minutos
+    capacidad = db.Column(db.Integer, default=20)
+    instructor_id = db.Column(db.Integer, db.ForeignKey('instructor.id'), nullable=True)
 
 class Producto(db.Model):
     id = db.Column(db.Integer, primary_key=True)

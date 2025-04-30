@@ -4,11 +4,31 @@
   <div class="row mb-3">
     <div class="col-md-12">
       <h2>Editar Producto</h2>
-      <a href="{{ url_for('main.productos') }}" class="btn btn-sm btn-secondary mb-3">
+      <a href="{{ url_for('main.productos.index') }}" class="btn btn-sm btn-secondary mb-3">
         <i class="fas fa-arrow-left me-1"></i> Volver a Productos
       </a>
     </div>
   </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {% if category == 'success' %}
+          <strong><i class="fas fa-check-circle"></i> Éxito:</strong>
+        {% elif category == 'danger' %}
+          <strong><i class="fas fa-exclamation-circle"></i> Error:</strong>
+        {% elif category == 'warning' %}
+          <strong><i class="fas fa-exclamation-triangle"></i> Advertencia:</strong>
+        {% elif category == 'info' %}
+          <strong><i class="fas fa-info-circle"></i> Información:</strong>
+        {% endif %}
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 
   {% if error %}
   <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -24,7 +44,7 @@
           <h5 class="card-title mb-0">Datos del Producto</h5>
         </div>
         <div class="card-body">
-          <form method="POST" action="{{ url_for('main.editar_producto', producto_id=producto.id) }}">
+          <form method="POST" action="{{ url_for('main.productos.editar_producto', producto_id=producto.id) }}">
             <div class="mb-3">
               <label for="nombre" class="form-label">Nombre del Producto</label>
               <input type="text" class="form-control" id="nombre" name="nombre" value="{{ producto.nombre }}" required>
@@ -62,7 +82,7 @@
             </div>
             
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-              <a href="{{ url_for('main.productos') }}" class="btn btn-secondary me-md-2">Cancelar</a>
+              <a href="{{ url_for('main.productos.index') }}" class="btn btn-secondary me-md-2">Cancelar</a>
               <button type="submit" class="btn btn-success">
                 <i class="fas fa-save me-1"></i> Guardar Cambios
               </button>

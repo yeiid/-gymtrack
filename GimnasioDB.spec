@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['standalone_app.py'],
+    ['app_launcher.py'],
     pathex=[],
     binaries=[],
     datas=[('templates', 'templates'), ('static', 'static'), ('database.db', '.'), ('config.py', '.')],
@@ -22,7 +22,8 @@ a = Analysis(
         'click',
         'threading',
         'signal',
-        'flask.cli'
+        'flask.cli',
+        'argparse'
     ],
     hookspath=[],
     hooksconfig={},

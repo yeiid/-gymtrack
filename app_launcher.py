@@ -17,7 +17,6 @@ import logging
 import io
 import argparse
 import datetime
-from dateutil import tz
 import shutil
 
 # Establecer la zona horaria local
@@ -119,25 +118,31 @@ def verificar_admin_por_defecto():
     else:
         print(f"Se encontraron {admin_count} administradores en el sistema.")
 
-def create_app(mode='development'):
-    """
-    Crea la aplicación Flask
+def create_app(test_config=None):
+    app = Flask(__name__, instance_relative_config=True)
     
-    Args:
-        mode: 'development' o 'production'
-    """
-    # Establecer la variable de entorno para el modo
-    os.environ['APP_MODE'] = mode
+    app.config.from_mapping(
+        SECRET_KEY='dev',
+        SQLALCHEMY_DATABASE_URI='sqlite:///database.db',
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        DEBUG=True  # Configurar modo debug
+    )
     
-    app = Flask(__name__)
-    app.config.from_pyfile('config.py')
+    # Inicializar la base de datos
     db.init_app(app)
     
-    # Registrar el blueprint principal que contiene todas las rutas
+    # Registrar el blueprint principal
+    from routes import main
     app.register_blueprint(main)
     
-    # Inicializar la base de datos (sin recrearla)
-    init_database(app)
+    # Añadir variables de contexto globales
+    @app.context_processor
+    def inject_debug():
+        return dict(debug=app.debug)
+    
+    # Crear tabla si no existe
+    with app.app_context():
+        db.create_all()
     
     # Ruta para cerrar la aplicación
     @app.route('/cerrar-aplicacion', methods=['POST'])

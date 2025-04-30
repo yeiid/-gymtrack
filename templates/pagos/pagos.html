@@ -22,7 +22,7 @@
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
       <h5 class="card-title mb-0">Historial de Pagos de Planes</h5>
       <div class="col-md-4">
-        <input type="text" id="buscar-pago" class="form-control" placeholder="Buscar por nombre o cédula...">
+        <input type="text" id="buscar-pago" class="form-control" placeholder="Buscar por nombre o teléfono...">
       </div>
     </div>
     <div class="card-body">
@@ -42,11 +42,11 @@
           <tr class="align-middle">
             <td>{{ pago.fecha_pago.strftime('%d/%m/%Y %H:%M') }}</td>
             <td>
-              <a href="{{ url_for('main.ver_usuario', usuario_id=pago.usuario.id) }}">
+              <a href="{{ url_for('main.usuarios.ver_usuario', usuario_id=pago.usuario.id) }}">
                 {{ pago.usuario.nombre }}
               </a>
               <br>
-              <small class="text-muted">{{ pago.usuario.cedula }}</small>
+              <small class="text-muted">{{ pago.usuario.telefono }}</small>
             </td>
             <td>
               {% if pago.plan == 'Diario' %}

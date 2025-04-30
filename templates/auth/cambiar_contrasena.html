@@ -1,0 +1,51 @@
+{% extends "layouts/layout.html" %} 
+
+{% block content %}
+<div class="row">
+  <div class="col-md-6 mx-auto">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Cambiar Contraseña</h5>
+      </div>
+      <div class="card-body">
+        {% with messages = get_flashed_messages(with_categories=true) %} 
+          {% if messages %} 
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+              </div>
+            {% endfor %} 
+          {% endif %} 
+        {% endwith %}
+
+        <form method="post" action="{{ url_for('main.auth.cambiar_contrasena') }}">
+          <div class="mb-3">
+            <label for="contrasena_actual" class="form-label">Contraseña Actual</label>
+            <input type="password" class="form-control" id="contrasena_actual" name="contrasena_actual" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="nueva_contrasena" class="form-label">Nueva Contraseña</label>
+            <input type="password" class="form-control" id="nueva_contrasena" name="nueva_contrasena" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="confirmar_contrasena" class="form-label">Confirmar Nueva Contraseña</label>
+            <input type="password" class="form-control" id="confirmar_contrasena" name="confirmar_contrasena" required>
+          </div>
+          
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-key me-1"></i> Cambiar Contraseña
+            </button>
+            <a href="{{ url_for('main.index') }}" class="btn btn-secondary">
+              <i class="fas fa-arrow-left me-1"></i> Cancelar
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

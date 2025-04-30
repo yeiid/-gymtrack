@@ -3,7 +3,7 @@
   <div class="row mb-3">
     <div class="col-md-12 d-flex justify-content-between align-items-center">
       <h2>Historial de Ventas</h2>
-      <a href="{{ url_for('main.registrar_venta') }}" class="btn btn-success">
+      <a href="{{ url_for('main.productos.registrar_venta') }}" class="btn btn-success">
         <i class="fas fa-plus-circle me-1"></i> Nueva Venta
       </a>
     </div>
@@ -12,6 +12,18 @@
   {% if success %}
   <div class="alert alert-success alert-dismissible fade show" role="alert">
     <strong><i class="fas fa-check-circle"></i> Éxito:</strong> {{ success }}
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+  {% endif %}
+
+  {% if error %}
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong><i class="fas fa-exclamation-circle"></i> Error:</strong> {{ error }}
     <button
       type="button"
       class="btn-close"

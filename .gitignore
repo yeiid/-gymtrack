@@ -19,12 +19,14 @@ probar_app.py
 dev_app.bat
 empaquetar_exe.py
 *.bat
+backups/
 cookies.txt
 # Archivos generados en tiempo de ejecución
 *.bak
 *.tmp
 *.temp
-# Base de datos de prueba/desarrollo
+# Base de datos 
+database.db
 dev_database.db
 test_database.db
 # Carpetas de desarrollo
@@ -38,12 +40,15 @@ htmlcov/
 *~
 *.swp
 *.swo
+# Archivos comprimidos
+*.rar
+*.zip
+*.tar.gz
 
 # Archivos locales que no se deben subir
 routes.py.bak
 app_launcher.py.bak
 *.py.bak
-database.db
 # Ignorar archivos específicos de SQLAlchemy en desarrollo
 dev/sqlalchemy_fix.py
 dev/fix_sqlalchemy_routes.py

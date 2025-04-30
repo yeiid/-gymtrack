@@ -4,8 +4,13 @@
     <h2>Administradores del Sistema</h2>
   </div>
   <div class="col-md-4 text-end">
-    <a href="{{ url_for('main.crear_admin') }}" class="btn btn-primary">
+    {% if is_admin %}
+    <a href="{{ url_for('main.admin.crear_admin') }}" class="btn btn-primary me-2">
       <i class="fas fa-user-plus me-1"></i> Nuevo Administrador
+    </a>
+    {% endif %}
+    <a href="{{ url_for('main.admin.configuracion') }}" class="btn btn-info">
+      <i class="fas fa-cogs me-1"></i> Configuración
     </a>
   </div>
 </div>
@@ -14,6 +19,16 @@
 %} {% for category, message in messages %}
 <div class="alert alert-{{ category }}">{{ message }}</div>
 {% endfor %} {% endif %} {% endwith %}
+
+{% if not is_admin %}
+<div class="alert alert-info">
+  <i class="fas fa-info-circle me-2"></i>
+  <strong>Nota:</strong> Actualmente tienes el rol de <strong>Recepcionista</strong>. Si necesitas convertirte en Administrador, contacta a un administrador existente o utiliza el botón a continuación para cambiar tu rol.
+  <button type="button" class="btn btn-primary ms-3" data-bs-toggle="modal" data-bs-target="#modalSolicitarAdmin">
+    <i class="fas fa-user-shield me-1"></i> Solicitar rol de Administrador
+  </button>
+</div>
+{% endif %}
 
 <div class="card">
   <div class="card-header bg-secondary text-white">
@@ -62,6 +77,16 @@
               >
                 <i class="fas fa-key"></i>
               </button>
+              {% if is_admin %}
+              <button
+                type="button"
+                class="btn btn-sm btn-info"
+                data-bs-toggle="modal"
+                data-bs-target="#modalEditarRol{{ admin.id }}"
+              >
+                <i class="fas fa-user-shield"></i>
+              </button>
+              {% endif %}
             </td>
           </tr>
           {% endfor %} {% if admins|length == 0 %}
@@ -97,7 +122,7 @@
         ></button>
       </div>
       <form
-        action="{{ url_for('main.reset_password', admin_id=admin.id) }}"
+        action="{{ url_for('main.admin.reset_password', admin_id=admin.id) }}"
         method="post"
       >
         <div class="modal-body">
@@ -135,4 +160,90 @@
     </div>
   </div>
 </div>
-{% endfor %} {% endblock %}
+{% endfor %}
+
+<!-- Modales para Editar Rol -->
+{% for admin in admins %}
+<div
+  class="modal fade"
+  id="modalEditarRol{{ admin.id }}"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title">Cambiar Rol</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <form
+        action="{{ url_for('main.admin.cambiar_rol', admin_id=admin.id) }}"
+        method="post"
+      >
+        <div class="modal-body">
+          <p>
+            Cambiar el rol de <strong>{{ admin.nombre }}</strong>
+          </p>
+
+          <div class="mb-3">
+            <label for="rol{{ admin.id }}" class="form-label">Rol</label>
+            <select class="form-select" id="rol{{ admin.id }}" name="rol">
+              <option value="administrador" {% if admin.rol == 'administrador' %}selected{% endif %}>Administrador</option>
+              <option value="recepcionista" {% if admin.rol == 'recepcionista' %}selected{% endif %}>Recepcionista</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-info">
+            <i class="fas fa-user-shield me-1"></i> Cambiar Rol
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Modal para Solicitar Rol de Administrador -->
+{% if not is_admin %}
+<div class="modal fade" id="modalSolicitarAdmin" tabindex="-1" aria-labelledby="modalSolicitarAdminLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalSolicitarAdminLabel">Solicitar rol de Administrador</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Para cambiar tu rol a <strong>Administrador</strong>, debes seguir uno de estos pasos:</p>
+        <ol>
+          <li>Pedir a un administrador existente que cambie tu rol.</li>
+          <li>Si no hay administradores disponibles, puedes usar la <a href="{{ url_for('main.emergencia_admin') }}" class="link-primary">página de emergencia</a>.</li>
+          <li>Como último recurso, puedes modificar directamente la base de datos:</li>
+        </ol>
+        <div class="alert alert-secondary">
+          <p class="mb-1"><strong>SQL para cambiar tu rol:</strong></p>
+          <pre class="mb-0"><code>UPDATE admin SET rol = 'administrador' WHERE id = {{ session.get('admin_id') }};</code></pre>
+        </div>
+        <p class="text-muted mt-3">
+          <strong>Nota:</strong> El sistema requiere al menos un administrador para gestionar usuarios y configuraciones.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %} {% endblock %}

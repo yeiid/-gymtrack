@@ -85,16 +85,30 @@ def registrar_usuario():
 @bp.route('/ver_usuario/<int:usuario_id>')
 def ver_usuario(usuario_id):
     try:
+        print(f"Accediendo a ver_usuario con ID: {usuario_id}")  # Log para depuración
         usuario = Usuario.query.get_or_404(usuario_id)
+        print(f"Usuario encontrado: {usuario.nombre}")  # Verificar que se encontró el usuario
+        
+        # Recuperar historial de asistencias
         asistencias = Asistencia.query.filter_by(usuario_id=usuario_id).order_by(Asistencia.fecha.desc()).all()
+        print(f"Asistencias encontradas: {len(asistencias)}")  # Verificar asistencias
         
         # Recuperar historial de pagos
         pagos = PagoMensualidad.query.filter_by(usuario_id=usuario_id).order_by(PagoMensualidad.fecha_pago.desc()).limit(5).all()
+        print(f"Pagos encontrados: {len(pagos)}")  # Verificar pagos
         
-        # Recuperar última medida y objetivos activos
+        # Recuperar última medida
         ultima_medida = MedidasCorporales.query.filter_by(usuario_id=usuario_id).order_by(MedidasCorporales.fecha.desc()).first()
-        objetivos_activos = ObjetivoPersonal.query.filter_by(usuario_id=usuario_id, completado=False).order_by(ObjetivoPersonal.fecha_creacion.desc()).all()
         
+        # Intentar obtener objetivos activos, con manejo de error para columna faltante
+        try:
+            objetivos_activos = ObjetivoPersonal.query.filter_by(usuario_id=usuario_id, completado=False).order_by(ObjetivoPersonal.fecha_creacion.desc()).all()
+        except Exception as e:
+            print(f"Error al recuperar objetivos: {str(e)}")
+            # Si falla, asumir que no hay objetivos activos
+            objetivos_activos = []
+        
+        print("Renderizando plantilla ver_usuario.html")  # Verificar que se llega a la renderización
         return render_template('usuarios/ver_usuario.html', 
                             usuario=usuario, 
                             asistencias=asistencias, 
@@ -103,6 +117,9 @@ def ver_usuario(usuario_id):
                             objetivos_activos=objetivos_activos,
                             today=datetime.now())
     except Exception as e:
+        print(f"Error en ver_usuario: {str(e)}")  # Log para depuración
+        import traceback
+        traceback.print_exc()  # Imprimir stack trace completo
         flash(f'Error al mostrar usuario: {str(e)}', 'danger')
         return redirect(url_for('main.usuarios.index'))
 
@@ -362,8 +379,15 @@ def objetivos(usuario_id):
         return redirect(url_for('main.usuarios.objetivos', usuario_id=usuario_id))
     
     # Obtener objetivos actuales
-    objetivos_activos = ObjetivoPersonal.query.filter_by(usuario_id=usuario_id, completado=False).order_by(ObjetivoPersonal.fecha_creacion.desc()).all()
-    objetivos_completados = ObjetivoPersonal.query.filter_by(usuario_id=usuario_id, completado=True).order_by(ObjetivoPersonal.fecha_creacion.desc()).all()
+    try:
+        objetivos_activos = ObjetivoPersonal.query.filter_by(usuario_id=usuario_id, completado=False).order_by(ObjetivoPersonal.fecha_creacion.desc()).all()
+        objetivos_completados = ObjetivoPersonal.query.filter_by(usuario_id=usuario_id, completado=True).order_by(ObjetivoPersonal.fecha_creacion.desc()).all()
+    except Exception as e:
+        print(f"Error al recuperar objetivos: {str(e)}")
+        # Si hay un error, suponer listas vacías
+        objetivos_activos = []
+        objetivos_completados = []
+        flash('Error al recuperar objetivos. Por favor actualice la base de datos.', 'warning')
     
     return render_template('usuarios/objetivos.html', 
                           usuario=usuario, 
@@ -372,15 +396,25 @@ def objetivos(usuario_id):
 
 @bp.route('/actualizar_objetivo/<int:objetivo_id>', methods=['POST'])
 def actualizar_objetivo(objetivo_id):
-    objetivo = ObjetivoPersonal.query.get_or_404(objetivo_id)
+    try:
+        objetivo = ObjetivoPersonal.query.get_or_404(objetivo_id)
+        
+        progreso = request.form.get('progreso', type=int)
+        completado = request.form.get('completado') == 'on'
+        
+        objetivo.progreso = progreso
+        objetivo.completado = completado
+        
+        # Si el objetivo se marca como completado, registrar la fecha actual
+        if completado and hasattr(objetivo, 'fecha_completado'):
+            objetivo.fecha_completado = datetime.now().date()
+        
+        db.session.commit()
+        
+        flash('Objetivo actualizado correctamente', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al actualizar objetivo: {str(e)}', 'danger')
+        print(f"Error en actualizar_objetivo: {str(e)}")
     
-    progreso = request.form.get('progreso', type=int)
-    completado = request.form.get('completado') == 'on'
-    
-    objetivo.progreso = progreso
-    objetivo.completado = completado
-    
-    db.session.commit()
-    
-    flash('Objetivo actualizado correctamente', 'success')
     return redirect(url_for('main.usuarios.objetivos', usuario_id=objetivo.usuario_id)) 

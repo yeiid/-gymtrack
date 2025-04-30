@@ -14,6 +14,12 @@ def index():
 @bp.route('/crear_admin', methods=['GET', 'POST'])
 @admin_required
 def crear_admin():
+    # Verificar que sea administrador
+    current_admin = Admin.query.get(session['admin_id'])
+    if current_admin.rol != 'administrador':
+        flash('No tienes permisos para crear administradores', 'danger')
+        return redirect(url_for('main.admin.lista_admins'))
+    
     if request.method == 'POST':
         nombre = request.form['nombre']
         usuario = request.form['usuario']
@@ -43,15 +49,40 @@ def crear_admin():
     return render_template('admin/crear_admin.html')
 
 @bp.route('/lista_admins')
-@admin_required
 def lista_admins():
+    # Verificar que el usuario esté logueado
+    if 'admin_id' not in session:
+        flash('Debe iniciar sesión para acceder a esta sección', 'warning')
+        return redirect(url_for('main.auth.login'))
+    
+    # Verificar el rol del usuario actual
+    current_admin = Admin.query.get(session['admin_id'])
+    if not current_admin:
+        session.pop('admin_id', None)
+        session.pop('admin_nombre', None)
+        session.pop('admin_rol', None)
+        flash('Su sesión ha expirado o ha sido eliminada. Por favor, inicie sesión nuevamente.', 'warning')
+        return redirect(url_for('main.auth.login'))
+    
+    # Obtener todos los administradores
     admins = Admin.query.all()
-    return render_template('admin/lista_admins.html', admins=admins)
+    
+    # Verificar si es administrador para mostrar controles de edición
+    is_admin = current_admin.rol == 'administrador'
+    return render_template('admin/lista_admins.html', admins=admins, is_admin=is_admin)
 
 @bp.route('/reset_password/<int:admin_id>', methods=['POST'])
 @admin_required
 def reset_password(admin_id):
     admin = Admin.query.get_or_404(admin_id)
+    current_admin = Admin.query.get(session['admin_id'])
+    
+    # Solo permitir cambio si:
+    # 1. El usuario actual es administrador, o
+    # 2. El usuario está cambiando su propia contraseña
+    if current_admin.rol != 'administrador' and current_admin.id != admin_id:
+        flash('No tienes permisos para cambiar esta contraseña', 'danger')
+        return redirect(url_for('main.admin.lista_admins'))
     
     new_password = request.form.get('new_password')
     if new_password:
@@ -314,6 +345,154 @@ def configuracion():
             except Exception as e:
                 db.session.rollback()
                 flash(f'Error al ejecutar SQL: {str(e)}', 'danger')
+                
+        elif accion == 'reset_all_data':
+            try:
+                # Verificar confirmación
+                confirmacion = request.form.get('confirmacion')
+                if confirmacion != 'BORRAR TODO':
+                    flash('Confirmación incorrecta. Operación cancelada.', 'warning')
+                    return redirect(url_for('main.admin.configuracion'))
+                
+                # Crear backup si se solicitó
+                if request.form.get('create_backup') == 'on':
+                    from datetime import datetime
+                    import os
+                    import shutil
+                    
+                    # Crear carpeta de backups si no existe
+                    backup_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'backups')
+                    os.makedirs(backup_folder, exist_ok=True)
+                    
+                    # Nombre del archivo de backup con fecha y hora
+                    fecha_actual = datetime.now().strftime('%Y%m%d_%H%M%S')
+                    backup_filename = f'backup_db_before_reset_{fecha_actual}.db'
+                    backup_path = os.path.join(backup_folder, backup_filename)
+                    
+                    # Copiar el archivo de base de datos
+                    shutil.copy2('database.db', backup_path)
+                    flash(f'Copia de seguridad creada antes del borrado: {backup_filename}', 'info')
+                
+                # Guardar información del administrador actual si se solicitó
+                keep_admin = request.form.get('keep_admin') == 'on'
+                admin_actual = None
+                if keep_admin and 'admin_id' in session:
+                    admin_actual = Admin.query.get(session['admin_id'])
+                    if admin_actual:
+                        admin_info = {
+                            'id': admin_actual.id,
+                            'nombre': admin_actual.nombre,
+                            'usuario': admin_actual.usuario,
+                            'rol': admin_actual.rol,
+                            'password_hash': admin_actual.password_hash  # Guardar el hash directamente
+                        }
+                
+                # Borrar todos los datos de cada tabla
+                from sqlalchemy import text
+                
+                # Lista de todas las tablas en orden para evitar problemas de restricciones de clave foránea
+                tablas = [
+                    'asistencia', 
+                    'venta_producto', 
+                    'pago_mensualidad', 
+                    'medidas_corporales', 
+                    'objetivo_personal', 
+                    'usuario', 
+                    'producto',
+                    'admin'
+                ]
+                
+                # Desactivar restricciones de clave foránea temporalmente
+                db.session.execute(text('PRAGMA foreign_keys = OFF;'))
+                
+                # Borrar datos de cada tabla
+                registros_eliminados = 0
+                errores = []
+                for tabla in tablas:
+                    try:
+                        # Verificar primero si la tabla existe
+                        result = db.session.execute(text(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{tabla}';"))
+                        if result.scalar():
+                            result = db.session.execute(text(f"DELETE FROM {tabla};"))
+                            registros_eliminados += result.rowcount
+                        else:
+                            errores.append(f"La tabla '{tabla}' no existe en la base de datos")
+                    except Exception as e:
+                        errores.append(f"Error al limpiar tabla '{tabla}': {str(e)}")
+                        continue
+                
+                # Reactivar restricciones de clave foránea
+                db.session.execute(text('PRAGMA foreign_keys = ON;'))
+                
+                # Mostrar errores si hubo alguno
+                if errores:
+                    for error in errores:
+                        flash(f'Advertencia: {error}', 'warning')
+                
+                # Resetear secuencias de autoincremento
+                try:
+                    # Primero verificar si la tabla sqlite_sequence existe
+                    result = db.session.execute(text("SELECT name FROM sqlite_master WHERE type='table' AND name='sqlite_sequence';"))
+                    if result.scalar():
+                        # La tabla existe, resetear cada secuencia
+                        for tabla in tablas:
+                            try:
+                                db.session.execute(text(f"DELETE FROM sqlite_sequence WHERE name='{tabla}';"))
+                            except Exception as e:
+                                # Ignorar errores individuales al resetear secuencias
+                                flash(f'Advertencia: No se pudo resetear la secuencia para {tabla}: {str(e)}', 'warning')
+                    else:
+                        flash('Aviso: La tabla sqlite_sequence no existe, se omitirá el reseteo de secuencias.', 'info')
+                except Exception as e:
+                    # Si hay algún error al verificar o manipular sqlite_sequence, solo lo registramos y continuamos
+                    flash(f'Advertencia: Error al manipular secuencias de autoincremento: {str(e)}', 'warning')
+                
+                try:
+                    db.session.commit()
+                except Exception as e:
+                    db.session.rollback()
+                    flash(f'Error al confirmar los cambios: {str(e)}. Se realizó un rollback.', 'danger')
+                    return redirect(url_for('main.admin.configuracion'))
+                
+                # Recrear el administrador si se solicitó
+                if keep_admin and admin_actual:
+                    try:
+                        # Crear un nuevo administrador con los mismos datos
+                        nuevo_admin = Admin(
+                            nombre=admin_info['nombre'],
+                            usuario=admin_info['usuario'],
+                            rol=admin_info['rol']
+                        )
+                        # Asignar el hash directamente para mantener la misma contraseña
+                        nuevo_admin.password_hash = admin_info['password_hash']
+                        db.session.add(nuevo_admin)
+                        db.session.commit()
+                        
+                        # Actualizar la sesión con el nuevo ID
+                        session['admin_id'] = nuevo_admin.id
+                        session['admin_nombre'] = nuevo_admin.nombre
+                        session['admin_rol'] = nuevo_admin.rol
+                        
+                        flash('Se ha recreado tu cuenta de administrador.', 'success')
+                    except Exception as e:
+                        db.session.rollback()
+                        flash(f'Advertencia: No se pudo recrear la cuenta de administrador: {str(e)}', 'warning')
+                
+                # Optimizar la base de datos después de la limpieza
+                try:
+                    db.session.execute(text('VACUUM;'))
+                    db.session.commit()
+                except Exception as e:
+                    flash(f'Advertencia: No se pudo optimizar la base de datos: {str(e)}', 'warning')
+                
+                # Mensaje de éxito
+                if errores:
+                    flash(f'Base de datos borrada parcialmente. Se eliminaron {registros_eliminados} registros. Se encontraron {len(errores)} errores.', 'warning')
+                else:
+                    flash(f'Base de datos completamente borrada. Se eliminaron {registros_eliminados} registros de todas las tablas.', 'success')
+            except Exception as e:
+                db.session.rollback()
+                flash(f'Error al borrar la base de datos: {str(e)}', 'danger')
     
     # Obtener lista de archivos de backup
     import os
@@ -353,4 +532,39 @@ def delete_backup(filename):
     except Exception as e:
         flash(f'Error al eliminar backup: {str(e)}', 'danger')
     
-    return redirect(url_for('main.admin.configuracion')) 
+    return redirect(url_for('main.admin.configuracion'))
+
+@bp.route('/cambiar_rol/<int:admin_id>', methods=['POST'])
+@admin_required
+def cambiar_rol(admin_id):
+    admin = Admin.query.get_or_404(admin_id)
+    
+    # Verificar que el usuario actual sea administrador
+    current_admin = Admin.query.get(session['admin_id'])
+    
+    if current_admin.rol != 'administrador':
+        flash('No tienes permisos para cambiar roles', 'danger')
+        return redirect(url_for('main.admin.lista_admins'))
+    
+    # Verificar que no sea el último administrador al cambiar su propio rol
+    if admin.id == current_admin.id and admin.rol == 'administrador':
+        # Contar cuántos administradores hay en total
+        admin_count = Admin.query.filter_by(rol='administrador').count()
+        if admin_count <= 1 and request.form.get('rol') != 'administrador':
+            flash('No puedes cambiar tu rol. Debe existir al menos un administrador en el sistema.', 'danger')
+            return redirect(url_for('main.admin.lista_admins'))
+    
+    # Cambiar el rol
+    nuevo_rol = request.form.get('rol')
+    if nuevo_rol in ['administrador', 'recepcionista']:
+        admin.rol = nuevo_rol
+        db.session.commit()
+        flash(f'Rol de {admin.nombre} cambiado a {nuevo_rol} correctamente', 'success')
+        
+        # Si el usuario cambió su propio rol a recepcionista, actualizar la sesión
+        if admin.id == current_admin.id:
+            session['admin_rol'] = nuevo_rol
+    else:
+        flash('Rol inválido', 'danger')
+    
+    return redirect(url_for('main.admin.lista_admins')) 

@@ -4,7 +4,7 @@
   <div class="row mb-3">
     <div class="col-md-12">
       <h2>Editar Usuario</h2>
-      <a href="{{ url_for('main.usuarios') }}" class="btn btn-sm btn-secondary mb-3">
+      <a href="{{ url_for('main.usuarios.index') }}" class="btn btn-sm btn-secondary mb-3">
         <i class="fas fa-arrow-left me-1"></i> Volver
       </a>
     </div>
@@ -24,7 +24,7 @@
           <h5 class="card-title mb-0">Datos del Usuario</h5>
         </div>
         <div class="card-body">
-          <form method="POST" action="{{ url_for('main.editar_usuario', usuario_id=usuario.id) }}">
+          <form method="POST" action="{{ url_for('main.usuarios.editar_usuario', usuario_id=usuario.id) }}">
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label for="nombre" class="form-label">Nombre Completo</label>
@@ -110,7 +110,7 @@
             </div>
             
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-              <a href="{{ url_for('main.usuarios') }}" class="btn btn-secondary me-md-2">Cancelar</a>
+              <a href="{{ url_for('main.usuarios.index') }}" class="btn btn-secondary me-md-2">Cancelar</a>
               <button type="submit" class="btn btn-success">
                 <i class="fas fa-save me-1"></i> Guardar Cambios
               </button>

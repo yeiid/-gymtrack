@@ -61,7 +61,7 @@
               <select class="form-select" id="usuario_id" name="usuario_id">
                 <option value="">Venta sin cliente registrado</option>
                 {% for usuario in usuarios %}
-                <option value="{{ usuario.id }}">{{ usuario.nombre }} - {{ usuario.cedula }}</option>
+                <option value="{{ usuario.id }}">{{ usuario.nombre }} - {{ usuario.telefono }}</option>
                 {% endfor %}
               </select>
             </div>

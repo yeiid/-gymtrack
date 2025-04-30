@@ -1,6 +1,26 @@
 {% extends "layouts/layout.html" %} {% block content %}
 <h2>Gestión de Productos</h2>
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+      {% if category == 'success' %}
+        <strong><i class="fas fa-check-circle"></i> Éxito:</strong>
+      {% elif category == 'danger' %}
+        <strong><i class="fas fa-exclamation-circle"></i> Error:</strong>
+      {% elif category == 'warning' %}
+        <strong><i class="fas fa-exclamation-triangle"></i> Advertencia:</strong>
+      {% elif category == 'info' %}
+        <strong><i class="fas fa-info-circle"></i> Información:</strong>
+      {% endif %}
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
 {% if error %}
 <div class="alert alert-danger alert-dismissible fade show" role="alert">
   <strong><i class="fas fa-exclamation-circle"></i> Error:</strong> {{ error }}
@@ -11,7 +31,9 @@
     aria-label="Close"
   ></button>
 </div>
-{% endif %} {% if success %}
+{% endif %} 
+
+{% if success %}
 <div class="alert alert-success alert-dismissible fade show" role="alert">
   <strong><i class="fas fa-check-circle"></i> Éxito:</strong> {{ success }}
   <button
@@ -30,7 +52,7 @@
         <h5 class="card-title mb-0">Registrar Nuevo Producto</h5>
       </div>
       <div class="card-body">
-        <form method="POST" action="/agregar_producto" class="row g-3">
+        <form method="POST" action="{{ url_for('main.productos.agregar_producto') }}" class="row g-3">
           <div class="col-md-4">
             <input
               type="text"
@@ -153,13 +175,13 @@
             </td>
             <td class="text-center">
               <a
-                href="/editar_producto/{{ producto.id }}"
+                href="{{ url_for('main.productos.editar_producto', producto_id=producto.id) }}"
                 class="btn btn-sm btn-warning text-white"
               >
                 <i class="fas fa-edit me-1"></i> Editar
               </a>
               <a
-                href="/eliminar_producto/{{ producto.id }}"
+                href="{{ url_for('main.productos.eliminar_producto', producto_id=producto.id) }}"
                 class="btn btn-sm btn-danger"
                 onclick="return confirm('¿Estás seguro de eliminar este producto?')"
               >
@@ -167,7 +189,7 @@
               </a>
               {% if producto.stock > 0 %}
               <a
-                href="/registrar_venta?producto_id={{ producto.id }}"
+                href="{{ url_for('main.productos.registrar_venta', producto_id=producto.id) }}"
                 class="btn btn-sm btn-success"
               >
                 <i class="fas fa-shopping-cart me-1"></i> Vender

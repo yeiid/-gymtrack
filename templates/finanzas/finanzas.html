@@ -4,7 +4,7 @@
     <h2>Finanzas</h2>
   </div>
   <div class="col-md-4 text-end">
-    <a href="{{ url_for('main.finanzas_diarias') }}" class="btn btn-primary">
+    <a href="{{ url_for('main.finanzas.finanzas_diarias') }}" class="btn btn-primary">
       <i class="fas fa-calendar-day me-1"></i> Análisis Diario
     </a>
   </div>
@@ -195,168 +195,274 @@
       </table>
     </div>
   </div>
+  <div class="card-footer text-center text-muted small">
+    <div class="row">
+      <div class="col-md-6 text-start">
+        <span><i class="fas fa-code me-1"></i> Desarrollado por: YEIFRAN HERNANDEZ</span>
+      </div>
+      <div class="col-md-6 text-end">
+        <span><i class="fas fa-brain me-1"></i> NEURALJIRA_DEV - Visión empresarial inteligente</span>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %} {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Cargar Chart.js con versión específica para evitar problemas de compatibilidad -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script>
+  /**
+   * MÓDULO DE GRÁFICOS FINANCIEROS
+   * Desarrollado por: YEIFRAN HERNANDEZ
+   * NEURALJIRA_DEV - Soluciones inteligentes para gimnasios
+   * Última actualización: {{ now.strftime('%d/%m/%Y') }}
+   */
   document.addEventListener('DOMContentLoaded', function() {
-    // Gráfico de ingresos y márgenes
-    var ctxIngresos = document.getElementById('graficoIngresos').getContext('2d');
-    var chartIngresos = new Chart(ctxIngresos, {
-      type: 'bar',
-      data: {
-        labels: {{ meses|safe }},
-        datasets: [
-          {
-            label: 'Ingresos por Membresías (COP)',
-            data: {{ datos_ingresos_membresias|safe }},
-            backgroundColor: 'rgba(255, 95, 109, 0.6)',
-            borderColor: 'rgba(255, 95, 109, 1)',
-            borderWidth: 1
+    try {
+      console.log('Inicializando gráficos de finanzas...');
+      // Función para parsear JSON de manera segura
+      function parseJsonSafe(jsonString, defaultValue = []) {
+        try {
+          // Reemplazar NaN, Infinity y -Infinity con null para evitar errores de JSON
+          const cleanedString = jsonString.replace(/NaN|Infinity|-Infinity/g, 'null');
+          const parsedData = JSON.parse(cleanedString);
+          
+          // Verificar si hay valores especiales y convertirlos a 0
+          if (Array.isArray(parsedData)) {
+            return parsedData.map(item => {
+              if (item === null || item === undefined || isNaN(item)) {
+                return 0;
+              }
+              return item;
+            });
+          }
+          return parsedData;
+        } catch (error) {
+          console.error("Error al parsear JSON:", error, jsonString);
+          return defaultValue;
+        }
+      }
+
+      // Obtener datos
+      const meses = parseJsonSafe('{{ meses|tojson }}', []);
+      const datosIngresosMembresias = parseJsonSafe('{{ datos_ingresos_membresias|tojson }}', []);
+      const datosIngresosProductos = parseJsonSafe('{{ datos_ingresos_productos|tojson }}', []);
+      const datosMargenes = parseJsonSafe('{{ datos_margenes|tojson }}', []);
+      const planesNombres = parseJsonSafe('{{ planes_nombres|tojson }}', []);
+      const datosPlanes = parseJsonSafe('{{ datos_planes|tojson }}', []);
+      const productosNombres = parseJsonSafe('{{ productos_nombres|tojson }}', []);
+      const productosCantidades = parseJsonSafe('{{ productos_cantidades|tojson }}', []);
+      const productosIngresos = parseJsonSafe('{{ productos_ingresos|tojson }}', []);
+      
+      // Imprimir datos para depuración
+      console.log('Datos de gráficos:', {
+        meses, 
+        datosIngresosMembresias, 
+        datosIngresosProductos,
+        datosMargenes,
+        planesNombres,
+        datosPlanes,
+        productosNombres,
+        productosCantidades,
+        productosIngresos
+      });
+
+      // Función para crear gráficos de forma segura
+      function crearGraficoSeguro(id, tipo, configuracion) {
+        try {
+          const elemento = document.getElementById(id);
+          if (!elemento) {
+            console.error(`Elemento con ID "${id}" no encontrado`);
+            return null;
+          }
+          
+          console.log(`Creando gráfico ${tipo} en ${id}`, configuracion);
+          return new Chart(elemento.getContext('2d'), configuracion);
+        } catch (error) {
+          console.error(`Error al crear gráfico ${tipo} en ${id}:`, error);
+          return null;
+        }
+      }
+      
+      // Gráfico de ingresos y márgenes
+      if (meses.length > 0) {
+        crearGraficoSeguro('graficoIngresos', 'bar', {
+          type: 'bar',
+          data: {
+            labels: meses,
+            datasets: [
+              {
+                label: 'Ingresos por Membresías (COP)',
+                data: datosIngresosMembresias,
+                backgroundColor: 'rgba(255, 95, 109, 0.6)',
+                borderColor: 'rgba(255, 95, 109, 1)',
+                borderWidth: 1
+              },
+              {
+                label: 'Ingresos por Productos (COP)',
+                data: datosIngresosProductos,
+                backgroundColor: 'rgba(67, 206, 162, 0.6)',
+                borderColor: 'rgba(67, 206, 162, 1)',
+                borderWidth: 1
+              },
+              {
+                label: 'Margen de Ganancia (COP)',
+                data: datosMargenes,
+                type: 'line',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: 'rgba(75, 192, 192, 1)'
+              }
+            ]
           },
-          {
-            label: 'Ingresos por Productos (COP)',
-            data: {{ datos_ingresos_productos|safe }},
-            backgroundColor: 'rgba(67, 206, 162, 0.6)',
-            borderColor: 'rgba(67, 206, 162, 1)',
-            borderWidth: 1
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function(value) {
+                    return '$' + value.toLocaleString('es-CO');
+                  }
+                }
+              }
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return context.dataset.label + ': $' + context.parsed.y.toLocaleString('es-CO');
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // Gráfico distribución por plan
+      if (planesNombres.length > 0 && datosPlanes.length > 0) {
+        crearGraficoSeguro('graficoPlan', 'pie', {
+          type: 'pie',
+          data: {
+            labels: planesNombres,
+            datasets: [{
+              label: 'Usuarios por plan',
+              data: datosPlanes,
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.6)',
+                'rgba(54, 162, 235, 0.6)',
+                'rgba(255, 206, 86, 0.6)',
+                'rgba(75, 192, 192, 0.6)',
+                'rgba(153, 102, 255, 0.6)'
+              ],
+              borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)'
+              ],
+              borderWidth: 1
+            }]
           },
-          {
-            label: 'Margen de Ganancia (COP)',
-            data: {{ datos_margenes|safe }},
-            type: 'line',
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 2,
-            tension: 0.4,
-            pointRadius: 4,
-            pointBackgroundColor: 'rgba(75, 192, 192, 1)'
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: function(value) {
-                return '$' + value.toLocaleString('es-CO');
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'right'
               }
             }
           }
-        },
-        plugins: {
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                return context.dataset.label + ': $' + context.parsed.y.toLocaleString('es-CO');
-              }
-            }
-          }
-        }
+        });
       }
-    });
 
-    // Gráfico distribución por plan
-    var ctxPlan = document.getElementById('graficoPlan').getContext('2d');
-    var chartPlan = new Chart(ctxPlan, {
-      type: 'pie',
-      data: {
-        labels: {{ planes_nombres|safe }},
-        datasets: [{
-          label: 'Usuarios por plan',
-          data: {{ datos_planes|safe }},
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.6)',
-            'rgba(54, 162, 235, 0.6)',
-            'rgba(255, 206, 86, 0.6)',
-            'rgba(75, 192, 192, 0.6)',
-            'rgba(153, 102, 255, 0.6)'
-          ],
-          borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)'
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'right'
-          }
-        }
-      }
-    });
-
-    // Gráfico de productos más vendidos
-    var ctxProductos = document.getElementById('graficoProductos').getContext('2d');
-    var chartProductos = new Chart(ctxProductos, {
-      type: 'bar',
-      data: {
-        labels: {{ productos_nombres|safe }},
-        datasets: [{
-          label: 'Cantidad Vendida',
-          data: {{ productos_cantidades|safe }},
-          backgroundColor: 'rgba(75, 192, 192, 0.6)',
-          borderColor: 'rgba(75, 192, 192, 1)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        indexAxis: 'y',
-        scales: {
-          x: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-
-    // Gráfico de ingresos por producto
-    var ctxIngresosProd = document.getElementById('graficoIngresosProductos').getContext('2d');
-    var chartIngresosProd = new Chart(ctxIngresosProd, {
-      type: 'bar',
-      data: {
-        labels: {{ productos_nombres|safe }},
-        datasets: [{
-          label: 'Ingresos (COP)',
-          data: {{ productos_ingresos|safe }},
-          backgroundColor: 'rgba(255, 159, 64, 0.6)',
-          borderColor: 'rgba(255, 159, 64, 1)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        indexAxis: 'y',
-        scales: {
-          x: {
-            beginAtZero: true,
-            ticks: {
-              callback: function(value) {
-                return '$' + value.toLocaleString('es-CO');
+      // Gráfico de productos más vendidos
+      if (productosNombres.length > 0 && productosCantidades.length > 0) {
+        crearGraficoSeguro('graficoProductos', 'bar', {
+          type: 'bar',
+          data: {
+            labels: productosNombres,
+            datasets: [{
+              label: 'Cantidad Vendida',
+              data: productosCantidades,
+              backgroundColor: 'rgba(75, 192, 192, 0.6)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            indexAxis: 'y',
+            scales: {
+              x: {
+                beginAtZero: true
               }
             }
           }
-        },
-        plugins: {
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                return context.dataset.label + ': $' + context.parsed.x.toLocaleString('es-CO');
+        });
+      }
+
+      // Gráfico de ingresos por producto
+      if (productosNombres.length > 0 && productosIngresos.length > 0) {
+        crearGraficoSeguro('graficoIngresosProductos', 'bar', {
+          type: 'bar',
+          data: {
+            labels: productosNombres,
+            datasets: [{
+              label: 'Ingresos (COP)',
+              data: productosIngresos,
+              backgroundColor: 'rgba(255, 159, 64, 0.6)',
+              borderColor: 'rgba(255, 159, 64, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            indexAxis: 'y',
+            scales: {
+              x: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function(value) {
+                    return '$' + value.toLocaleString('es-CO');
+                  }
+                }
+              }
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    // Corregir para que funcione con el eje x horizontal para gráficos con indexAxis 'y'
+                    if (context.parsed && typeof context.parsed.x !== 'undefined') {
+                      return context.dataset.label + ': $' + context.parsed.x.toLocaleString('es-CO');
+                    } else if (context.parsed && typeof context.parsed.y !== 'undefined') {
+                      return context.dataset.label + ': $' + context.parsed.y.toLocaleString('es-CO');
+                    } else {
+                      return context.dataset.label + ': $0';
+                    }
+                  }
+                }
               }
             }
           }
-        }
+        });
       }
-    });
+
+      // Añadimos mensaje de derechos reservados
+      console.log('Gráficos financieros inicializados • © NEURALJIRA_DEV - YEIFRAN HERNANDEZ');
+    } catch (error) {
+      console.error("Error al inicializar gráficos:", error);
+    }
   });
 </script>
+
+<!-- 
+  NEURALJIRA_DEV - Transformando datos en visión de negocio
+  Desarrollado por: YEIFRAN HERNANDEZ 
+  Todos los derechos reservados © {{ now.year }} 
+-->
 {% endblock %}

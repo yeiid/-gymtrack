@@ -109,7 +109,7 @@ def create_windows_shortcut(target_path):
 
 if __name__ == "__main__":
     # Verificar que estamos en el directorio correcto
-    if not os.path.exists("run_app.py"):
+    if not os.path.exists("app_launcher.py"):
         print("Error: Este script debe ejecutarse desde el directorio principal del proyecto")
         sys.exit(1)
     

@@ -1,105 +1,118 @@
-# Sistema de Gestión de Gimnasio
+# GimnasioDB - Sistema de Gestión para Gimnasios
 
-Sistema completo para administrar un gimnasio, incluyendo gestión de usuarios, asistencias, pagos, productos, ventas y reportes financieros.
+Sistema para gestionar operaciones diarias de un gimnasio, incluyendo registro de usuarios, control de asistencia, seguimiento de pagos, medidas corporales, objetivos personales y venta de productos.
 
 ## Características
 
-- **Gestión de Usuarios**: Registro, edición y visualización de miembros
-- **Control de Asistencia**: Registro de entradas de usuarios
-- **Gestión de Membresías**: Diferentes planes y renovaciones
-- **Venta de Productos**: Inventario y registro de ventas
-- **Reportes Financieros**: Análisis de ingresos y márgenes de ganancia
+- **Gestión de Usuarios**: Registro, edición y consulta de usuarios
+- **Control de Asistencia**: Registro y visualización de asistencias diarias
+- **Gestión de Pagos**: Control de pagos y renovaciones de membresías
+- **Seguimiento de Medidas**: Registro y seguimiento de medidas corporales
+- **Objetivos Personales**: Establecimiento y seguimiento de objetivos
+- **Venta de Productos**: Gestión de inventario y ventas
+- **Reportes Financieros**: Informes de ingresos y estadísticas
 
 ## Requisitos
 
-- Python 3.8 o superior
-- Navegador web moderno (Google Chrome o Microsoft Edge recomendados)
+- Python 3.7 o superior
+- Dependencias listadas en requirements.txt
 
-## Instalación y Ejecución
+## Instalación
 
-### Método 1: Usando Python directamente
-
-1. Clonar o descargar este repositorio
-2. Crear un entorno virtual:
-   ```
-   python -m venv venv
-   ```
-3. Activar el entorno virtual:
-   - En Windows: `venv\Scripts\activate`
-   - En Linux/Mac: `source venv/bin/activate`
-4. Instalar dependencias:
+1. Clonar el repositorio
+2. Instalar dependencias:
    ```
    pip install -r requirements.txt
    ```
-5. Ejecutar la aplicación:
+3. Iniciar la aplicación:
    ```
-   python run_app.py
-   ```
-6. Se abrirá automáticamente un navegador con la aplicación
-7. Si no se abre, accede a http://127.0.0.1:5000
-
-### Método 2: Usando el Ejecutable (Windows)
-
-1. Ejecuta el script de generación de Windows:
-   ```
-   build_windows.bat
-   ```
-2. Espera a que termine el proceso:
-   - Se instalarán las dependencias necesarias
-   - Se generará el ejecutable en la carpeta `dist\GimnasioDB`
-3. Ejecuta la aplicación:
-   - Navega a la carpeta `dist\GimnasioDB`
-   - Haz doble clic en `GimnasioDB.exe`
-   - Se abrirá un navegador web con la aplicación
-
-## Estructura del Proyecto
-
-- **app.py**: Punto de entrada de la aplicación
-- **models.py**: Definición de modelos de datos
-- **routes.py**: Rutas y funcionalidad principal
-- **config.py**: Configuración de la aplicación
-- **templates/**: Plantillas HTML
-- **static/**: Archivos CSS, JS e imágenes
-- **database.db**: Base de datos SQLite
-
-## Planes y Precios
-
-El sistema incluye los siguientes planes predefinidos:
-
-- **Diario**: $5,000 COP (1 día)
-- **Quincenal**: $35,000 COP (15 días)
-- **Mensual**: $70,000 COP (30 días)
-- **Dirigido**: $130,000 COP (30 días con entrenamiento dirigido)
-- **Personalizado**: $250,000 COP (30 días con entrenador personal)
-
-## Resolución de problemas
-
-### Si hay errores al instalar dependencias
-
-1. Asegúrate de tener permisos de administrador
-   - En Windows: Ejecuta CMD como administrador (clic derecho > Ejecutar como administrador)
-2. Actualiza pip
-   ```
-   python -m pip install --upgrade pip
+   python app_launcher.py
    ```
 
-### Si hay errores al generar el ejecutable
+## Modos de Ejecución
 
-1. Asegúrate de tener instalado PyInstaller
+El sistema ahora utiliza un lanzador unificado (`app_launcher.py`) que puede ejecutarse en diferentes modos:
+
+### Modo Desarrollo
+```
+python app_launcher.py --mode development --debug
+```
+
+### Modo Producción
+```
+python app_launcher.py --mode production
+```
+
+### Opciones Adicionales
+- `--no-browser`: No abrir el navegador automáticamente
+- `--host`: Especificar dirección IP (por defecto: 127.0.0.1)
+- `--port`: Especificar puerto (por defecto: 5000)
+- `--debug`: Activar modo de depuración (solo funciona en modo development)
+- `--fresh-db`: Recrear la base de datos desde cero
+
+### Scripts Batch para Windows
+El sistema incluye scripts batch para facilitar la ejecución:
+
+#### Modo Producción
+```
+ejecutar_app.bat
+```
+
+#### Modo Desarrollo
+```
+dev_app.bat
+```
+
+Estos scripts configuran automáticamente el entorno virtual, instalan dependencias si es necesario y permiten elegir si se debe recrear la base de datos.
+
+## Empaquetado para Distribución
+
+Para crear un ejecutable independiente:
+
+1. Instalar PyInstaller:
    ```
    pip install pyinstaller
    ```
-2. Verifica que todas las dependencias estén instaladas
+
+2. Crear el ejecutable:
    ```
-   pip install -r requirements.txt
+   python empaquetar_exe.py
    ```
 
-### Si el ejecutable no funciona
+3. El ejecutable se generará en la carpeta `dist/`
 
-1. Intenta ejecutarlo desde la línea de comandos para ver mensajes de error
-2. Asegúrate de que el firewall no esté bloqueando la aplicación
-3. No muevas archivos individuales fuera de la carpeta `dist\GimnasioDB`
+## Estructura del Proyecto
+
+- `app_launcher.py`: Script unificado para iniciar la aplicación (reemplaza app.py, run_app.py y standalone_app.py)
+- `models.py`: Definición de modelos de datos
+- `routes.py`: Rutas y controladores de la aplicación
+- `config.py`: Configuración de la aplicación
+- `templates/`: Plantillas HTML
+- `static/`: Archivos estáticos (CSS, JS, imágenes)
+- `GimnasioDB.spec`: Especificación para PyInstaller
+- `empaquetar_exe.py`: Script para crear el ejecutable
+- `MANUAL_DE_USUARIO.md`: Manual detallado para usuarios
+- `ejecutar_app.bat`: Script para ejecutar en modo producción (Windows)
+- `dev_app.bat`: Script para ejecutar en modo desarrollo (Windows)
+
+## Archivos Eliminados
+
+Los siguientes archivos han sido eliminados porque su funcionalidad ha sido consolidada en `app_launcher.py`:
+
+- `app.py`: Reemplazado por app_launcher.py
+- `run_app.py`: Reemplazado por app_launcher.py
+- `standalone_app.py`: Reemplazado por app_launcher.py
+- `actualizar_db.py`: La funcionalidad está ahora incluida en app_launcher.py con la opción --fresh-db
+- `probar_app.py`: Reemplazado por el comando `python app_launcher.py --mode development --debug`
+
+## Manual de Usuario
+
+Para obtener instrucciones detalladas sobre el uso del sistema, consulta el [Manual de Usuario](MANUAL_DE_USUARIO.md).
+
+## Créditos
+
+Desarrollado por el equipo de GimnasioDB.
 
 ## Licencia
 
-Este proyecto está licenciado bajo los términos de la licencia MIT.
+Este proyecto está licenciado bajo [MIT License](LICENSE).
