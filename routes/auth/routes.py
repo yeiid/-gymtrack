@@ -38,37 +38,105 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+@bp.route('/inicializar')
+def inicializar_admin():
+    try:
+        # Verificar si ya existe un admin
+        admin_count = Admin.query.count()
+        
+        if admin_count > 0:
+            flash('Ya existen administradores en el sistema.', 'info')
+            return redirect(url_for('main.auth.login'))
+            
+        # Crear admin por defecto
+        admin_default = Admin(
+            nombre="Administrador Principal",
+            usuario="admin",
+            rol="administrador"
+        )
+        # Crear password explícitamente
+        password = "admin123"
+        admin_default.set_password(password)
+        
+        # Guardar en la base de datos
+        db.session.add(admin_default)
+        db.session.commit()
+        
+        # Confirmar que se creó correctamente
+        nuevo_admin = Admin.query.filter_by(usuario="admin").first()
+        if nuevo_admin and nuevo_admin.check_password("admin123"):
+            flash(f'Administrador creado correctamente. Usuario: admin, Contraseña: admin123', 'success')
+        else:
+            flash('Se creó el administrador pero hay problemas con la autenticación.', 'warning')
+            
+        return redirect(url_for('main.auth.login'))
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        flash(f'Error al crear administrador: {str(e)}', 'danger')
+        return render_template('auth/login.html')
+
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
+    # Intentar verificar si existen administradores
+    try:
+        admin_count = Admin.query.count()
+        if admin_count == 0:
+            flash('No existen administradores. Redirigiendo a la página de inicialización...', 'warning')
+            return redirect(url_for('main.auth.inicializar_admin'))
+    except Exception as e:
+        flash(f'Error al verificar administradores: {str(e)}', 'danger')
+    
     if request.method == 'POST':
-        usuario = request.form['usuario']
-        password = request.form['password']
-        
-        print(f"Intento de login: Usuario={usuario}")
-        admin = Admin.query.filter_by(usuario=usuario).first()
-        
-        if admin:
-            print(f"Usuario encontrado: ID={admin.id}, Nombre={admin.nombre}, Rol={admin.rol}")
-            if admin.check_password(password):
-                print(f"Contraseña correcta, iniciando sesión")
-                session['admin_id'] = admin.id
-                session['admin_nombre'] = admin.nombre
-                session['admin_rol'] = admin.rol
+        try:
+            usuario = request.form['usuario']
+            password = request.form['password']
+            
+            print(f"Intento de login: Usuario={usuario}")
+            
+            admin = Admin.query.filter_by(usuario=usuario).first()
+            
+            if admin:
+                print(f"Usuario encontrado: ID={admin.id}, Nombre={admin.nombre}, Rol={admin.rol}")
+                print(f"Hash de contraseña almacenado: {admin.password_hash if hasattr(admin, 'password_hash') else 'No tiene hash'}")
                 
-                print(f"Sesión creada: admin_id={session.get('admin_id')}, admin_nombre={session.get('admin_nombre')}, admin_rol={session.get('admin_rol')}")
+                # Verificar si el hash de contraseña está vacío o corrupto
+                if not admin.password_hash or len(admin.password_hash) < 20:
+                    print(f"Hash de contraseña inválido o vacío. Resetear contraseña.")
+                    admin.set_password("admin123")
+                    db.session.commit()
+                    flash('Tu contraseña ha sido restablecida a "admin123". Por favor, inténtalo de nuevo.', 'warning')
+                    return render_template('auth/login.html')
                 
-                # Actualizar fecha de último acceso
-                admin.ultimo_acceso = datetime.now()
-                db.session.commit()
-                
-                flash(f'¡Bienvenido, {admin.nombre}!', 'success')
-                return redirect(url_for('main.index'))
+                try:
+                    if admin.check_password(password):
+                        print(f"Contraseña correcta, iniciando sesión")
+                        session['admin_id'] = admin.id
+                        session['admin_nombre'] = admin.nombre
+                        session['admin_rol'] = admin.rol
+                        
+                        print(f"Sesión creada: admin_id={session.get('admin_id')}, admin_nombre={session.get('admin_nombre')}, admin_rol={session.get('admin_rol')}")
+                        
+                        # Actualizar fecha de último acceso
+                        admin.ultimo_acceso = datetime.now()
+                        db.session.commit()
+                        
+                        flash(f'¡Bienvenido, {admin.nombre}!', 'success')
+                        return redirect(url_for('main.index'))
+                    else:
+                        print(f"Contraseña incorrecta para usuario {usuario}")
+                        flash('Usuario o contraseña incorrectos', 'danger')
+                except Exception as pwd_err:
+                    print(f"Error en verificación de contraseña: {str(pwd_err)}")
+                    flash(f'Error en autenticación: {str(pwd_err)}', 'danger')
             else:
-                print(f"Contraseña incorrecta")
+                print(f"Usuario {usuario} no encontrado")
                 flash('Usuario o contraseña incorrectos', 'danger')
-        else:
-            print(f"Usuario {usuario} no encontrado")
-            flash('Usuario o contraseña incorrectos', 'danger')
+        except Exception as e:
+            print(f"Error en login: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            flash(f'Error al procesar el login: {str(e)}', 'danger')
     
     return render_template('auth/login.html')
 
@@ -122,4 +190,35 @@ def debug_session():
     <h3>Información de sesión</h3>
     <pre>{session_info}</pre>
     <p><a href="{url_for('main.index')}">Volver al inicio</a></p>
-    """ 
+    """
+
+# Añadir una nueva ruta para resetear la contraseña de emergencia
+@bp.route('/reset_admin')
+def reset_admin_password():
+    try:
+        # Buscar usuario admin
+        admin = Admin.query.filter_by(usuario="admin").first()
+        
+        if admin:
+            # Resetear contraseña
+            admin.set_password("admin123")
+            db.session.commit()
+            flash('Contraseña del administrador restablecida a "admin123"', 'success')
+        else:
+            # Si no existe, crear uno nuevo
+            nuevo_admin = Admin(
+                nombre="Administrador Principal",
+                usuario="admin",
+                rol="administrador"
+            )
+            nuevo_admin.set_password("admin123")
+            db.session.add(nuevo_admin)
+            db.session.commit()
+            flash('Administrador creado con usuario "admin" y contraseña "admin123"', 'success')
+        
+        return redirect(url_for('main.auth.login'))
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        flash(f'Error al resetear administrador: {str(e)}', 'danger')
+        return render_template('auth/login.html') 

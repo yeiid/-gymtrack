@@ -1,0 +1,23 @@
+# Dependencias básicas (incluye todas las de producción)
+-r ../requirements.txt
+
+# Dependencias específicas para desarrollo
+pytest==7.4.3
+pytest-flask==1.2.0
+pytest-cov==4.1.0
+requests==2.31.0
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.0
+isort==5.12.0
+watchdog==3.0.0
+pipdeptree==2.13.0
+ipython==8.16.1
+
+# Dependencias para empaquetado y firma
+pyinstaller==6.13.0  # También está en requirements.txt pero lo incluimos aquí para claridad
+pyinstaller-hooks-contrib==2024.0
+pefile==2023.2.7
+pywin32-ctypes==0.2.2  # Necesario para PyInstaller en Windows
+setuptools>=65.5.1  # Requerido por algunas funciones de empaquetado
+wheel>=0.38.0  # Requerido por algunas funciones de empaquetado 

@@ -30,9 +30,15 @@ def ver_usuario_directo(usuario_id):
 @main.route('/usuarios/<int:usuario_id>')
 def usuario_directo(usuario_id):
     print(f"Llamada a usuario_directo con ID: {usuario_id}")
-    # Llamar directamente a la función ver_usuario en lugar de redireccionar
-    from routes.usuarios.routes import ver_usuario
-    return ver_usuario(usuario_id)
+    try:
+        # Llamar directamente a la función ver_usuario en lugar de redireccionar
+        from routes.usuarios.routes import ver_usuario
+        return ver_usuario(usuario_id)
+    except Exception as e:
+        # Registrar el error y mostrar un mensaje de error amigable
+        print(f"Error al mostrar usuario {usuario_id}: {str(e)}")
+        flash(f"Error al mostrar información del usuario: {str(e)}", "danger")
+        return redirect(url_for('main.usuarios.index'))
 
 @main.route('/')
 def index():
@@ -45,6 +51,17 @@ def actualizar_bd():
         # Añadir la columna fecha_completado si no existe
         db.engine.execute('ALTER TABLE objetivo_personal ADD COLUMN fecha_completado DATE;')
         print("Columna fecha_completado añadida correctamente")
+        
+        # Añadir la columna estado si no existe
+        try:
+            db.engine.execute('ALTER TABLE objetivo_personal ADD COLUMN estado VARCHAR(20) DEFAULT "En progreso";')
+            print("Columna estado añadida correctamente")
+        except Exception as e:
+            if 'duplicate column name' in str(e).lower():
+                print("La columna estado ya existe")
+            else:
+                raise e
+                
         return "Base de datos actualizada correctamente. <a href='/'>Volver al inicio</a>"
     except Exception as e:
         print(f"Error al actualizar la base de datos: {str(e)}")
@@ -124,4 +141,19 @@ def actualizar_rol_admin():
 @main.route('/login')
 def login_directo():
     """Ruta directa para ir al login"""
-    return redirect(url_for('main.auth.login')) 
+    return redirect(url_for('main.auth.login'))
+
+@main.route('/registrar_venta', methods=['GET', 'POST'])
+def registrar_venta_directo():
+    """Ruta directa para el registro de ventas"""
+    success = request.args.get('success')
+    error = request.args.get('error')
+    
+    # Convertir mensajes de URL a flash messages para asegurar consistencia
+    if success:
+        flash(success, "success")
+    if error:
+        flash(error, "danger")
+        
+    from routes.productos.routes import registrar_venta
+    return registrar_venta() 

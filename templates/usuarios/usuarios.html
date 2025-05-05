@@ -1,28 +1,6 @@
 {% extends "layouts/layout.html" %} {% block content %}
 <h2>Usuarios</h2>
 
-{% if error %}
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-  <strong><i class="fas fa-exclamation-circle"></i> Error:</strong> {{ error }}
-  <button
-    type="button"
-    class="btn-close"
-    data-bs-dismiss="alert"
-    aria-label="Close"
-  ></button>
-</div>
-{% endif %} {% if success %}
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-  <strong><i class="fas fa-check-circle"></i> Éxito:</strong> {{ success }}
-  <button
-    type="button"
-    class="btn-close"
-    data-bs-dismiss="alert"
-    aria-label="Close"
-  ></button>
-</div>
-{% endif %}
-
 <div class="row mb-4">
   <div class="col-md-12">
     <div class="card">
@@ -153,8 +131,11 @@
         </tr>
       </thead>
       <tbody id="tabla-usuarios">
-        {% for usuario in users %}
-        <tr class="align-middle">
+        {% for usuario_info in users %}
+        {% set usuario = usuario_info.usuario %}
+        {% set dias_restantes = usuario_info.dias_restantes %}
+        {% set estado = usuario_info.estado %}
+        <tr class="align-middle {% if estado == 'vencido' %}table-danger{% elif estado == 'proximo' %}table-warning{% endif %}">
           <td class="fw-bold">{{ usuario.nombre }}</td>
           <td>{{ usuario.telefono }}</td>
           <td>
@@ -170,12 +151,16 @@
             <span class="badge bg-warning text-dark">Dirigido</span>
             {% else %}
             <span class="badge bg-danger text-white">Personalizado</span>
-            {% endif %} {% if usuario.fecha_vencimiento_plan %}
+            {% endif %} 
+            
+            {% if usuario.fecha_vencimiento_plan %}
             <br />
-            <small class="text-muted"
-              >Vence: {{ usuario.fecha_vencimiento_plan.strftime('%d/%m/%Y')
-              }}</small
-            >
+            <small class="{% if estado == 'vencido' %}text-danger fw-bold{% elif estado == 'proximo' %}text-warning fw-bold{% else %}text-muted{% endif %}">
+              Vence: {{ usuario.fecha_vencimiento_plan.strftime('%d/%m/%Y') }}
+              {% if dias_restantes is not none %}
+                ({% if dias_restantes < 0 %}Vencido hace {{ -dias_restantes }} días{% elif dias_restantes == 0 %}¡Vence hoy!{% else %}{{ dias_restantes }} días restantes{% endif %})
+              {% endif %}
+            </small>
             {% endif %}
           </td>
           <td>
@@ -193,6 +178,12 @@
               onclick="editarUsuario('{{ usuario.id }}')"
             >
               <i class="fas fa-edit me-1"></i> Editar
+            </button>
+            <button
+              class="btn btn-sm btn-danger text-white"
+              onclick="confirmarEliminarUsuario('{{ usuario.id }}', '{{ usuario.nombre }}')"
+            >
+              <i class="fas fa-trash-alt me-1"></i> Eliminar
             </button>
           </td>
         </tr>
@@ -245,6 +236,32 @@
     document.body.appendChild(a); // Añadir al DOM
     a.click(); // Clic programáticamente
     document.body.removeChild(a); // Eliminar del DOM
+  }
+
+  function confirmarEliminarUsuario(id, nombre) {
+    if (confirm(`¿Está seguro que desea eliminar al usuario ${nombre}? Esta acción no se puede deshacer.`)) {
+      try {
+        // Crear y enviar formulario
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{{ url_for('main.usuarios.eliminar_usuario', usuario_id=0) }}".replace('/0', '/' + id);
+        
+        // Añadir token CSRF si está disponible
+        {% if csrf_token %}
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = 'csrf_token';
+        csrfToken.value = "{{ csrf_token() }}";
+        form.appendChild(csrfToken);
+        {% endif %}
+        
+        document.body.appendChild(form);
+        form.submit();
+      } catch (error) {
+        console.error("Error al enviar formulario de eliminación:", error);
+        alert("Ocurrió un error al intentar eliminar el usuario. Por favor, inténtelo de nuevo.");
+      }
+    }
   }
 
   function actualizarPlan() {
@@ -300,13 +317,52 @@
     // Calcular fecha de vencimiento automáticamente
     if (fechaPago.value) {
       const fechaInicio = new Date(fechaPago.value);
-      fechaInicio.setDate(fechaInicio.getDate() + dias);
-      const yyyy = fechaInicio.getFullYear();
-      const mm = String(fechaInicio.getMonth() + 1).padStart(2, '0');
-      const dd = String(fechaInicio.getDate()).padStart(2, '0');
+      let fechaFin = new Date(fechaInicio);
+      
+      // Sumar los días exactos independientemente del mes o calendario
+      fechaFin.setDate(fechaInicio.getDate() + dias);
+      
+      // Formatear para el input date
+      const yyyy = fechaFin.getFullYear();
+      const mm = String(fechaFin.getMonth() + 1).padStart(2, '0');
+      const dd = String(fechaFin.getDate()).padStart(2, '0');
       fechaVencimiento.value = `${yyyy}-${mm}-${dd}`;
       
-      infoVencimiento.textContent = `Plan válido por ${dias} día(s)`;
+      // Mostrar información detallada del vencimiento
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const fechaInicioFormateada = fechaInicio.toLocaleDateString('es-CO', options);
+      const fechaFinFormateada = fechaFin.toLocaleDateString('es-CO', options);
+      
+      // Calcular días efectivos del plan
+      const unDia = 24 * 60 * 60 * 1000; // milisegundos en un día
+      const diasEfectivos = Math.round((fechaFin - fechaInicio) / unDia);
+      
+      // Calcular días restantes para cambio de color
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      const diasRestantes = Math.ceil((fechaFin - hoy) / (1000 * 60 * 60 * 24));
+      
+      let colorClase = "";
+      let estadoTexto = "";
+      
+      if (diasRestantes < 0) {
+        colorClase = "text-danger fw-bold";
+        estadoTexto = "¡ATENCIÓN! La fecha seleccionada generará un plan ya vencido";
+      } else if (diasRestantes <= 3) {
+        colorClase = "text-warning fw-bold";
+        estadoTexto = "El plan vencerá en pocos días desde hoy";
+      } else {
+        colorClase = "text-success";
+        estadoTexto = "Plan con vigencia normal";
+      }
+      
+      infoVencimiento.innerHTML = `
+        <div class="${colorClase}">
+          <strong>Periodo del plan:</strong> Desde ${fechaInicioFormateada} hasta ${fechaFinFormateada}<br>
+          <strong>Duración exacta:</strong> ${dias} día(s)<br>
+          <strong>Estado:</strong> ${estadoTexto}
+        </div>
+      `;
     }
   }
   

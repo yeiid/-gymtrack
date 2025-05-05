@@ -1,0 +1,15 @@
+# Dependencias para la funcionalidad de exportación avanzada
+# Este archivo contiene todas las dependencias opcionales necesarias para la exportación
+# Instalar con: pip install -r exportacion-requirements.txt
+
+# Exportación a PDF
+reportlab==4.0.7
+
+# Exportación a Excel
+pandas==2.1.1
+openpyxl==3.1.2
+XlsxWriter==3.1.9
+
+# Conexión a bases de datos externas
+PyMySQL==1.1.0           # Para MySQL
+psycopg2-binary==2.9.9   # Para PostgreSQL 

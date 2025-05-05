@@ -3,35 +3,21 @@
   <div class="row mb-3">
     <div class="col-md-12 d-flex justify-content-between align-items-center">
       <h2>Historial de Ventas</h2>
-      <a href="{{ url_for('main.productos.registrar_venta') }}" class="btn btn-success">
-        <i class="fas fa-plus-circle me-1"></i> Nueva Venta
-      </a>
+      <div>
+        {% if is_admin_role %}
+        <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#reporteModal">
+          <i class="fas fa-chart-bar me-1"></i> Generar Reporte
+        </button>
+        {% endif %}
+        <a
+          href="{{ url_for('main.registrar_venta_directo') }}"
+          class="btn btn-success"
+        >
+          <i class="fas fa-plus-circle me-1"></i> Nueva Venta
+        </a>
+      </div>
     </div>
   </div>
-
-  {% if success %}
-  <div class="alert alert-success alert-dismissible fade show" role="alert">
-    <strong><i class="fas fa-check-circle"></i> Éxito:</strong> {{ success }}
-    <button
-      type="button"
-      class="btn-close"
-      data-bs-dismiss="alert"
-      aria-label="Close"
-    ></button>
-  </div>
-  {% endif %}
-
-  {% if error %}
-  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <strong><i class="fas fa-exclamation-circle"></i> Error:</strong> {{ error }}
-    <button
-      type="button"
-      class="btn-close"
-      data-bs-dismiss="alert"
-      aria-label="Close"
-    ></button>
-  </div>
-  {% endif %}
 
   <div class="card">
     <div
@@ -64,13 +50,16 @@
               <th>Total</th>
               <th>Cliente</th>
               <th>Método Pago</th>
+              {% if is_admin %}
+              <th>Acciones</th>
+              {% endif %}
             </tr>
           </thead>
           <tbody id="tabla-ventas">
-            {% for venta, producto, usuario in ventas %}
+            {% for venta, producto_nombre, usuario_nombre in ventas %}
             <tr class="align-middle">
               <td>{{ venta.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
-              <td class="fw-bold">{{ producto.nombre }}</td>
+              <td class="fw-bold">{{ producto_nombre }}</td>
               <td class="text-center">{{ venta.cantidad }}</td>
               <td class="text-end">
                 ${{ "{:,.0f}".format(venta.precio_unitario) }}
@@ -79,12 +68,12 @@
                 ${{ "{:,.0f}".format(venta.total) }}
               </td>
               <td>
-                {% if usuario %}
+                {% if venta.usuario_id %}
                 <a
-                  href="{{ url_for('main.ver_usuario', usuario_id=usuario.id) }}"
+                  href="{{ url_for('main.usuario_directo', usuario_id=venta.usuario_id) }}"
                   class="text-decoration-none"
                 >
-                  {{ usuario.nombre }}
+                  {{ usuario_nombre }}
                 </a>
                 {% else %}
                 <span class="text-muted">Cliente no registrado</span>
@@ -95,6 +84,18 @@
                   >{{ venta.metodo_pago }}</span
                 >
               </td>
+              {% if is_admin %}
+              <td class="text-center">
+                <a href="{{ url_for('main.productos.editar_venta', venta_id=venta.id) }}" class="btn btn-sm btn-warning text-white me-1">
+                  <i class="fas fa-edit"></i>
+                </a>
+                {% if is_admin_role %}
+                <button class="btn btn-sm btn-danger" onclick="confirmarEliminarVenta({{ venta.id }})">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+                {% endif %}
+              </td>
+              {% endif %}
             </tr>
             {% endfor %}
           </tbody>
@@ -103,9 +104,54 @@
     </div>
   </div>
 </div>
+
+<!-- Modal para generar reporte -->
+<div class="modal fade" id="reporteModal" tabindex="-1" aria-labelledby="reporteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="reporteModalLabel">Generar Reporte</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{{ url_for('main.productos.generar_reporte_ventas') }}" method="post">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="tipo_reporte" class="form-label">Tipo de reporte</label>
+            <select class="form-select" id="tipo_reporte" name="tipo_reporte" required>
+              <option value="ventas">Ventas</option>
+              <option value="modificaciones">Modificaciones de ventas</option>
+              <option value="eliminaciones">Eliminaciones de ventas</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="fecha_inicio" class="form-label">Fecha inicio</label>
+            <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
+          </div>
+          <div class="mb-3">
+            <label for="fecha_fin" class="form-label">Fecha fin</label>
+            <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Generar reporte</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %} {% block scripts %}
 <script>
   document.addEventListener("DOMContentLoaded", function () {
+    // Configurar fechas por defecto (último mes)
+    const hoy = new Date();
+    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    const finMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+    
+    document.getElementById('fecha_inicio').valueAsDate = inicioMes;
+    document.getElementById('fecha_fin').valueAsDate = finMes;
+    
+    // Búsqueda
     document
       .getElementById("buscar-venta")
       .addEventListener("keyup", function () {
@@ -141,5 +187,16 @@
         }
       });
   });
+  
+  function confirmarEliminarVenta(ventaId) {
+    if (confirm('¿Está seguro que desea eliminar esta venta? Esta acción no se puede deshacer.')) {
+      // Crear y enviar formulario
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = "{{ url_for('main.productos.eliminar_venta', venta_id=0) }}".replace('/0', '/' + ventaId);
+      document.body.appendChild(form);
+      form.submit();
+    }
+  }
 </script>
 {% endblock %}

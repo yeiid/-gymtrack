@@ -17,8 +17,8 @@ dist/
 # Archivos de desarrollo
 probar_app.py
 dev_app.bat
-empaquetar_exe.py
-*.bat
+dev/empaquetar_exe.py
+dev/*.bat
 backups/
 cookies.txt
 # Archivos generados en tiempo de ejecución
@@ -27,12 +27,13 @@ cookies.txt
 *.temp
 # Base de datos 
 database.db
+dev/database.db
 dev_database.db
 test_database.db
-# Carpetas de desarrollo
-dev/
-tests/
-# Archivos de caché
+# Carpetas de desarrollo específicas
+dev/test/
+dev/backups/
+dev/temp/
 .pytest_cache/
 .coverage
 htmlcov/
@@ -52,3 +53,21 @@ app_launcher.py.bak
 # Ignorar archivos específicos de SQLAlchemy en desarrollo
 dev/sqlalchemy_fix.py
 dev/fix_sqlalchemy_routes.py
+
+# Archivos duplicados y temporales que no deben incluirse en el ejecutable
+tag_replacement_*.txt
+app.py         # Usar app_launcher.py en su lugar
+Procfile       # Solo para despliegue en Heroku
+render.yaml    # Solo para despliegue en Render
+gunicorn_config.py  # Solo para despliegue en servidores
+sign_exe.py    # Solo para desarrollo
+
+# Solo mantener ejecutar_app.bat y ejecutar_windows.bat como scripts de ejecución
+!ejecutar_app.bat
+!ejecutar_windows.bat
+!instalar.bat
+
+# Archivos de desarrollo adicionales
+dev/database.db
+dev/*.spec
+dev/*.bat

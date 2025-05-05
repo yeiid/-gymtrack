@@ -1,0 +1,113 @@
+{% extends "layouts/layout.html" %} {% block content %}
+<div class="container">
+  <div class="row mb-3">
+    <div class="col-md-12">
+      <h2>Editar Venta</h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Inicio</a></li>
+          <li class="breadcrumb-item"><a href="{{ url_for('main.productos.ventas') }}">Ventas</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Editar Venta #{{ venta.id }}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header bg-warning text-white">
+      <h5 class="card-title mb-0">Editar Venta</h5>
+    </div>
+    <div class="card-body">
+      <form action="{{ url_for('main.productos.editar_venta', venta_id=venta.id) }}" method="post">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="producto" class="form-label">Producto</label>
+            <input type="text" class="form-control" id="producto" value="{{ producto.nombre }}" readonly>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="fecha" class="form-label">Fecha</label>
+            <input type="text" class="form-control" id="fecha" value="{{ venta.fecha.strftime('%d/%m/%Y %H:%M') }}" readonly>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="cantidad" class="form-label">Cantidad <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="cantidad" name="cantidad" value="{{ venta.cantidad }}" min="1" required>
+            <small class="form-text text-muted">La modificación ajustará automáticamente el inventario</small>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="precio_unitario" class="form-label">Precio Unitario <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" class="form-control" id="precio_unitario" name="precio_unitario" value="{{ venta.precio_unitario }}" min="0" step="100" required>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="metodo_pago" class="form-label">Método de Pago <span class="text-danger">*</span></label>
+            <select class="form-select" id="metodo_pago" name="metodo_pago" required>
+              <option value="Efectivo" {% if venta.metodo_pago == 'Efectivo' %}selected{% endif %}>Efectivo</option>
+              <option value="Transferencia" {% if venta.metodo_pago == 'Transferencia' %}selected{% endif %}>Transferencia</option>
+              <option value="Tarjeta de Crédito" {% if venta.metodo_pago == 'Tarjeta de Crédito' %}selected{% endif %}>Tarjeta de Crédito</option>
+              <option value="Tarjeta de Débito" {% if venta.metodo_pago == 'Tarjeta de Débito' %}selected{% endif %}>Tarjeta de Débito</option>
+              <option value="Otro" {% if venta.metodo_pago == 'Otro' %}selected{% endif %}>Otro</option>
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="usuario_id" class="form-label">Cliente</label>
+            <select class="form-select" id="usuario_id" name="usuario_id">
+              <option value="">-- Sin cliente asociado --</option>
+              {% for usuario in usuarios %}
+              <option value="{{ usuario.id }}" {% if venta.usuario_id == usuario.id %}selected{% endif %}>{{ usuario.nombre }} ({{ usuario.telefono }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-12 mb-3">
+            <label for="total_calculado" class="form-label">Total Calculado</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="text" class="form-control" id="total_calculado" value="{{ '{:,.0f}'.format(venta.total) }}" readonly>
+            </div>
+            <small class="form-text text-muted">El total se calcula automáticamente como Cantidad × Precio Unitario</small>
+          </div>
+        </div>
+        
+        <div class="alert alert-warning" role="alert">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Importante:</strong> Las modificaciones quedarán registradas en el sistema para auditoría.
+        </div>
+        
+        <div class="d-flex justify-content-between mt-4">
+          <a href="{{ url_for('main.productos.ventas') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Cancelar
+          </a>
+          <button type="submit" class="btn btn-warning text-white">
+            <i class="fas fa-save me-1"></i> Guardar Cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Calcular total automáticamente
+  function calcularTotal() {
+    const cantidad = parseInt(document.getElementById('cantidad').value) || 0;
+    const precioUnitario = parseFloat(document.getElementById('precio_unitario').value) || 0;
+    const total = cantidad * precioUnitario;
+    
+    // Formatear con separadores de miles
+    const totalFormateado = new Intl.NumberFormat('es-CL').format(total);
+    document.getElementById('total_calculado').value = totalFormateado;
+  }
+  
+  // Eventos de cambio
+  document.getElementById('cantidad').addEventListener('input', calcularTotal);
+  document.getElementById('precio_unitario').addEventListener('input', calcularTotal);
+  
+  // Calcular al cargar la página
+  calcularTotal();
+});
+</script>
+{% endblock %} 

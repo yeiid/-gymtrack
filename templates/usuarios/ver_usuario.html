@@ -12,12 +12,12 @@
     </div>
     <div class="col-md-4 text-end">
       {% if usuario.plan in ['Dirigido', 'Personalizado'] %}
-        {% if ultima_medida %}
+        {% if ultima_medida is defined and ultima_medida %}
         <span class="badge bg-info me-2">
           <i class="fas fa-weight me-1"></i> Última medida: {{ ultima_medida.fecha.strftime('%d/%m/%Y') }}
         </span>
         {% endif %}
-        {% if objetivos_activos %}
+        {% if objetivos_activos is defined and objetivos_activos %}
         <span class="badge bg-success me-2">
           <i class="fas fa-bullseye me-1"></i> {{ objetivos_activos|length }} objetivo(s) activo(s)
         </span>
@@ -97,24 +97,24 @@
             <tr>
               <th>Vencimiento:</th>
               <td>
-                {% if usuario.fecha_vencimiento_plan %} {{
-                usuario.fecha_vencimiento_plan.strftime('%d/%m/%Y') }} {% set
-                dias_restantes = (usuario.fecha_vencimiento_plan -
-                today.date()).days %} {% if dias_restantes < 0 %}
-                <span class="badge bg-danger"
-                  >Vencido ({{ dias_restantes }} días)</span
-                >
-                {% elif dias_restantes == 0 %}
-                <span class="badge bg-warning text-dark">Vence hoy</span>
-                {% elif dias_restantes <= 3 %}
-                <span class="badge bg-warning text-dark"
-                  >{{ dias_restantes }} días restantes</span
-                >
+                {% if usuario.fecha_vencimiento_plan %} 
+                {{ usuario.fecha_vencimiento_plan.strftime('%d/%m/%Y') }} 
+                
+                {% if estado_plan == 'vencido' %}
+                <span class="badge bg-danger">Vencido ({{ dias_restantes }} días)</span>
+                {% elif estado_plan == 'proximo' %}
+                <span class="badge bg-warning text-dark">
+                  {% if dias_restantes == 0 %}
+                    ¡Vence hoy!
+                  {% else %}
+                    {{ dias_restantes }} días restantes
+                  {% endif %}
+                </span>
                 {% else %}
-                <span class="badge bg-success"
-                  >{{ dias_restantes }} días restantes</span
-                >
-                {% endif %} {% else %}
+                <span class="badge bg-success">{{ dias_restantes }} días restantes</span>
+                {% endif %}
+                
+                {% else %}
                 <span class="text-muted">No establecido</span>
                 {% endif %}
               </td>

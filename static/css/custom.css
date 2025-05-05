@@ -141,7 +141,8 @@ body {
 }
 
 .card-header.bg-info {
-  background-color: var(--secondary-color) !important;
+  /* Se revierte al color azul original de Bootstrap */
+  background-color: #17a2b8 !important;
 }
 
 /* Tarjetas específicas con colores energéticos */
@@ -151,7 +152,8 @@ body {
 }
 
 .bg-info {
-  background-color: var(--secondary-color) !important;
+  /* Se revierte al color azul original de Bootstrap */
+  background-color: #17a2b8 !important;
   border-bottom: 3px solid var(--primary-color);
 }
 

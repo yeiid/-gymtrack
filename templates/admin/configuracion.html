@@ -12,17 +12,6 @@
     </div>
 </div>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
-{% endwith %}
-
 <div class="row">
     <!-- Panel de Herramientas -->
     <div class="col-md-4 mb-4">
@@ -496,7 +485,14 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
 <script>
-    window.sqlResultsAvailable = {{ 'true' if sql_results else 'false' }};
+    // Asignar el valor de sqlResultsAvailable desde JavaScript puro
+    window.sqlResultsAvailable = false;
+    
+    // Ejecutar este código solo si hay resultados SQL
+    {% if sql_results %}
+    window.sqlResultsAvailable = true;
+    {% endif %}
+    
     document.addEventListener('DOMContentLoaded', function() {
         initAdminPage(window.sqlResultsAvailable);
     });

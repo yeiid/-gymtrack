@@ -1,101 +1,209 @@
 {% extends "layouts/layout.html" %}
 {% block content %}
+<!-- Encabezado con estadísticas mejorado -->
 <div class="row mb-3">
-  <div class="col-md-8">
-    <h2>Asistencia</h2>
-  </div>
-  <div class="col-md-4 text-end">
-    <div class="badge bg-primary p-2 fs-6">
-      <i class="fas fa-chart-bar me-1"></i> Hoy: {{ asistencias_hoy }} asistencias
-    </div>
-    <div class="badge bg-success p-2 fs-6 ms-2">
-      <i class="fas fa-chart-line me-1"></i> Este mes: {{ asistencias_mes }} asistencias
+  <div class="col-12 bg-primary bg-opacity-75 text-white p-2 rounded-3 shadow">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="border-start border-4 border-white ps-3 mb-0"><i class="fas fa-calendar-check me-2"></i>Control de Asistencia</h3>
+      </div>
+      <div class="d-flex">
+        <div class="border border-2 border-white rounded-3 p-2 me-2 bg-white bg-opacity-10 text-white">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-chart-bar me-2"></i>
+            <div>
+              <div class="fs-4 fw-bold">{{ asistencias_hoy }}</div>
+              <div class="small">ASISTENCIAS HOY</div>
+            </div>
+          </div>
+        </div>
+        <div class="border border-2 border-white rounded-3 p-2 bg-white bg-opacity-10 text-white">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-chart-line me-2"></i>
+            <div>
+              <div class="fs-4 fw-bold">{{ asistencias_mes }}</div>
+              <div class="small">ESTE MES</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<!-- Alerta de vencimientos mejorada (convertida a desplegable) -->
+{% if proximos_vencimientos %}
+<div class="card border-warning mb-3 shadow">
+  <div class="card-header bg-warning text-dark d-flex align-items-center border-warning border-bottom py-2" 
+       id="proximosVencimientosHeader" style="cursor: pointer;" 
+       data-bs-toggle="collapse" data-bs-target="#proximosVencimientosBody" 
+       aria-expanded="false" aria-controls="proximosVencimientosBody">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <h5 class="mb-0">Planes próximos a vencer</h5>
+    <div class="ms-auto d-flex align-items-center">
+      <span class="badge bg-danger rounded-pill me-2">{{ proximos_vencimientos|length }}</span>
+      <i class="fas fa-chevron-down ms-2 collapse-icon"></i>
     </div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
-
-<div class="row mb-4">
-  <div class="col-md-6">
-    <div class="card">
-      <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Marcar Asistencia</h5>
+  </div>
+  <div class="collapse" id="proximosVencimientosBody">
+    <div class="card-body bg-warning bg-opacity-10 py-2">
+      <div class="row g-2">
+        {% for vencimiento in proximos_vencimientos %}
+          <div class="col-md-4">
+            <div class="card {% if vencimiento.dias == 0 %}border-danger{% else %}border-warning{% endif %} h-100">
+              <div class="card-header bg-light d-flex justify-content-between align-items-center py-1">
+                <span class="fw-bold">{{ vencimiento.nombre }}</span>
+                <span class="badge {% if vencimiento.dias == 0 %}bg-danger{% else %}bg-warning text-dark{% endif %} p-1">
+                  {% if vencimiento.dias == 0 %}
+                    ¡HOY!
+                  {% else %}
+                    {{ vencimiento.dias }} día(s)
+                  {% endif %}
+                </span>
+              </div>
+              <div class="card-body py-2">
+                <p class="mb-0 small"><strong>Plan:</strong> {{ vencimiento.plan }}</p>
+                <p class="mb-0 small"><strong>Vence:</strong> {{ vencimiento.fecha_vencimiento }}</p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
       </div>
-      <div class="card-body">
-        <div class="mb-3">
-          <input type="text" id="buscador" class="form-control" placeholder="Buscar por nombre o teléfono...">
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="row mb-3">
+  <!-- Panel de marcar asistencia mejorado con más espacio -->
+  <div class="col-xl-5 col-lg-6 mb-3 mb-lg-0">
+    <div class="card border-primary h-100 shadow">
+      <div class="card-header bg-primary text-white py-2">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-user-check me-2"></i>
+          <h5 class="mb-0 flex-grow-1">Control de Asistencia</h5>
+          <span class="badge bg-white text-primary rounded-pill">{{ usuarios|length }} usuarios</span>
         </div>
-        <table class="table table-hover">
-          <thead class="table-light">
-            <tr>
-              <th>Nombre</th>
-              <th>Teléfono</th>
-              <th>Plan</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody id="tabla-usuarios">
-            {% for usuario in usuarios %}
-            <tr>
-              <td>{{ usuario.nombre }}</td>
-              <td>{{ usuario.telefono }}</td>
-              <td>{{ usuario.plan }}</td>
-              <td>
-                <a href="{{ url_for('main.usuarios.marcar_asistencia', usuario_id=usuario.id) }}" class="btn btn-primary btn-sm">Marcar</a>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      </div>
+      <div class="card-body p-0">
+        <div class="p-2 bg-light border-bottom">
+          <div class="input-group border border-primary rounded overflow-hidden">
+            <span class="input-group-text bg-primary text-white border-0 py-1"><i class="fas fa-search"></i></span>
+            <input type="text" id="buscador" class="form-control border-0 py-1" placeholder="Buscar por nombre o teléfono...">
+          </div>
+        </div>
+        <!-- Optimización: Contenedor con altura fija y virtual scrolling -->
+        <div class="table-responsive" style="height: 400px; overflow-y: auto;">
+          <table class="table table-bordered table-sm mb-0" id="tabla-usuarios">
+            <thead>
+              <tr class="bg-primary text-white border border-primary position-sticky top-0">
+                <th class="border-end">Usuario</th>
+                <th class="border-end">Plan</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for usuario_info in usuarios %}
+              {% set usuario = usuario_info.usuario %}
+              {% set dias_restantes = usuario_info.dias_restantes %}
+              {% set estado = usuario_info.estado %}
+              <tr class="{% if estado == 'vencido' %}border-danger{% elif estado == 'proximo' %}border-warning{% else %}border-light{% endif %}">
+                <td class="border-end py-2">
+                  <div class="d-flex align-items-center">
+                    <div>
+                      <div class="fw-bold">{{ usuario.nombre }}</div>
+                      <small class="text-muted">{{ usuario.telefono }}</small>
+                    </div>
+                    {% if estado == 'vencido' %}
+                    <span class="badge bg-danger ms-auto">Vencido</span>
+                    {% elif estado == 'proximo' %}
+                    <span class="badge bg-warning text-dark ms-auto">{{ dias_restantes }}d</span>
+                    {% endif %}
+                  </div>
+                </td>
+                <td class="border-end align-middle text-center">
+                  <span class="badge 
+                    {% if usuario.plan == 'Diario' %}bg-info text-dark
+                    {% elif usuario.plan == 'Mensual' %}bg-success
+                    {% elif usuario.plan == 'Quincenal' %}bg-primary
+                    {% elif usuario.plan == 'Estudiantil' %}bg-secondary
+                    {% elif usuario.plan == 'Dirigido' %}bg-warning text-dark
+                    {% else %}bg-danger{% endif %} p-1 w-100">
+                    {{ usuario.plan }}
+                  </span>
+                </td>
+                <td class="align-middle py-1 px-2">
+                  <a href="{{ url_for('main.usuarios.marcar_asistencia', usuario_id=usuario.id) }}" 
+                     class="btn btn-sm {% if estado == 'vencido' and usuario.plan != 'Diario' %}btn-danger{% else %}btn-primary{% endif %} w-100"
+                     {% if estado == 'vencido' and usuario.plan != 'Diario' %}
+                     data-bs-toggle="tooltip" title="Plan vencido, renueve primero"
+                     {% endif %}>
+                    {% if estado == 'vencido' and usuario.plan != 'Diario' %}
+                      <i class="fas fa-sync-alt me-1"></i>Renovar
+                    {% else %}
+                      <i class="fas fa-check-circle me-1"></i>Asistencia
+                    {% endif %}
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
   
-  <div class="col-md-6">
-    <div class="card">
-      <div class="card-header bg-info text-white">
-        <h5 class="mb-0">Calendario de Asistencias</h5>
+  <!-- Calendario mejorado con más espacio y carga diferida -->
+  <div class="col-xl-7 col-lg-6">
+    <div class="card border-info h-100 shadow">
+      <div class="card-header bg-info text-white py-2">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-calendar-alt me-2"></i>
+          <h5 class="mb-0">Calendario de Asistencias</h5>
+        </div>
       </div>
-      <div class="card-body">
-        <div id="calendario"></div>
+      <div class="card-body p-0">
+        <div id="calendario" style="height: 400px;"></div>
       </div>
     </div>
   </div>
 </div>
 
-<div class="card mt-4">
-  <div class="card-header bg-success text-white">
-    <h5 class="mb-0">Historial de Asistencias</h5>
+<!-- Historial de asistencias mejorado con paginación -->
+<div class="card border-success mb-3 shadow">
+  <div class="card-header bg-success text-white d-flex justify-content-between align-items-center py-2">
+    <div>
+      <i class="fas fa-history me-2"></i>
+      <h5 class="mb-0 d-inline">Historial de Asistencias</h5>
+      <span class="badge bg-white text-success ms-2">Mostrando últimas {{ limite_asistencias }} asistencias</span>
+    </div>
+    <div class="input-group" style="max-width: 300px;">
+      <input type="text" id="buscar-historial" class="form-control form-control-sm" placeholder="Filtrar...">
+      <button class="btn btn-sm btn-light border-start-0" type="button"><i class="fas fa-filter"></i></button>
+    </div>
   </div>
-  <div class="card-body">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Usuario</th>
-          <th>Fecha</th>
-          <th>Hora</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for asistencia in asistencias %}
-        <tr>
-          <td>{{ asistencia.usuario.nombre }}</td>
-          <td>{{ asistencia.fecha.strftime('%d/%m/%Y') }}</td>
-          <td>{{ asistencia.fecha.strftime('%H:%M') }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="card-body p-0">
+    <div class="table-responsive" style="max-height: 300px;">
+      <table class="table table-bordered table-sm mb-0" id="tabla-historial">
+        <thead>
+          <tr class="bg-success text-white position-sticky top-0">
+            <th class="border-end py-2"><i class="fas fa-user me-1"></i> Usuario</th>
+            <th class="border-end py-2"><i class="fas fa-calendar me-1"></i> Fecha</th>
+            <th class="py-2"><i class="fas fa-clock me-1"></i> Hora</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for asistencia in asistencias %}
+          <tr>
+            <td class="fw-bold border-end py-1">{{ asistencia.usuario.nombre }}</td>
+            <td class="border-end py-1">{{ asistencia.fecha.strftime('%d/%m/%Y') }}</td>
+            <td class="py-1">{{ asistencia.fecha.strftime('%H:%M') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -106,40 +214,172 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/locales/es.js"></script>
 
+<!-- Definir los datos del calendario para evitar errores de linter -->
+<script type="text/javascript">
+  // Datos de asistencias
+  var asistenciasData = [
+    {% for asistencia in asistencias %}
+    {
+      title: '{{ asistencia.usuario.nombre }}',
+      start: '{{ asistencia.fecha.strftime("%Y-%m-%d") }}',
+      backgroundColor: '#28a745',
+      borderColor: '#28a745'
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ];
+  
+  // Datos de vencimientos
+  var vencimientosData = [
+    {% for usuario_info in usuarios %}
+    {% if usuario_info.usuario.fecha_vencimiento_plan %}
+    {
+      title: 'Vence: {{ usuario_info.usuario.nombre }}',
+      start: '{{ usuario_info.usuario.fecha_vencimiento_plan.strftime("%Y-%m-%d") }}',
+      backgroundColor: {% if usuario_info.estado == "vencido" %}'#dc3545'{% elif usuario_info.estado == "proximo" %}'#ffc107'{% else %}'#17a2b8'{% endif %},
+      borderColor: {% if usuario_info.estado == "vencido" %}'#dc3545'{% elif usuario_info.estado == "proximo" %}'#ffc107'{% else %}'#17a2b8'{% endif %},
+      textColor: {% if usuario_info.estado == "vencido" %}'#fff'{% else %}'#000'{% endif %}
+    }{% if not loop.last %},{% endif %}
+    {% endif %}
+    {% endfor %}
+  ];
+</script>
+
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar calendario
-    var calendarEl = document.getElementById('calendario');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
-      locale: 'es',
-      headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,listWeek'
-      },
-      events: [
-        {% for asistencia in asistencias %}
-        {
-          title: '{{ asistencia.usuario.nombre }}',
-          start: '{{ asistencia.fecha.strftime("%Y-%m-%d") }}',
-        },
-        {% endfor %}
-      ]
-    });
-    calendar.render();
+    // Inicializar tooltips de Bootstrap (si Bootstrap 5 está disponible)
+    if (typeof bootstrap !== 'undefined') {
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    }
     
-    // Búsqueda de usuarios
+    // Girar el icono cuando se expande/colapsa el panel de vencimientos
+    document.getElementById('proximosVencimientosHeader')?.addEventListener('click', function() {
+      const icon = this.querySelector('.collapse-icon');
+      if (icon) {
+        if (this.getAttribute('aria-expanded') === 'true') {
+          icon.classList.remove('fa-rotate-180');
+        } else {
+          icon.classList.add('fa-rotate-180');
+        }
+      }
+    });
+    
+    // Inicializar calendario con carga diferida
+    let calendarInitialized = false;
+    let calendar = null;
+    
+    // Función para inicializar el calendario solo cuando es visible
+    function initializeCalendar() {
+      if (calendarInitialized) return;
+      
+      var calendarEl = document.getElementById('calendario');
+      if (!calendarEl) return;
+      
+      // Combinar los eventos
+      var allEvents = [].concat(asistenciasData, vencimientosData);
+      
+      calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'es',
+        height: '100%',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,listWeek'
+        },
+        themeSystem: 'bootstrap',
+        events: allEvents,
+        lazyFetching: true,
+        eventClick: function(info) {
+          // Mostrar información del evento al hacer clic en un modal en lugar de alert
+          var eventTitle = info.event.title;
+          var eventType = eventTitle.startsWith('Vence:') ? 'Vencimiento' : 'Asistencia';
+          var eventColor = info.event.backgroundColor;
+          
+          // Crear un elemento modal temporal
+          var modalHTML = `
+            <div class="modal fade" id="eventInfoModal" tabindex="-1">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header" style="background-color: ${eventColor}; color: ${info.event.textColor || 'white'};">
+                    <h5 class="modal-title">${eventType}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>${eventTitle}</p>
+                    <p>Fecha: ${new Date(info.event.start).toLocaleDateString('es-CO')}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          
+          // Añadir el modal al DOM
+          var modalElement = document.createElement('div');
+          modalElement.innerHTML = modalHTML;
+          document.body.appendChild(modalElement);
+          
+          // Mostrar el modal
+          var modal = new bootstrap.Modal(document.getElementById('eventInfoModal'));
+          modal.show();
+          
+          // Eliminar el modal cuando se cierra
+          document.getElementById('eventInfoModal').addEventListener('hidden.bs.modal', function() {
+            document.body.removeChild(modalElement);
+          });
+        },
+        dayMaxEvents: true, // Permitir botón "más" para días con muchos eventos
+        dayMaxEventRows: 3,
+        moreLinkClick: 'day'
+      });
+      
+      calendar.render();
+      calendarInitialized = true;
+    }
+    
+    // Inicializar el calendario con un pequeño retraso para mejorar la percepción de velocidad
+    setTimeout(initializeCalendar, 100);
+    
+    // Búsqueda de usuarios optimizada
     document.getElementById('buscador').addEventListener('keyup', function() {
       var texto = this.value.toLowerCase();
       var filas = document.getElementById('tabla-usuarios').getElementsByTagName('tr');
       
+      // Optimización: Limitar número de operaciones DOM
+      let visibleRows = 0;
+      const maxVisibleRows = 50; // Limitar resultados visibles para mejorar rendimiento
+      
       for (var i = 0; i < filas.length; i++) {
-        var nombre = filas[i].getElementsByTagName('td')[0].textContent.toLowerCase();
-        var telefono = filas[i].getElementsByTagName('td')[1].textContent.toLowerCase();
+        if (filas[i].getElementsByTagName('td').length > 0) {
+          var contenido = filas[i].textContent.toLowerCase();
+          
+          if (contenido.indexOf(texto) > -1 && visibleRows < maxVisibleRows) {
+            filas[i].style.display = "";
+            visibleRows++;
+          } else {
+            filas[i].style.display = "none";
+          }
+        }
+      }
+    });
+    
+    // Búsqueda en historial optimizada
+    document.getElementById('buscar-historial').addEventListener('keyup', function() {
+      var texto = this.value.toLowerCase();
+      var filas = document.getElementById('tabla-historial').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+      
+      // Optimización: Limitar número de operaciones DOM
+      let visibleRows = 0;
+      const maxVisibleRows = 50; // Limitar resultados visibles para mejorar rendimiento
+      
+      for (var i = 0; i < filas.length; i++) {
+        var contenido = filas[i].textContent.toLowerCase();
         
-        if (nombre.indexOf(texto) > -1 || telefono.indexOf(texto) > -1) {
+        if (contenido.indexOf(texto) > -1 && visibleRows < maxVisibleRows) {
           filas[i].style.display = "";
+          visibleRows++;
         } else {
           filas[i].style.display = "none";
         }

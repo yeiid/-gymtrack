@@ -5,29 +5,18 @@
     <div class="col-md-12">
       <h2>Registrar Venta</h2>
       <div class="d-flex gap-2">
-        <a href="{{ url_for('main.productos') }}" class="btn btn-sm btn-secondary">
-          <i class="fas fa-arrow-left me-1"></i> Volver a Productos
+        <a href="{{ url_for('main.index') }}" class="btn btn-sm btn-secondary">
+          <i class="fas fa-arrow-left me-1"></i> Volver al Inicio
         </a>
-        <a href="{{ url_for('main.ventas') }}" class="btn btn-sm btn-info text-white">
+        <a href="{{ url_for('main.productos.index') }}" class="btn btn-sm btn-primary">
+          <i class="fas fa-boxes me-1"></i> Ver Productos
+        </a>
+        <a href="{{ url_for('main.productos.ventas') }}" class="btn btn-sm btn-info text-white">
           <i class="fas fa-list me-1"></i> Ver Historial de Ventas
         </a>
       </div>
     </div>
   </div>
-
-  {% if error %}
-  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <strong><i class="fas fa-exclamation-circle"></i> Error:</strong> {{ error }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-  {% endif %}
-  
-  {% if success %}
-  <div class="alert alert-success alert-dismissible fade show" role="alert">
-    <strong><i class="fas fa-check-circle"></i> Éxito:</strong> {{ success }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-  {% endif %}
 
   <div class="row">
     <div class="col-md-8 mx-auto">
@@ -36,7 +25,7 @@
           <h5 class="card-title mb-0">Registrar Venta de Producto</h5>
         </div>
         <div class="card-body">
-          <form method="POST" action="{{ url_for('main.registrar_venta') }}">
+          <form method="POST" action="{{ url_for('main.registrar_venta_directo') }}">
             <div class="mb-3">
               <label for="producto_id" class="form-label">Producto</label>
               <select class="form-select" id="producto_id" name="producto_id" required onchange="actualizarPrecio()">

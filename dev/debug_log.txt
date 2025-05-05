@@ -1,0 +1,238 @@
+2025-04-28 13:35:49,247 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-04-28 13:35:49,248 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("usuario")
+2025-04-28 13:35:49,248 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:49,249 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("medidas_corporales")
+2025-04-28 13:35:49,249 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:49,250 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("objetivo_personal")
+2025-04-28 13:35:49,250 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:49,250 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("asistencia")
+2025-04-28 13:35:49,268 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:49,268 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("instructor")
+2025-04-28 13:35:49,268 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:49,269 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("clase")
+2025-04-28 13:35:49,269 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:49,269 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("producto")
+2025-04-28 13:35:49,270 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:49,270 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("venta_producto")
+2025-04-28 13:35:49,270 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:49,271 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("pago_mensualidad")
+2025-04-28 13:35:49,271 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:49,271 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("admin")
+2025-04-28 13:35:49,271 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:49,272 INFO sqlalchemy.engine.Engine COMMIT
+Base de datos inicializada.
+ * Serving Flask app 'app_launcher'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+ * Restarting with stat
+2025-04-28 13:35:50,438 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-04-28 13:35:50,438 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("usuario")
+2025-04-28 13:35:50,438 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:50,439 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("medidas_corporales")
+2025-04-28 13:35:50,439 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:50,440 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("objetivo_personal")
+2025-04-28 13:35:50,440 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:50,440 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("asistencia")
+2025-04-28 13:35:50,441 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:50,441 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("instructor")
+2025-04-28 13:35:50,441 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:50,441 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("clase")
+2025-04-28 13:35:50,441 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:50,442 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("producto")
+2025-04-28 13:35:50,442 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:50,442 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("venta_producto")
+2025-04-28 13:35:50,442 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:50,442 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("pago_mensualidad")
+2025-04-28 13:35:50,442 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:50,443 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("admin")
+2025-04-28 13:35:50,443 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-28 13:35:50,443 INFO sqlalchemy.engine.Engine COMMIT
+Base de datos inicializada.
+ * Debugger is active!
+ * Debugger PIN: 425-735-333
+Abriendo la aplicación en el navegador...
+127.0.0.1 - - [28/Apr/2025 13:35:51] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [28/Apr/2025 13:35:51] "GET /static/css/custom.css HTTP/1.1" 304 -
+127.0.0.1 - - [28/Apr/2025 13:35:51] "GET /static/css/responsive.css HTTP/1.1" 304 -
+Abriendo la aplicación en el navegador...
+127.0.0.1 - - [28/Apr/2025 13:35:53] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [28/Apr/2025 13:35:53] "GET /static/css/custom.css HTTP/1.1" 304 -
+127.0.0.1 - - [28/Apr/2025 13:35:53] "GET /static/css/responsive.css HTTP/1.1" 304 -
+2025-04-28 13:35:54,966 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-04-28 13:35:54,972 INFO sqlalchemy.engine.Engine SELECT venta_producto.id AS venta_producto_id, venta_producto.producto_id AS venta_producto_producto_id, venta_producto.usuario_id AS venta_producto_usuario_id, venta_producto.cantidad AS venta_producto_cantidad, venta_producto.precio_unitario AS venta_producto_precio_unitario, venta_producto.total AS venta_producto_total, venta_producto.metodo_pago AS venta_producto_metodo_pago, venta_producto.fecha AS venta_producto_fecha, producto.id AS producto_id, producto.nombre AS producto_nombre, producto.descripcion AS producto_descripcion, producto.precio AS producto_precio, producto.stock AS producto_stock, producto.categoria AS producto_categoria, producto.fecha_creacion AS producto_fecha_creacion, usuario.id AS usuario_id, usuario.nombre AS usuario_nombre, usuario.telefono AS usuario_telefono, usuario."plan" AS usuario_plan, usuario.fecha_ingreso AS usuario_fecha_ingreso, usuario.metodo_pago AS usuario_metodo_pago, usuario.fecha_vencimiento_plan AS usuario_fecha_vencimiento_plan, usuario.precio_plan AS usuario_precio_plan 
+FROM venta_producto JOIN producto ON venta_producto.producto_id = producto.id LEFT OUTER JOIN usuario ON venta_producto.usuario_id = usuario.id ORDER BY venta_producto.fecha DESC
+2025-04-28 13:35:54,972 INFO sqlalchemy.engine.Engine [generated in 0.00030s] ()
+2025-04-28 13:35:54,982 INFO sqlalchemy.engine.Engine ROLLBACK
+127.0.0.1 - - [28/Apr/2025 13:35:55] "GET /productos/ventas HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 2551, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 2531, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 2528, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 1825, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 1823, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\routes\productos\routes.py", line 126, in ventas
+    return render_template('productos/ventas.html', ventas=ventas, success=success)
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\templating.py", line 147, in render_template
+    return _render(app, template, context)
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\templating.py", line 130, in _render
+    rv = template.render(context)
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\jinja2\environment.py", line 1301, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\jinja2\environment.py", line 936, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\templates\productos\ventas.html", line 1, in top-level template code
+    {% extends "layouts/layout.html" %} {% block content %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\templates\layouts\layout.html", line 161, in top-level template code
+    <div class="container">{% block content %}{% endblock %}</div>
+    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\templates\productos\ventas.html", line 6, in block 'content'
+    <a href="{{ url_for('main.registrar_venta') }}" class="btn btn-success">
+    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 2034, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 2023, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+    
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\werkzeug\routing\map.py", line 917, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'main.registrar_venta'. Did you mean 'main.productos.registrar_venta' instead?
+127.0.0.1 - - [28/Apr/2025 13:35:55] "GET /productos/ventas?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 304 -
+127.0.0.1 - - [28/Apr/2025 13:35:55] "GET /productos/ventas?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 304 -
+127.0.0.1 - - [28/Apr/2025 13:35:55] "GET /productos/ventas?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 304 -
+2025-04-28 13:36:23,031 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-04-28 13:36:23,031 INFO sqlalchemy.engine.Engine SELECT venta_producto.id AS venta_producto_id, venta_producto.producto_id AS venta_producto_producto_id, venta_producto.usuario_id AS venta_producto_usuario_id, venta_producto.cantidad AS venta_producto_cantidad, venta_producto.precio_unitario AS venta_producto_precio_unitario, venta_producto.total AS venta_producto_total, venta_producto.metodo_pago AS venta_producto_metodo_pago, venta_producto.fecha AS venta_producto_fecha, producto.id AS producto_id, producto.nombre AS producto_nombre, producto.descripcion AS producto_descripcion, producto.precio AS producto_precio, producto.stock AS producto_stock, producto.categoria AS producto_categoria, producto.fecha_creacion AS producto_fecha_creacion, usuario.id AS usuario_id, usuario.nombre AS usuario_nombre, usuario.telefono AS usuario_telefono, usuario."plan" AS usuario_plan, usuario.fecha_ingreso AS usuario_fecha_ingreso, usuario.metodo_pago AS usuario_metodo_pago, usuario.fecha_vencimiento_plan AS usuario_fecha_vencimiento_plan, usuario.precio_plan AS usuario_precio_plan 
+FROM venta_producto JOIN producto ON venta_producto.producto_id = producto.id LEFT OUTER JOIN usuario ON venta_producto.usuario_id = usuario.id ORDER BY venta_producto.fecha DESC
+2025-04-28 13:36:23,032 INFO sqlalchemy.engine.Engine [cached since 28.06s ago] ()
+2025-04-28 13:36:23,035 INFO sqlalchemy.engine.Engine ROLLBACK
+127.0.0.1 - - [28/Apr/2025 13:36:23] "GET /productos/ventas HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 2551, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 2531, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 2528, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 1825, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 1823, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\routes\productos\routes.py", line 126, in ventas
+    return render_template('productos/ventas.html', ventas=ventas, success=success)
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\templating.py", line 147, in render_template
+    return _render(app, template, context)
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\templating.py", line 130, in _render
+    rv = template.render(context)
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\jinja2\environment.py", line 1301, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\jinja2\environment.py", line 936, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\templates\productos\ventas.html", line 1, in top-level template code
+    {% extends "layouts/layout.html" %} {% block content %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\templates\layouts\layout.html", line 161, in top-level template code
+    <div class="container">{% block content %}{% endblock %}</div>
+    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\templates\productos\ventas.html", line 6, in block 'content'
+    <a href="{{ url_for('main.registrar_venta') }}" class="btn btn-success">
+    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 2034, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 2023, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+    
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\werkzeug\routing\map.py", line 917, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'main.registrar_venta'. Did you mean 'main.productos.registrar_venta' instead?
+127.0.0.1 - - [28/Apr/2025 13:36:23] "GET /productos/ventas?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 304 -
+127.0.0.1 - - [28/Apr/2025 13:36:23] "GET /productos/ventas?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 304 -
+127.0.0.1 - - [28/Apr/2025 13:36:23] "GET /productos/ventas?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 304 -
+2025-04-28 13:36:26,818 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-04-28 13:36:26,822 INFO sqlalchemy.engine.Engine SELECT admin.id AS admin_id, admin.nombre AS admin_nombre, admin.usuario AS admin_usuario, admin.password_hash AS admin_password_hash, admin.rol AS admin_rol, admin.fecha_creacion AS admin_fecha_creacion, admin.ultimo_acceso AS admin_ultimo_acceso 
+FROM admin 
+WHERE admin.id = ?
+2025-04-28 13:36:26,823 INFO sqlalchemy.engine.Engine [generated in 0.00039s] (1,)
+2025-04-28 13:36:26,826 INFO sqlalchemy.engine.Engine ROLLBACK
+127.0.0.1 - - [28/Apr/2025 13:36:26] "GET /admin/lista_admins HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 2551, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 2531, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 2528, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 1825, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 1823, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\routes\auth\routes.py", line 28, in decorated_function
+    if admin.rol != 'administrador':
+       ^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'rol'
+127.0.0.1 - - [28/Apr/2025 13:36:26] "GET /admin/lista_admins?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 304 -
+127.0.0.1 - - [28/Apr/2025 13:36:26] "GET /admin/lista_admins?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 304 -
+127.0.0.1 - - [28/Apr/2025 13:36:26] "GET /admin/lista_admins?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 304 -
+2025-04-28 13:36:30,160 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-04-28 13:36:30,162 INFO sqlalchemy.engine.Engine SELECT admin.id AS admin_id, admin.nombre AS admin_nombre, admin.usuario AS admin_usuario, admin.password_hash AS admin_password_hash, admin.rol AS admin_rol, admin.fecha_creacion AS admin_fecha_creacion, admin.ultimo_acceso AS admin_ultimo_acceso 
+FROM admin 
+WHERE admin.id = ?
+2025-04-28 13:36:30,162 INFO sqlalchemy.engine.Engine [cached since 3.34s ago] (1,)
+2025-04-28 13:36:30,164 INFO sqlalchemy.engine.Engine ROLLBACK
+127.0.0.1 - - [28/Apr/2025 13:36:30] "GET /admin/config HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 2551, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 2531, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 2528, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 1825, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 1823, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\venv\Lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\gall\Desktop\Nueva carpeta\-gymtrack\routes\auth\routes.py", line 28, in decorated_function
+    if admin.rol != 'administrador':
+       ^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'rol'
+127.0.0.1 - - [28/Apr/2025 13:36:30] "GET /admin/config?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 304 -
+127.0.0.1 - - [28/Apr/2025 13:36:30] "GET /admin/config?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 304 -
+127.0.0.1 - - [28/Apr/2025 13:36:30] "GET /admin/config?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 304 -
+2025-04-28 13:36:32,944 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-04-28 13:36:32,945 INFO sqlalchemy.engine.Engine SELECT usuario.id AS usuario_id, usuario.nombre AS usuario_nombre, usuario.telefono AS usuario_telefono, usuario."plan" AS usuario_plan, usuario.fecha_ingreso AS usuario_fecha_ingreso, usuario.metodo_pago AS usuario_metodo_pago, usuario.fecha_vencimiento_plan AS usuario_fecha_vencimiento_plan, usuario.precio_plan AS usuario_precio_plan 
+FROM usuario
+2025-04-28 13:36:32,945 INFO sqlalchemy.engine.Engine [generated in 0.00036s] ()
+2025-04-28 13:36:32,950 INFO sqlalchemy.engine.Engine SELECT asistencia.id AS asistencia_id, asistencia.usuario_id AS asistencia_usuario_id, asistencia.fecha AS asistencia_fecha, usuario.id AS usuario_id, usuario.nombre AS usuario_nombre, usuario.telefono AS usuario_telefono, usuario."plan" AS usuario_plan, usuario.fecha_ingreso AS usuario_fecha_ingreso, usuario.metodo_pago AS usuario_metodo_pago, usuario.fecha_vencimiento_plan AS usuario_fecha_vencimiento_plan, usuario.precio_plan AS usuario_precio_plan 
+FROM asistencia JOIN usuario ON asistencia.usuario_id = usuario.id ORDER BY asistencia.fecha DESC
+2025-04-28 13:36:32,950 INFO sqlalchemy.engine.Engine [generated in 0.00022s] ()
+2025-04-28 13:36:32,961 INFO sqlalchemy.engine.Engine ROLLBACK
+127.0.0.1 - - [28/Apr/2025 13:36:32] "GET /usuarios/asistencia HTTP/1.1" 200 -
+127.0.0.1 - - [28/Apr/2025 13:36:32] "GET /static/css/custom.css HTTP/1.1" 304 -
+127.0.0.1 - - [28/Apr/2025 13:36:32] "GET /static/css/responsive.css HTTP/1.1" 304 -
+127.0.0.1 - - [28/Apr/2025 13:36:34] "GET /marcar_asistencia/1 HTTP/1.1" 404 -

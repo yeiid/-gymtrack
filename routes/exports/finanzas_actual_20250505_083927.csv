@@ -1,0 +1,20 @@
+INFORME FINANCIERO,May 2025
+Fecha de generación:,05/05/2025 08:39:27
+
+RESUMEN FINANCIERO
+Total Ingresos:,"480,000.00"
+Ingresos por Membresías:,"430,000.00"
+Ingresos por Productos:,"50,000.00"
+
+DETALLE DE PAGOS DE MEMBRESÍAS
+ID,Fecha,Usuario,Plan,Monto,Método de Pago
+3,04/05/2025,juan lopez,Mensual,"70,000.00",Efectivo
+4,04/05/2025,maria lopez,Estudiantil,"50,000.00",Efectivo
+5,04/05/2025,juancho lopex pumajero,Diario,"5,000.00",Efectivo
+6,04/05/2025,p{ñlkñk.k,Diario,"5,000.00",Efectivo
+7,04/05/2025,vitafer,Estudiantil,"50,000.00",Efectivo
+8,04/05/2025,maria lopez2,Personalizado,"250,000.00",Nequi
+
+DETALLE DE VENTAS DE PRODUCTOS
+ID,Fecha,Producto,Usuario,Cantidad,Precio Unitario,Total,Método de Pago
+1,04/05/2025,juancho lopex pumajero,Cliente no registrado,1,"50,000.00","50,000.00",Efectivo
