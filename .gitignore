@@ -62,6 +62,12 @@ render.yaml    # Solo para despliegue en Render
 gunicorn_config.py  # Solo para despliegue en servidores
 sign_exe.py    # Solo para desarrollo
 
+# Ignorar archivos de exportación
+routes/exports/*.csv
+routes/exports/*.pdf
+routes/exports/*.xlsx
+routes/exports/*.xls
+
 # Solo mantener ejecutar_app.bat y ejecutar_windows.bat como scripts de ejecución
 !ejecutar_app.bat
 !ejecutar_windows.bat
