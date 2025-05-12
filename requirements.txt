@@ -39,10 +39,10 @@ winshell>=0.6; sys_platform == 'win32'
 # DEPENDENCIAS OPCIONALES PARA EXPORTACIÓN
 # Para instalar estas dependencias: pip install -r exportacion-requirements.txt
 # ---------------------------------------------------------
-# reportlab==4.0.7         # Para generar PDFs
-# openpyxl==3.1.2          # Para archivos Excel
+reportlab==4.0.7         # Para generar PDFs
+openpyxl==3.1.2          # Para archivos Excel
 # pandas==2.1.1            # Para manipulación de datos
-# XlsxWriter==3.1.9        # Mejor formato para Excel
+XlsxWriter==3.1.9        # Mejor formato para Excel
 # PyMySQL==1.1.0           # Para conexión con MySQL
 # psycopg2-binary==2.9.9   # Para conexión con PostgreSQL
 

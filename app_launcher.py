@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-"""
-Lanzador unificado de la aplicación GimnasioDB
-Este script puede usarse tanto para desarrollo como para producción, 
-y reemplaza a los scripts individuales app.py, run_app.py y standalone_app.py
-"""
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from models import db
 from routes import main  # Importar el blueprint principal de la nueva estructura
@@ -325,6 +319,19 @@ def create_app(test_config=None):
             print(f"Tablas en la base de datos: {[r[0] for r in resultado]}")
         except Exception as e:
             print(f"ERROR al conectar con la base de datos: {str(e)}")
+    
+    # Inyectar variables de autenticación en todas las plantillas
+    @app.context_processor
+    def inject_auth_variables():
+        from flask import session
+        # Comprobar si el usuario está autenticado como admin
+        is_admin = 'admin_id' in session
+        # Comprobar si es administrador (no recepcionista)
+        is_admin_role = is_admin and session.get('admin_rol') == 'administrador'
+        return {
+            'is_admin': is_admin,
+            'is_admin_role': is_admin_role
+        }
     
     # Ruta para cerrar la aplicación
     @app.route('/cerrar-aplicacion', methods=['POST'])
