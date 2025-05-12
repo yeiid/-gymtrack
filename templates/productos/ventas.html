@@ -5,7 +5,12 @@
       <h2>Historial de Ventas</h2>
       <div>
         {% if is_admin_role %}
-        <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#reporteModal">
+        <button
+          type="button"
+          class="btn btn-primary me-2"
+          data-bs-toggle="modal"
+          data-bs-target="#reporteModal"
+        >
           <i class="fas fa-chart-bar me-1"></i> Generar Reporte
         </button>
         {% endif %}
@@ -50,16 +55,17 @@
               <th>Total</th>
               <th>Cliente</th>
               <th>Método Pago</th>
-              {% if is_admin %}
               <th>Acciones</th>
-              {% endif %}
             </tr>
           </thead>
           <tbody id="tabla-ventas">
-            {% for venta, producto_nombre, usuario_nombre in ventas %}
+            {% for venta in ventas %}
             <tr class="align-middle">
               <td>{{ venta.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
-              <td class="fw-bold">{{ producto_nombre }}</td>
+              <td class="fw-bold">
+                {{ venta.producto.nombre if venta.producto else 'Producto no
+                disponible' }}
+              </td>
               <td class="text-center">{{ venta.cantidad }}</td>
               <td class="text-end">
                 ${{ "{:,.0f}".format(venta.precio_unitario) }}
@@ -73,7 +79,8 @@
                   href="{{ url_for('main.usuario_directo', usuario_id=venta.usuario_id) }}"
                   class="text-decoration-none"
                 >
-                  {{ usuario_nombre }}
+                  {{ venta.usuario.nombre if venta.usuario else 'Usuario no
+                  disponible' }}
                 </a>
                 {% else %}
                 <span class="text-muted">Cliente no registrado</span>
@@ -84,18 +91,21 @@
                   >{{ venta.metodo_pago }}</span
                 >
               </td>
-              {% if is_admin %}
+              <!-- Columna de acciones visible para administradores -->
               <td class="text-center">
-                <a href="{{ url_for('main.productos.editar_venta', venta_id=venta.id) }}" class="btn btn-sm btn-warning text-white me-1">
+                <a
+                  href="{{ url_for('main.productos.editar_venta', venta_id=venta.id) }}"
+                  class="btn btn-sm btn-warning text-white me-1"
+                >
                   <i class="fas fa-edit"></i>
                 </a>
-                {% if is_admin_role %}
-                <button class="btn btn-sm btn-danger" onclick="confirmarEliminarVenta({{ venta.id }})">
+                <button
+                  class="btn btn-sm btn-danger"
+                  onclick="confirmarEliminarVenta({{ venta.id }})"
+                >
                   <i class="fas fa-trash-alt"></i>
                 </button>
-                {% endif %}
               </td>
-              {% endif %}
             </tr>
             {% endfor %}
           </tbody>
@@ -106,18 +116,37 @@
 </div>
 
 <!-- Modal para generar reporte -->
-<div class="modal fade" id="reporteModal" tabindex="-1" aria-labelledby="reporteModalLabel" aria-hidden="true">
+<div
+  class="modal fade"
+  id="reporteModal"
+  tabindex="-1"
+  aria-labelledby="reporteModalLabel"
+  aria-hidden="true"
+>
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title" id="reporteModalLabel">Generar Reporte</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
       </div>
-      <form action="{{ url_for('main.productos.generar_reporte_ventas') }}" method="post">
+      <form
+        action="{{ url_for('main.productos.generar_reporte_ventas') }}"
+        method="post"
+      >
         <div class="modal-body">
           <div class="mb-3">
             <label for="tipo_reporte" class="form-label">Tipo de reporte</label>
-            <select class="form-select" id="tipo_reporte" name="tipo_reporte" required>
+            <select
+              class="form-select"
+              id="tipo_reporte"
+              name="tipo_reporte"
+              required
+            >
               <option value="ventas">Ventas</option>
               <option value="modificaciones">Modificaciones de ventas</option>
               <option value="eliminaciones">Eliminaciones de ventas</option>
@@ -125,15 +154,33 @@
           </div>
           <div class="mb-3">
             <label for="fecha_inicio" class="form-label">Fecha inicio</label>
-            <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
+            <input
+              type="date"
+              class="form-control"
+              id="fecha_inicio"
+              name="fecha_inicio"
+              required
+            />
           </div>
           <div class="mb-3">
             <label for="fecha_fin" class="form-label">Fecha fin</label>
-            <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required>
+            <input
+              type="date"
+              class="form-control"
+              id="fecha_fin"
+              name="fecha_fin"
+              required
+            />
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
           <button type="submit" class="btn btn-primary">Generar reporte</button>
         </div>
       </form>
@@ -147,10 +194,10 @@
     const hoy = new Date();
     const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
     const finMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
-    
-    document.getElementById('fecha_inicio').valueAsDate = inicioMes;
-    document.getElementById('fecha_fin').valueAsDate = finMes;
-    
+
+    document.getElementById("fecha_inicio").valueAsDate = inicioMes;
+    document.getElementById("fecha_fin").valueAsDate = finMes;
+
     // Búsqueda
     document
       .getElementById("buscar-venta")
@@ -187,13 +234,17 @@
         }
       });
   });
-  
+
   function confirmarEliminarVenta(ventaId) {
-    if (confirm('¿Está seguro que desea eliminar esta venta? Esta acción no se puede deshacer.')) {
+    if (
+      confirm(
+        "¿Está seguro que desea eliminar esta venta? Esta acción no se puede deshacer."
+      )
+    ) {
       // Crear y enviar formulario
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = "{{ url_for('main.productos.eliminar_venta', venta_id=0) }}".replace('/0', '/' + ventaId);
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = "/productos/eliminar_venta/" + ventaId;
       document.body.appendChild(form);
       form.submit();
     }

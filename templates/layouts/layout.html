@@ -6,13 +6,19 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
     />
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>Reto Fit Carlenis Ortiz</title>
 
     <!-- Cargar archivos CSS directamente desde local (sin CDN) -->
-    <link rel="stylesheet" href="{{ static_resource('css/bootstrap.min.css') }}" />
+    <link
+      rel="stylesheet"
+      href="{{ static_resource('css/bootstrap.min.css') }}"
+    />
     <link rel="stylesheet" href="{{ static_resource('css/poppins.css') }}" />
     <link rel="stylesheet" href="{{ static_resource('css/all.min.css') }}" />
     <link rel="stylesheet" href="{{ static_resource('css/custom.css') }}" />
@@ -25,7 +31,10 @@
     <!-- Barra de navegación energética -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
       <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.index') }}">
+        <a
+          class="navbar-brand d-flex align-items-center"
+          href="{{ url_for('main.index') }}"
+        >
           <i class="fas fa-dumbbell me-2"></i>
           <span>Reto Fit Carlenis Ortiz</span>
         </a>
@@ -49,7 +58,10 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.usuarios.asistencia') }}">
+              <a
+                class="nav-link"
+                href="{{ url_for('main.usuarios.asistencia') }}"
+              >
                 <i class="fas fa-clipboard-check me-1"></i>
                 <span>Asistencia</span>
               </a>
@@ -72,94 +84,153 @@
                 <span>Finanzas</span>
               </a>
             </li>
-            
+
             <!-- Botón de iniciar sesión si no hay sesión activa -->
             {% if not session.get('admin_id') %}
             <li class="nav-item">
-              <a class="nav-link btn btn-outline-light btn-sm ms-2 px-3" href="{{ url_for('main.login_directo') }}">
+              <a
+                class="nav-link btn btn-outline-light btn-sm ms-2 px-3"
+                href="{{ url_for('main.login_directo') }}"
+              >
                 <i class="fas fa-sign-in-alt me-1"></i>
                 <span>Iniciar sesión</span>
               </a>
             </li>
             {% endif %}
-            
-            <!-- Menú de debug - Solo visible en desarrollo --> 
+
+            <!-- Menú de debug - Solo visible en desarrollo -->
             {% if debug %}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle text-warning" href="#" id="debugDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <a
+                class="nav-link dropdown-toggle text-warning"
+                href="#"
+                id="debugDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
                 <i class="fas fa-bug me-1"></i>
                 <span>Debug</span>
               </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="debugDropdown">
-                <li><span class="dropdown-item-text">Admin ID: {{ session.get('admin_id') }}</span></li>
-                <li><span class="dropdown-item-text">Admin Nombre: {{ session.get('admin_nombre') }}</span></li>
-                <li><span class="dropdown-item-text">Admin Rol: {{ session.get('admin_rol') }}</span></li>
-                <li><hr class="dropdown-divider"></li>
+              <ul
+                class="dropdown-menu dropdown-menu-end"
+                aria-labelledby="debugDropdown"
+              >
                 <li>
-                  <a class="dropdown-item" href="{{ url_for('main.actualizar_rol_admin') }}">
+                  <span class="dropdown-item-text"
+                    >Admin ID: {{ session.get('admin_id') }}</span
+                  >
+                </li>
+                <li>
+                  <span class="dropdown-item-text"
+                    >Admin Nombre: {{ session.get('admin_nombre') }}</span
+                  >
+                </li>
+                <li>
+                  <span class="dropdown-item-text"
+                    >Admin Rol: {{ session.get('admin_rol') }}</span
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('main.actualizar_rol_admin') }}"
+                  >
                     <i class="fas fa-user-shield me-1"></i> Forzar rol admin
                   </a>
                 </li>
                 <li>
-                  <a class="dropdown-item" href="{{ url_for('main.emergencia_admin') }}">
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('main.emergencia_admin') }}"
+                  >
                     <i class="fas fa-exclamation-triangle me-1"></i> Emergencia
                   </a>
                 </li>
                 <li>
-                  <a class="dropdown-item" href="{{ url_for('main.actualizar_bd') }}">
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('main.actualizar_bd') }}"
+                  >
                     <i class="fas fa-database me-1"></i> Actualizar BD
                   </a>
                 </li>
                 <li>
-                  <a class="dropdown-item" href="{{ url_for('main.auth.debug_session') }}">
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('main.auth.debug_session') }}"
+                  >
                     <i class="fas fa-info-circle me-1"></i> Depurar sesión
                   </a>
                 </li>
               </ul>
             </li>
             {% endif %}
-            
+
             <!-- MENÚ ÚNICO DE USUARIO Y ADMINISTRACIÓN -->
             {% if session.get('admin_id') %}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="userAdminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="userAdminDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
                 <i class="fas fa-user-cog me-1"></i>
                 <span>{{ session.get('admin_nombre') }}</span>
               </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userAdminDropdown">
+              <ul
+                class="dropdown-menu dropdown-menu-end"
+                aria-labelledby="userAdminDropdown"
+              >
                 <!-- Opciones de administración -->
                 <li class="dropdown-header">Administración</li>
                 <li>
-                  <a class="dropdown-item" href="{{ url_for('main.admin.lista_admins') }}">
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('main.admin.lista_admins') }}"
+                  >
                     <i class="fas fa-users-cog me-1"></i> Administradores
                   </a>
                 </li>
                 {% if session.get('admin_rol') == 'administrador' %}
                 <li>
-                  <a class="dropdown-item" href="{{ url_for('main.admin.configuracion') }}">
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('main.admin.configuracion') }}"
+                  >
                     <i class="fas fa-cogs me-1"></i> Configuración
                   </a>
                 </li>
                 {% endif %}
-                
-                <li><hr class="dropdown-divider"></li>
-                
+
+                <li><hr class="dropdown-divider" /></li>
+
                 <!-- Opciones de usuario -->
                 <li class="dropdown-header">Mi cuenta</li>
                 <li>
-                  <a class="dropdown-item" href="{{ url_for('main.auth.cambiar_contrasena') }}">
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('main.auth.cambiar_contrasena') }}"
+                  >
                     <i class="fas fa-key me-1"></i> Cambiar contraseña
                   </a>
                 </li>
                 <li>
-                  <a class="dropdown-item" href="{{ url_for('main.auth.logout') }}">
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('main.auth.logout') }}"
+                  >
                     <i class="fas fa-sign-out-alt me-1"></i> Cerrar sesión
                   </a>
                 </li>
               </ul>
             </li>
             {% endif %}
-            
+
             <li class="nav-item">
               <a class="nav-link text-danger" href="#" id="cerrarApp">
                 <i class="fas fa-power-off me-1"></i>
@@ -210,18 +281,32 @@
     <main class="py-4">
       <div class="container">
         <!-- Mostrar mensajes flash -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
-                <strong>{% if category == 'success' %}<i class="fas fa-check-circle"></i> ¡Éxito!{% elif category == 'danger' %}<i class="fas fa-exclamation-circle"></i> Error:{% elif category == 'warning' %}<i class="fas fa-exclamation-triangle"></i> Atención:{% else %}<i class="fas fa-info-circle"></i> Info:{% endif %}</strong> {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-
-        {% block content %}{% endblock %}
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %} {% for category, message in messages %}
+        <div
+          class="alert alert-{{ category }} alert-dismissible fade show mb-4"
+          role="alert"
+        >
+          <strong
+            >{% if category == 'success' %}<i class="fas fa-check-circle"></i>
+            ¡Éxito!{% elif category == 'danger' %}<i
+              class="fas fa-exclamation-circle"
+            ></i>
+            Error:{% elif category == 'warning' %}<i
+              class="fas fa-exclamation-triangle"
+            ></i>
+            Atención:{% else %}<i class="fas fa-info-circle"></i> Info:{% endif
+            %}</strong
+          >
+          {{ message }}
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Close"
+          ></button>
+        </div>
+        {% endfor %} {% endif %} {% endwith %} {% block content %}{% endblock %}
       </div>
     </main>
 
@@ -251,15 +336,17 @@
         // Modal para confirmar cierre
         const cerrarAppBtn = document.getElementById("cerrarApp");
         const confirmarCierreBtn = document.getElementById("confirmarCierre");
-        
+
         // Asegurarnos de que el script de bootstrap está cargado
         function initCerrarApp() {
           // Comprobar si bootstrap está disponible
-          if (typeof bootstrap !== 'undefined') {
+          if (typeof bootstrap !== "undefined") {
             console.log("Bootstrap disponible, inicializando modal...");
             // Inicializar modal con bootstrap
-            window.modalCerrar = new bootstrap.Modal(document.getElementById("modalCerrar"));
-            
+            window.modalCerrar = new bootstrap.Modal(
+              document.getElementById("modalCerrar")
+            );
+
             // Mostrar modal al hacer clic en cerrar
             if (cerrarAppBtn) {
               cerrarAppBtn.addEventListener("click", function (e) {
@@ -276,7 +363,7 @@
             setTimeout(initCerrarApp, 500);
           }
         }
-        
+
         // Inicializar funcionalidad de cierre
         initCerrarApp();
 
@@ -294,17 +381,17 @@
                 </div>
               </div>
             `;
-            
+
             // Enviar petición para cerrar
             fetch("/cerrar-aplicacion", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
             })
-              .then(response => {
+              .then((response) => {
                 console.log("Aplicación cerrándose...");
                 setTimeout(() => window.close(), 2000);
               })
-              .catch(error => {
+              .catch((error) => {
                 console.error("Error al cerrar la aplicación:", error);
                 // Mostrar mensaje de error
                 document.body.innerHTML = `
@@ -321,14 +408,18 @@
         } else {
           console.error("No se encontró el botón confirmarCierre");
         }
-        
+
         // Marcar menú activo según la URL actual
         const currentPath = window.location.pathname;
-        document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
-          const href = link.getAttribute('href');
-          if (href && href !== '#' && (currentPath === href || 
-              (href !== '/' && currentPath.startsWith(href)))) {
-            link.classList.add('active');
+        document.querySelectorAll(".navbar-nav .nav-link").forEach((link) => {
+          const href = link.getAttribute("href");
+          if (
+            href &&
+            href !== "#" &&
+            (currentPath === href ||
+              (href !== "/" && currentPath.startsWith(href)))
+          ) {
+            link.classList.add("active");
           }
         });
       });

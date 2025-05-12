@@ -2,48 +2,81 @@
 <div class="row mb-4">
   <div class="col-md-6">
     <h2>Análisis Financiero</h2>
-    <p class="text-muted">Período: {{ periodo_actual.nombre_mes }} {{ periodo_actual.año }}</p>
+    <p class="text-muted">
+      Período: {{ periodo_actual.nombre_mes }} {{ periodo_actual.año }}
+    </p>
   </div>
   <div class="col-md-6 text-end">
-    <a href="{{ url_for('main.finanzas.finanzas_diarias') }}" class="btn btn-primary">
+    <a
+      href="{{ url_for('main.finanzas.finanzas_diarias') }}"
+      class="btn btn-primary"
+    >
       <i class="fas fa-calendar-day me-1"></i> Análisis Diario
     </a>
-    <a href="#" class="btn btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#exportarModal">
+    <a
+      href="#"
+      class="btn btn-outline-secondary ms-2"
+      data-bs-toggle="modal"
+      data-bs-target="#exportarModal"
+    >
       <i class="fas fa-file-export me-1"></i> Exportar
     </a>
   </div>
 </div>
 
-<!-- Panel de Indicadores Clave -->
-<div class="row mb-4">
-  <div class="col-12">
-    <div class="card border-0 shadow-sm">
-      <div class="card-header bg-white">
-        <h5 class="mb-0">Indicadores Clave de Desempeño (KPIs)</h5>
+<!-- KPIs de Rendimiento -->
+<div class="row mt-4">
+  <!-- Ingresos por usuario -->
+  <div class="col-md-3 mb-4">
+    <div class="card border-0 rounded-lg shadow h-100">
+      <div class="card-body text-center p-4">
+        <span class="d-block fs-5 fw-bold text-primary mb-2"
+          >Ingresos por Usuario</span
+        >
+        <h3 id="kpi-ingresos" class="display-4 mt-2 mb-0 fw-bold">
+          {{ "${:,.0f}".format(ingresos_por_usuario)|safe }}
+        </h3>
+        <p class="text-muted">promedio mensual</p>
       </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-3 text-center border-end">
-            <h6 class="text-muted">Ingresos por Usuario</h6>
-            <h3 class="text-primary mb-0">${{ "{:,.0f}".format(ingresos_por_usuario or 0) }}</h3>
-            <small class="text-muted">promedio mensual</small>
-          </div>
-          <div class="col-md-3 text-center border-end">
-            <h6 class="text-muted">Valor Transacción</h6>
-            <h3 class="text-primary mb-0">${{ "{:,.0f}".format(valor_promedio_transaccion or 0) }}</h3>
-            <small class="text-muted">promedio</small>
-          </div>
-          <div class="col-md-3 text-center border-end">
-            <h6 class="text-muted">Tasa Conversión</h6>
-            <h3 class="text-primary mb-0">{{ "{:.1f}".format(ratio_conversion or 0) }}%</h3>
-            <small class="text-muted">usuarios con plan activo</small>
-          </div>
-          <div class="col-md-3 text-center">
-            <h6 class="text-muted">Asistencias</h6>
-            <h3 class="text-primary mb-0">{{ "{:.1f}".format(asistencias_promedio or 0) }}</h3>
-            <small class="text-muted">promedio por usuario</small>
-          </div>
-        </div>
+    </div>
+  </div>
+  <!-- Valor de transacción -->
+  <div class="col-md-3 mb-4">
+    <div class="card border-0 rounded-lg shadow h-100">
+      <div class="card-body text-center p-4">
+        <span class="d-block fs-5 fw-bold text-primary mb-2"
+          >Valor Transacción</span
+        >
+        <h3 id="kpi-valor" class="display-4 mt-2 mb-0 fw-bold">
+          {{ "${:,.0f}".format(valor_promedio_transaccion)|safe }}
+        </h3>
+        <p class="text-muted">promedio</p>
+      </div>
+    </div>
+  </div>
+  <!-- Tasa de conversión -->
+  <div class="col-md-3 mb-4">
+    <div class="card border-0 rounded-lg shadow h-100">
+      <div class="card-body text-center p-4">
+        <span class="d-block fs-5 fw-bold text-primary mb-2"
+          >Tasa Conversión</span
+        >
+        <h3 id="kpi-conversion" class="display-4 mt-2 mb-0 fw-bold">
+          {{ "{:.1f}%".format(ratio_conversion)|safe }}
+        </h3>
+        <p class="text-muted">usuarios con plan activo</p>
+      </div>
+    </div>
+  </div>
+  <!-- Asistencias -->
+  <div class="col-md-3 mb-4">
+    <div class="card border-0 rounded-lg shadow h-100">
+      <div class="card-body text-center p-4">
+        <span class="d-block fs-5 fw-bold text-primary mb-2">Asistencias</span>
+        <h3 id="kpi-asistencias" class="display-4 mt-2 mb-0 fw-bold">
+          {{ "{:.1f}".format(asistencias_promedio)|safe }}
+        </h3>
+        <p class="text-muted">promedio por usuario</p>
       </div>
     </div>
   </div>
@@ -59,7 +92,9 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <span class="text-muted">Ingresos brutos:</span>
-          <h5 class="mb-0 fw-bold">{{ "{:,.0f}".format(ingresos_mensual_total or 0) }} COP</h5>
+          <h5 class="mb-0 fw-bold">
+            {{ "{:,.0f}".format(ingresos_mensual_total or 0) }} COP
+          </h5>
         </div>
         <div class="d-flex justify-content-between align-items-center mb-3">
           <span class="text-muted">IVA (19%):</span>
@@ -67,23 +102,29 @@
         </div>
         <div class="d-flex justify-content-between align-items-center mb-3">
           <span class="text-muted">Ingresos netos:</span>
-          <h5 class="mb-0 text-success">{{ "{:,.0f}".format(ingresos_netos_mensuales or 0) }} COP</h5>
+          <h5 class="mb-0 text-success">
+            {{ "{:,.0f}".format(ingresos_netos_mensuales or 0) }} COP
+          </h5>
         </div>
-        <hr>
+        <hr />
         <div class="row text-center">
           <div class="col-6 border-end">
             <small class="text-muted d-block">Membresías</small>
-            <span class="fw-bold">{{ "{:,.0f}".format(ingresos_mensual_membresias or 0) }}</span>
+            <span class="fw-bold"
+              >{{ "{:,.0f}".format(ingresos_mensual_membresias or 0) }}</span
+            >
           </div>
           <div class="col-6">
             <small class="text-muted d-block">Productos</small>
-            <span class="fw-bold">{{ "{:,.0f}".format(ingresos_mensual_productos or 0) }}</span>
+            <span class="fw-bold"
+              >{{ "{:,.0f}".format(ingresos_mensual_productos or 0) }}</span
+            >
           </div>
         </div>
       </div>
     </div>
   </div>
-  
+
   <div class="col-md-4">
     <div class="card shadow-sm border-0">
       <div class="card-header bg-white">
@@ -92,18 +133,24 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <span class="text-muted">Ingresos netos:</span>
-          <h6 class="mb-0">{{ "{:,.0f}".format(ingresos_netos_mensuales or 0) }} COP</h6>
+          <h6 class="mb-0">
+            {{ "{:,.0f}".format(ingresos_netos_mensuales or 0) }} COP
+          </h6>
         </div>
         <div class="d-flex justify-content-between align-items-center mb-3">
           <span class="text-muted">Costos operativos:</span>
-          <h6 class="mb-0 text-danger">{{ "{:,.0f}".format(costos_operativos_mensuales or 0) }} COP</h6>
+          <h6 class="mb-0 text-danger">
+            {{ "{:,.0f}".format(costos_operativos_mensuales or 0) }} COP
+          </h6>
         </div>
         <div class="d-flex justify-content-between align-items-center mb-3">
           <span class="text-muted">Margen neto:</span>
-          <h5 class="mb-0 text-success">{{ "{:,.0f}".format(margen_neto_mensual or 0) }} COP</h5>
+          <h5 class="mb-0 text-success">
+            {{ "{:,.0f}".format(margen_neto_mensual or 0) }} COP
+          </h5>
         </div>
-        <hr>
-        <div class="progress" style="height: 25px;">
+        <hr />
+        <div class="progress" style="height: 25px">
           <div class="progress-bar bg-danger" style="width: 60%">
             Costos (60%)
           </div>
@@ -114,7 +161,7 @@
       </div>
     </div>
   </div>
-  
+
   <div class="col-md-4">
     <div class="card shadow-sm border-0">
       <div class="card-header bg-white">
@@ -133,11 +180,14 @@
           <span class="text-muted">Asistencias (mes):</span>
           <h5 class="mb-0 text-primary">{{ asistencias_mes }}</h5>
         </div>
-        <hr>
-        <div class="progress" style="height: 25px;">
-          <div class="progress-bar bg-primary" 
-               style="width: {% if usuarios_activos and usuarios_con_plan_vigente %}{{ ((usuarios_con_plan_vigente / usuarios_activos) * 100)|round(1) }}{% else %}0{% endif %}%">
-            {% if ratio_conversion %}{{ "{:.1f}".format(ratio_conversion) }}{% else %}0.0{% endif %}% con plan activo
+        <hr />
+        <div class="progress" style="height: 25px">
+          <div
+            class="progress-bar bg-primary"
+            style="width: {% if usuarios_activos and usuarios_con_plan_vigente %}{{ ((usuarios_con_plan_vigente / usuarios_activos) * 100)|round(1) }}{% else %}0{% endif %}%"
+          >
+            {% if ratio_conversion %}{{ "{:.1f}".format(ratio_conversion) }}{%
+            else %}0.0{% endif %}% con plan activo
           </div>
         </div>
       </div>
@@ -167,24 +217,62 @@
             <tbody>
               <tr>
                 <td><strong>Diario</strong> (hoy)</td>
-                <td class="text-end">{{ "{:,.0f}".format(ingresos_diarios_total or 0) }}</td>
-                <td class="text-end">{{ "{:,.0f}".format((ingresos_diarios_total or 0) * 0.6) }}</td>
-                <td class="text-end">{{ "{:,.0f}".format(margen_bruto_diario or 0) }}</td>
-                <td class="text-end text-success">{{ "{:,.0f}".format((ingresos_diarios_total or 0) - (ingresos_diarios_total or 0) * 0.6) }}</td>
+                <td class="text-end">
+                  {{ "{:,.0f}".format(ingresos_diarios_total or 0) }}
+                </td>
+                <td class="text-end">
+                  {{ "{:,.0f}".format((ingresos_diarios_total or 0) * 0.6) }}
+                </td>
+                <td class="text-end">
+                  {{ "{:,.0f}".format(margen_bruto_diario or 0) }}
+                </td>
+                <td class="text-end text-success">
+                  {{ "{:,.0f}".format((ingresos_diarios_total or 0) -
+                  (ingresos_diarios_total or 0) * 0.6) }}
+                </td>
               </tr>
               <tr>
                 <td><strong>Semanal</strong> (actual)</td>
-                <td class="text-end">{{ "{:,.0f}".format(ingresos_semanales_total or 0) }}</td>
-                <td class="text-end">{{ "{:,.0f}".format((ingresos_semanales_total or 0) * 0.6) }}</td>
-                <td class="text-end">{{ "{:,.0f}".format(margen_bruto_semanal or 0) }}</td>
-                <td class="text-end text-success">{{ "{:,.0f}".format((ingresos_semanales_total or 0) - (ingresos_semanales_total or 0) * 0.6) }}</td>
+                <td class="text-end">
+                  {{ "{:,.0f}".format(ingresos_semanales_total or 0) }}
+                </td>
+                <td class="text-end">
+                  {{ "{:,.0f}".format((ingresos_semanales_total or 0) * 0.6) }}
+                </td>
+                <td class="text-end">
+                  {{ "{:,.0f}".format(margen_bruto_semanal or 0) }}
+                </td>
+                <td class="text-end text-success">
+                  {{ "{:,.0f}".format((ingresos_semanales_total or 0) -
+                  (ingresos_semanales_total or 0) * 0.6) }}
+                </td>
               </tr>
               <tr class="table-active">
-                <td><strong>Mensual</strong> ({{ periodo_actual.nombre_mes if periodo_actual else 'Actual' }})</td>
-                <td class="text-end"><strong>{{ "{:,.0f}".format(ingresos_mensual_total or 0) }}</strong></td>
-                <td class="text-end"><strong>{{ "{:,.0f}".format(costos_operativos_mensuales or 0) }}</strong></td>
-                <td class="text-end"><strong>{{ "{:,.0f}".format(margen_bruto_mensual or 0) }}</strong></td>
-                <td class="text-end text-success"><strong>{{ "{:,.0f}".format(margen_neto_mensual or 0) }}</strong></td>
+                <td>
+                  <strong>Mensual</strong> ({{ periodo_actual.nombre_mes if
+                  periodo_actual else 'Actual' }})
+                </td>
+                <td class="text-end">
+                  <strong
+                    >{{ "{:,.0f}".format(ingresos_mensual_total or 0) }}</strong
+                  >
+                </td>
+                <td class="text-end">
+                  <strong
+                    >{{ "{:,.0f}".format(costos_operativos_mensuales or 0)
+                    }}</strong
+                  >
+                </td>
+                <td class="text-end">
+                  <strong
+                    >{{ "{:,.0f}".format(margen_bruto_mensual or 0) }}</strong
+                  >
+                </td>
+                <td class="text-end text-success">
+                  <strong
+                    >{{ "{:,.0f}".format(margen_neto_mensual or 0) }}</strong
+                  >
+                </td>
               </tr>
             </tbody>
           </table>
@@ -200,7 +288,9 @@
     <div class="card text-white" style="background-color: #ff6b6b">
       <div class="card-body">
         <h5 class="card-title">Margen de Ganancia (Hoy)</h5>
-        <h3 class="card-text">{{ "{:,.0f}".format(margen_bruto_diario) }} COP</h3>
+        <h3 class="card-text">
+          {{ "{:,.0f}".format(margen_bruto_diario) }} COP
+        </h3>
         <p class="mb-0">
           Ingresos: {{ "{:,.0f}".format(ingresos_diarios_total) }} COP
         </p>
@@ -211,7 +301,9 @@
     <div class="card text-white" style="background-color: #4ecdc4">
       <div class="card-body">
         <h5 class="card-title">Margen de Ganancia (Semana)</h5>
-        <h3 class="card-text">{{ "{:,.0f}".format(margen_bruto_semanal) }} COP</h3>
+        <h3 class="card-text">
+          {{ "{:,.0f}".format(margen_bruto_semanal) }} COP
+        </h3>
         <p class="mb-0">
           Ingresos: {{ "{:,.0f}".format(ingresos_semanales_total) }} COP
         </p>
@@ -222,7 +314,9 @@
     <div class="card text-white" style="background-color: #6c5ce7">
       <div class="card-body">
         <h5 class="card-title">Margen de Ganancia (Mes)</h5>
-        <h3 class="card-text">{{ "{:,.0f}".format(margen_bruto_mensual) }} COP</h3>
+        <h3 class="card-text">
+          {{ "{:,.0f}".format(margen_bruto_mensual) }} COP
+        </h3>
         <p class="mb-0">
           Ingresos: {{ "{:,.0f}".format(ingresos_mensual_total) }} COP
         </p>
@@ -235,10 +329,16 @@
 <div class="row mb-4">
   <div class="col-md-8">
     <div class="card shadow-sm border-0">
-      <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <h5 class="card-title mb-0">Análisis Histórico de Ingresos y Márgenes</h5>
+      <div
+        class="card-header bg-white d-flex justify-content-between align-items-center"
+      >
+        <h5 class="card-title mb-0">
+          Análisis Histórico de Ingresos y Márgenes
+        </h5>
         <div class="btn-group btn-group-sm">
-          <button type="button" class="btn btn-outline-secondary active">6 Meses</button>
+          <button type="button" class="btn btn-outline-secondary active">
+            6 Meses
+          </button>
           <button type="button" class="btn btn-outline-secondary">1 Año</button>
         </div>
       </div>
@@ -249,19 +349,27 @@
         <div class="row text-center">
           <div class="col-3 border-end">
             <small class="text-muted d-block">Ingresos Brutos</small>
-            <span class="fw-bold text-primary">+{{ "{:,.0f}".format(ingresos_mensual_total or 0) }}</span>
+            <span class="fw-bold text-primary"
+              >+{{ "{:,.0f}".format(ingresos_mensual_total or 0) }}</span
+            >
           </div>
           <div class="col-3 border-end">
             <small class="text-muted d-block">Ingresos Netos</small>
-            <span class="fw-bold text-info">+{{ "{:,.0f}".format(ingresos_netos_mensuales or 0) }}</span>
+            <span class="fw-bold text-info"
+              >+{{ "{:,.0f}".format(ingresos_netos_mensuales or 0) }}</span
+            >
           </div>
           <div class="col-3 border-end">
             <small class="text-muted d-block">Margen Neto</small>
-            <span class="fw-bold text-success">+{{ "{:,.0f}".format(margen_neto_mensual or 0) }}</span>
+            <span class="fw-bold text-success"
+              >+{{ "{:,.0f}".format(margen_neto_mensual or 0) }}</span
+            >
           </div>
           <div class="col-3">
             <small class="text-muted d-block">IVA Recaudado</small>
-            <span class="fw-bold text-danger">{{ "{:,.0f}".format(iva_mensual or 0) }}</span>
+            <span class="fw-bold text-danger"
+              >{{ "{:,.0f}".format(iva_mensual or 0) }}</span
+            >
           </div>
         </div>
       </div>
@@ -277,7 +385,8 @@
         <canvas id="graficoPlan" height="220"></canvas>
       </div>
       <div class="card-footer bg-white">
-        <small class="text-muted">Ingreso potencial mensual por planes: 
+        <small class="text-muted"
+          >Ingreso potencial mensual por planes:
           <strong>{{ "{:,.0f}".format(0) }}</strong> COP
         </small>
       </div>
@@ -288,7 +397,9 @@
 <div class="row mb-4">
   <div class="col-md-6">
     <div class="card shadow-sm border-0">
-      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <div
+        class="card-header bg-white d-flex justify-content-between align-items-center"
+      >
         <h5 class="card-title mb-0">Productos Más Vendidos</h5>
         <span class="badge bg-info">Top 5</span>
       </div>
@@ -303,7 +414,9 @@
 
   <div class="col-md-6">
     <div class="card shadow-sm border-0">
-      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <div
+        class="card-header bg-white d-flex justify-content-between align-items-center"
+      >
         <h5 class="card-title mb-0">Análisis de Rentabilidad por Producto</h5>
         <span class="badge bg-success">Margen</span>
       </div>
@@ -311,7 +424,9 @@
         <canvas id="graficoIngresosProductos" height="260"></canvas>
       </div>
       <div class="card-footer bg-white text-center">
-        <small class="text-muted">Margen calculado a partir de costos estándar (60%)</small>
+        <small class="text-muted"
+          >Margen calculado a partir de costos estándar (60%)</small
+        >
       </div>
     </div>
   </div>
@@ -319,7 +434,9 @@
 
 <!-- Transacciones Recientes -->
 <div class="card shadow-sm border-0 mb-4">
-  <div class="card-header bg-white d-flex justify-content-between align-items-center">
+  <div
+    class="card-header bg-white d-flex justify-content-between align-items-center"
+  >
     <h5 class="card-title mb-0">Registro de Transacciones</h5>
     <div>
       <span class="badge bg-primary me-1">Membresías</span>
@@ -351,10 +468,12 @@
               {% endif %}
             </td>
             <td>
-              {% if pago.usuario %} 
-                <a href="{{ url_for('main.usuario_directo', usuario_id=pago.usuario.id) }}">
-                  {{ pago.usuario.nombre }}
-                </a>
+              {% if pago.usuario %}
+              <a
+                href="{{ url_for('main.usuario_directo', usuario_id=pago.usuario.id) }}"
+              >
+                {{ pago.usuario.nombre }}
+              </a>
               {% else %}
               <span class="text-muted">Cliente no registrado</span>
               {% endif %}
@@ -375,7 +494,9 @@
       </table>
     </div>
   </div>
-  <div class="card-footer d-flex justify-content-between align-items-center bg-white">
+  <div
+    class="card-footer d-flex justify-content-between align-items-center bg-white"
+  >
     <span class="text-muted small">Mostrando últimas 10 transacciones</span>
     <a href="#" class="btn btn-sm btn-outline-primary">Ver Todas</a>
   </div>
@@ -387,23 +508,30 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Exportar Informe Financiero</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
       </div>
       <form action="/finanzas/exportar" method="post" id="formExportar">
         <div class="modal-body">
-          
           <div class="mb-3">
             <label class="form-label">Formato de Exportación</label>
             <select class="form-select" name="formato" id="formato">
-              <option value="csv">CSV - Datos simples (sin dependencias)</option>
+              <option value="csv">
+                CSV - Datos simples (sin dependencias)
+              </option>
               <option value="excel">Excel (XLSX) - Datos tabulares</option>
               <option value="pdf">PDF - Informe completo</option>
             </select>
             <div class="form-text" id="formatoInfo">
-              El formato CSV siempre funciona sin instalar dependencias adicionales.
+              El formato CSV siempre funciona sin instalar dependencias
+              adicionales.
             </div>
           </div>
-          
+
           <div class="mb-3">
             <label class="form-label">Período</label>
             <select class="form-select" name="periodo" id="periodo">
@@ -413,23 +541,41 @@
               <option value="anual">Anual</option>
             </select>
           </div>
-          
+
           <div class="mb-3">
             <label class="form-label">Contenido a incluir</label>
             <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" id="incluirResumen" name="incluirResumen" checked>
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="incluirResumen"
+                name="incluirResumen"
+                checked
+              />
               <label class="form-check-label" for="incluirResumen">
                 Resumen financiero general
               </label>
             </div>
             <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" id="incluirGraficos" name="incluirGraficos" checked>
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="incluirGraficos"
+                name="incluirGraficos"
+                checked
+              />
               <label class="form-check-label" for="incluirGraficos">
                 Gráficos y visualizaciones
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="incluirDetalles" name="incluirDetalles" checked>
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="incluirDetalles"
+                name="incluirDetalles"
+                checked
+              />
               <label class="form-check-label" for="incluirDetalles">
                 Detalles de transacciones
               </label>
@@ -437,7 +583,13 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
           <button type="submit" class="btn btn-primary">
             <i class="fas fa-file-export me-1"></i> Exportar
           </button>
@@ -451,10 +603,16 @@
   <div class="card-footer text-center text-muted small bg-white">
     <div class="row">
       <div class="col-md-6 text-start">
-        <span><i class="fas fa-code me-1"></i> Desarrollado por: YEIFRAN HERNANDEZ</span>
+        <span
+          ><i class="fas fa-code me-1"></i> Desarrollado por: YEIFRAN
+          HERNANDEZ</span
+        >
       </div>
       <div class="col-md-6 text-end">
-        <span><i class="fas fa-brain me-1"></i> NEURALJIRA_DEV - Visión empresarial inteligente</span>
+        <span
+          ><i class="fas fa-brain me-1"></i> NEURALJIRA_DEV - Visión empresarial
+          inteligente</span
+        >
       </div>
     </div>
   </div>
@@ -471,18 +629,54 @@
 <script src="{{ url_for('static', filename='js/finanzas_charts.js') }}"></script>
 
 <!-- Campos ocultos para datos de gráficos -->
-<input type="hidden" id="datos-meses" value='{{ meses|safe }}'>
-<input type="hidden" id="datos-ingresos-membresias" value='{{ datos_ingresos_membresias|safe }}'>
-<input type="hidden" id="datos-ingresos-productos" value='{{ datos_ingresos_productos|safe }}'>
-<input type="hidden" id="datos-margenes" value='{{ datos_margenes|safe }}'>
-<input type="hidden" id="datos-ingresos-netos" value='{{ datos_ingresos_netos|safe }}'>
-<input type="hidden" id="datos-planes-nombres" value='{{ planes_nombres|safe }}'>
-<input type="hidden" id="datos-planes" value='{{ datos_planes|safe }}'>
-<input type="hidden" id="datos-ingresos-potenciales-plan" value='{{ ingresos_potenciales_por_plan|safe }}'>
-<input type="hidden" id="datos-productos-nombres" value='{{ productos_nombres|safe }}'>
-<input type="hidden" id="datos-productos-cantidades" value='{{ productos_cantidades|safe }}'>
-<input type="hidden" id="datos-productos-ingresos" value='{{ productos_ingresos|safe }}'>
-<input type="hidden" id="datos-productos-margenes" value='{{ productos_margenes|safe }}'>
+<input type="hidden" id="datos-meses" value="{{ meses|safe }}" />
+<input
+  type="hidden"
+  id="datos-ingresos-membresias"
+  value="{{ datos_ingresos_membresias|safe }}"
+/>
+<input
+  type="hidden"
+  id="datos-ingresos-productos"
+  value="{{ datos_ingresos_productos|safe }}"
+/>
+<input type="hidden" id="datos-margenes" value="{{ datos_margenes|safe }}" />
+<input
+  type="hidden"
+  id="datos-ingresos-netos"
+  value="{{ datos_ingresos_netos|safe }}"
+/>
+<input
+  type="hidden"
+  id="datos-planes-nombres"
+  value="{{ planes_nombres|safe }}"
+/>
+<input type="hidden" id="datos-planes" value="{{ datos_planes|safe }}" />
+<input
+  type="hidden"
+  id="datos-ingresos-potenciales-plan"
+  value="{{ ingresos_potenciales_por_plan|safe }}"
+/>
+<input
+  type="hidden"
+  id="datos-productos-nombres"
+  value="{{ productos_nombres|safe }}"
+/>
+<input
+  type="hidden"
+  id="datos-productos-cantidades"
+  value="{{ productos_cantidades|safe }}"
+/>
+<input
+  type="hidden"
+  id="datos-productos-ingresos"
+  value="{{ productos_ingresos|safe }}"
+/>
+<input
+  type="hidden"
+  id="datos-productos-margenes"
+  value="{{ productos_margenes|safe }}"
+/>
 
 <!-- 
   NEURALJIRA_DEV - Transformando datos en visión de negocio

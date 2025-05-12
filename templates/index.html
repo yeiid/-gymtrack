@@ -72,7 +72,10 @@
                     >
                       <i class="fas fa-bolt me-2"></i>Comenzar Ahora
                     </a>
-                    <a href="{{ url_for('main.finanzas.index') }}" class="btn btn-lg btn-outline-light">
+                    <a
+                      href="{{ url_for('main.finanzas.index') }}"
+                      class="btn btn-lg btn-outline-light"
+                    >
                       <i class="fas fa-chart-line me-2"></i>Ver Finanzas
                     </a>
                   </div>
@@ -249,7 +252,9 @@
           Registra y gestiona a todos los miembros del gimnasio con diferentes
           planes y opciones de pago.
         </p>
-        <a href="{{ url_for('main.usuarios.index') }}" class="btn btn-primary stretched-link"
+        <a
+          href="{{ url_for('main.usuarios.index') }}"
+          class="btn btn-primary stretched-link"
           >Gestionar Usuarios</a
         >
       </div>
@@ -271,7 +276,9 @@
           Control de acceso diario, históricos detallados y verificación de
           vencimiento de planes.
         </p>
-        <a href="{{ url_for('main.usuarios.asistencia') }}" class="btn btn-primary stretched-link"
+        <a
+          href="{{ url_for('main.usuarios.asistencia') }}"
+          class="btn btn-primary stretched-link"
           >Controlar Asistencias</a
         >
       </div>
@@ -293,7 +300,9 @@
           Gestión de productos, inventario y registro de ventas para aumentar
           tus ingresos.
         </p>
-        <a href="{{ url_for('main.productos.ventas') }}" class="btn btn-primary stretched-link"
+        <a
+          href="{{ url_for('main.productos.ventas') }}"
+          class="btn btn-primary stretched-link"
           >Administrar Ventas</a
         >
       </div>
@@ -318,7 +327,9 @@
           Administra tu inventario de suplementos, ropa deportiva y accesorios
           para tu gimnasio.
         </p>
-        <a href="{{ url_for('main.productos.index') }}" class="btn btn-primary stretched-link"
+        <a
+          href="{{ url_for('main.productos.index') }}"
+          class="btn btn-primary stretched-link"
           >Ver Productos</a
         >
       </div>
@@ -343,7 +354,9 @@
           Seguimiento de pagos de membresías, control de vencimientos y
           renovaciones.
         </p>
-        <a href="{{ url_for('main.finanzas.pagos') }}" class="btn btn-primary stretched-link"
+        <a
+          href="{{ url_for('main.finanzas.pagos') }}"
+          class="btn btn-primary stretched-link"
           >Administrar Pagos</a
         >
       </div>
@@ -365,8 +378,10 @@
           Reportes detallados, márgenes de ganancia y análisis de ingresos
           diarios, semanales y mensuales.
         </p>
-        <a href="{{ url_for('main.finanzas.index') }}" class="btn btn-primary stretched-link"
-          >Analizar Finanzas</a
+        <a
+          href="{{ url_for('main.finanzas.index') }}"
+          class="btn btn-primary stretched-link"
+          >Ver Finanzas</a
         >
       </div>
     </div>
@@ -376,11 +391,14 @@
 {% if debug %}
 <div class="container mt-4 alert alert-info">
   <h4>Información de depuración</h4>
-  <p>URL ver_usuario: {{ url_for('main.usuarios.ver_usuario', usuario_id=1) }}</p>
-  <p>URL usuario_directo: {{ url_for('main.usuario_directo', usuario_id=1) }}</p>
+  <p>
+    URL ver_usuario: {{ url_for('main.usuarios.ver_usuario', usuario_id=1) }}
+  </p>
+  <p>
+    URL usuario_directo: {{ url_for('main.usuario_directo', usuario_id=1) }}
+  </p>
 </div>
-{% endif %}
-{% endblock %} {% block styles %}
+{% endif %} {% endblock %} {% block styles %}
 <style>
   /* Estilos específicos para la página de inicio */
 
