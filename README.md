@@ -40,6 +40,7 @@ GimnasioDB/
 3. Ejecutar la aplicación: `python app_launcher.py`
 
 También puede usar los scripts incluidos para facilitar la ejecución:
+
 - En Windows: `ejecutar_windows.bat` o `ejecutar_app.bat`
 
 ## Desarrollo
@@ -47,12 +48,14 @@ También puede usar los scripts incluidos para facilitar la ejecución:
 Para tareas de desarrollo, utilice los scripts en la carpeta `dev/`:
 
 - **Empaquetar la aplicación**:
+
   ```
   cd dev
   empaquetar_optimizado.bat
   ```
 
 - **Reorganizar el proyecto**:
+
   ```
   cd dev
   python reorganizacion_proyecto.py
@@ -253,3 +256,46 @@ Para compartir la aplicación con usuarios finales:
   - macOS: `chmod +x GimnasioDB`
 
 - **Base de datos**: El ejecutable crea una base de datos nueva si no existe. Si deseas distribuir una base de datos inicial, usa la opción `--include-db` al empaquetar o colócala junto al ejecutable.
+
+## Empaquetado para múltiples sistemas operativos
+
+Esta aplicación ahora puede ser empaquetada para diferentes sistemas operativos (Windows, Linux y macOS) sin importar en qué sistema operativo te encuentres.
+
+### Usando los scripts asistentes
+
+Para facilitar el proceso de empaquetado, se han incluido scripts que automatizan el proceso:
+
+**En Windows:**
+
+1. Ejecuta `empaquetar_multisistema.bat`
+2. Selecciona la opción deseada del menú
+
+**En Linux/macOS:**
+
+1. Ejecuta `./empaquetar_multisistema.sh`
+2. Selecciona la opción deseada del menú
+
+### Usando directamente el script de empaquetado
+
+También puedes usar directamente el script `empaquetar_app.py` con las siguientes opciones:
+
+```
+python empaquetar_app.py [opciones]
+
+Opciones disponibles:
+  --help        : Muestra la ayuda
+  --no-backup   : No crea respaldo de la base de datos
+  --include-db  : Incluye la base de datos actual en la distribución
+  --windows     : Crea un ejecutable para Windows
+  --linux       : Crea un ejecutable para Linux
+  --macos       : Crea un ejecutable para macOS
+  --all         : Crea ejecutables para todas las plataformas soportadas
+```
+
+Ejemplos:
+
+- Para crear un ejecutable Windows: `python empaquetar_app.py --windows`
+- Para crear ejecutables para todos los sistemas: `python empaquetar_app.py --all`
+- Para incluir la base de datos: `python empaquetar_app.py --windows --include-db`
+
+Los ejecutables generados estarán disponibles en la carpeta `dist/` con nombres específicos para cada plataforma.
