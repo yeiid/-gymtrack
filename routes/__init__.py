@@ -12,6 +12,10 @@ from routes.ventas.routes import bp as ventas_bp
 from routes.admin.routes import bp as admin_bp
 from routes.auth.routes import bp as auth_bp
 
+# Asegurar que los controladores se importan después de registrar blueprints
+import routes.usuarios
+import routes.productos
+
 # Registrar todas las rutas en el Blueprint principal
 main.register_blueprint(usuarios_bp)
 main.register_blueprint(finanzas_bp)
@@ -23,7 +27,7 @@ main.register_blueprint(auth_bp)
 # Crear rutas con nombres específicos para solucionar problemas de navegación
 @main.route('/usuarios/ver_usuario/<int:usuario_id>')
 def ver_usuario_directo(usuario_id):
-    from routes.usuarios.routes import ver_usuario
+    from routes.usuarios.usuario_controller import ver_usuario
     return ver_usuario(usuario_id)
 
 # Ruta adicional para manejar /usuarios/<id> directamente
@@ -32,7 +36,7 @@ def usuario_directo(usuario_id):
     print(f"Llamada a usuario_directo con ID: {usuario_id}")
     try:
         # Llamar directamente a la función ver_usuario en lugar de redireccionar
-        from routes.usuarios.routes import ver_usuario
+        from routes.usuarios.usuario_controller import ver_usuario
         return ver_usuario(usuario_id)
     except Exception as e:
         # Registrar el error y mostrar un mensaje de error amigable
@@ -155,5 +159,11 @@ def registrar_venta_directo():
     if error:
         flash(error, "danger")
         
-    from routes.productos.routes import registrar_venta
-    return registrar_venta() 
+    from routes.productos.ventas_controller import registrar_venta
+    return registrar_venta()
+
+@main.route('/asistencia')
+def asistencia_directo():
+    """Ruta directa para la página de asistencia"""
+    from routes.usuarios.asistencia_controller import asistencia
+    return asistencia() 
