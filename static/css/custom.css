@@ -1,20 +1,18 @@
-/* Estilos personalizados para la aplicación de Gimnasio - Tema Energético */
-
+/* === Variables: Tema energético (Amarillo, Negro y Blanco) === */
 :root {
-  /* Esquema de colores energético: amarillo, negro y blanco */
-  --primary-color: #ffd700; /* Amarillo dorado para energía */
+  --primary-color: #ffd700; /* Amarillo energía */
+  --accent-color: #ffeb3b; /* Amarillo más claro */
+  --hover-color: #ffc107; /* Amarillo hover */
   --secondary-color: #212121; /* Negro profundo */
-  --accent-color: #ffeb3b; /* Amarillo más claro para acentos */
   --dark-color: #000000; /* Negro puro */
   --light-color: #ffffff; /* Blanco puro */
-  --gray-color: #e0e0e0; /* Gris claro para fondos alternativos */
-  --text-on-dark: #ffffff; /* Texto sobre fondos oscuros */
-  --text-on-light: #000000; /* Texto sobre fondos claros */
-  --hover-color: #ffc107; /* Amarillo ámbar para hover */
-  --shadow-color: rgba(0, 0, 0, 0.2); /* Sombra sutil */
+  --gray-color: #e0e0e0; /* Gris claro */
+  --text-on-dark: #ffffff;
+  --text-on-light: #000000;
+  --shadow-color: rgba(0, 0, 0, 0.2);
 }
 
-/* Estilos generales */
+/* === Estilos Globales === */
 body {
   font-family: "Poppins", sans-serif;
   background-color: var(--light-color);
@@ -22,7 +20,7 @@ body {
   line-height: 1.6;
 }
 
-/* Navbar con colores energéticos */
+/* === Navbar === */
 .navbar {
   background: linear-gradient(
     135deg,
@@ -54,7 +52,6 @@ body {
   transform: translateY(-2px);
 }
 
-/* Efecto de línea bajo los links del menú */
 .navbar-dark .navbar-nav .nav-link::after {
   content: "";
   position: absolute;
@@ -70,16 +67,11 @@ body {
   width: 100%;
 }
 
-/* Botones */
+/* === Botones === */
 .btn-primary {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
   color: var(--text-on-light);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 6px var(--shadow-color);
-  transition: all 0.3s ease;
 }
 
 .btn-primary:hover,
@@ -94,11 +86,6 @@ body {
   background-color: var(--secondary-color);
   border-color: var(--secondary-color);
   color: var(--text-on-dark);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 6px var(--shadow-color);
-  transition: all 0.3s ease;
 }
 
 .btn-success:hover,
@@ -109,15 +96,14 @@ body {
   box-shadow: 0 6px 12px var(--shadow-color);
 }
 
-/* Cards con estilo energético */
+/* === Cards === */
 .card {
+  background: var(--light-color);
   border: none;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 6px 15px var(--shadow-color);
   transition: all 0.3s ease;
-  background: var(--light-color);
-  margin-bottom: 1.5rem;
 }
 
 .card:hover {
@@ -126,46 +112,21 @@ body {
 }
 
 .card-header {
-  font-weight: 700;
   background-color: var(--secondary-color);
-  color: var(--text-on-dark);
+  color: var(--text-on-light);
+  font-weight: 700;
   border-bottom: 2px solid var(--primary-color);
 }
 
-.card-header.bg-primary {
-  background-color: var(--secondary-color) !important;
-}
-
-.card-header.bg-success {
-  background-color: var(--secondary-color) !important;
-}
-
-.card-header.bg-info {
-  /* Se revierte al color azul original de Bootstrap */
-  background-color: #17a2b8 !important;
-}
-
-/* Tarjetas específicas con colores energéticos */
-.bg-success {
-  background-color: var(--secondary-color) !important;
-  border-bottom: 3px solid var(--primary-color);
-}
-
-.bg-info {
-  /* Se revierte al color azul original de Bootstrap */
-  background-color: #17a2b8 !important;
-  border-bottom: 3px solid var(--primary-color);
-}
-
-/* Encabezados con estilo energético */
+/* === Encabezados === */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  font-weight: 700;
   color: var(--secondary-color);
+  font-weight: 700;
 }
 
 h2 {
@@ -173,6 +134,7 @@ h2 {
   display: inline-block;
   padding-bottom: 8px;
   margin-bottom: 20px;
+  font-size: 1.5rem;
 }
 
 h2::after {
@@ -185,11 +147,11 @@ h2::after {
   background-color: var(--primary-color);
 }
 
-/* Tablas estilizadas */
+/* === Tablas === */
 .table {
+  background-color: var(--light-color);
   border-radius: 8px;
   overflow: hidden;
-  background-color: var(--light-color);
 }
 
 .table thead {
@@ -212,7 +174,7 @@ h2::after {
   background-color: rgba(255, 215, 0, 0.1);
 }
 
-/* Badge estilizado */
+/* === Badges === */
 .badge {
   padding: 6px 10px;
   font-weight: 600;
@@ -229,7 +191,7 @@ h2::after {
   color: var(--text-on-dark);
 }
 
-/* Footer */
+/* === Footer === */
 footer {
   background: linear-gradient(
     135deg,
@@ -241,12 +203,19 @@ footer {
   padding: 1.5rem 0;
 }
 
-/* Estilos específicos para formularios */
+/* === Formularios === */
+.form-label {
+  color: var(--secondary-color);
+  font-weight: 600;
+}
+
 .form-control {
   border: 2px solid var(--gray-color);
   border-radius: 8px;
   padding: 10px 15px;
   transition: all 0.3s ease;
+  background-color: var(--light-color);
+  color: var(--text-on-light);
 }
 
 .form-control:focus {
@@ -254,26 +223,16 @@ footer {
   box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.25);
 }
 
-.form-label {
-  font-weight: 600;
-  color: var(--secondary-color);
-}
-
-/* Mejoras de responsividad */
+/* === Responsividad === */
 @media (max-width: 992px) {
   .navbar-nav {
-    padding-top: 1rem;
     background-color: rgba(0, 0, 0, 0.8);
-    border-radius: 8px;
     padding: 10px;
+    border-radius: 8px;
   }
 
   .navbar-collapse {
     margin-top: 10px;
-  }
-
-  .card {
-    margin-bottom: 20px;
   }
 }
 
@@ -284,11 +243,6 @@ footer {
 
   h2 {
     font-size: 1.8rem;
-  }
-
-  .table-responsive {
-    border-radius: 8px;
-    overflow: hidden;
   }
 
   .card-body {
@@ -314,3 +268,4 @@ footer {
     font-size: 1.2rem;
   }
 }
+
