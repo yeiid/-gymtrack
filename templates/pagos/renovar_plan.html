@@ -23,13 +23,30 @@
             <p><strong>Precio:</strong> ${{ "%.2f"|format(usuario.precio_plan) }}</p>
             {% if usuario.fecha_vencimiento_plan %}
               <p><strong>Fecha de vencimiento:</strong> {{ usuario.fecha_vencimiento_plan.strftime('%d/%m/%Y') }}</p>
-              {% if usuario.fecha_vencimiento_plan < now.date() %}
+              {% if usuario.fecha_vencimiento_plan < fecha_actual %}
                 <div class="alert alert-danger">El plan ha <strong>VENCIDO</strong>.</div>
               {% endif %}
             {% endif %}
           </div>
           
           <form method="POST" action="{{ url_for('main.usuarios.renovar_plan', usuario_id=usuario.id) }}">
+            <div class="mb-3">
+              <label for="plan" class="form-label">Plan</label>
+              <select class="form-select" id="plan" name="plan">
+                <option value="Diario" {% if usuario.plan == 'Diario' %}selected{% endif %}>Diario - $5.000</option>
+                <option value="Quincenal" {% if usuario.plan == 'Quincenal' %}selected{% endif %}>Quincenal - $35.000</option>
+                <option value="Mensual" {% if usuario.plan == 'Mensual' %}selected{% endif %}>Mensual - $70.000</option>
+                <option value="Estudiantil" {% if usuario.plan == 'Estudiantil' %}selected{% endif %}>Estudiantil - $50.000</option>
+                <option value="Dirigido" {% if usuario.plan == 'Dirigido' %}selected{% endif %}>Dirigido - $130.000</option>
+                <option value="Personalizado" {% if usuario.plan == 'Personalizado' %}selected{% endif %}>Personalizado - $250.000</option>
+              </select>
+            </div>
+            
+            <div class="mb-3">
+              <label for="fecha_pago" class="form-label">Fecha de Pago</label>
+              <input type="date" class="form-control" id="fecha_pago" name="fecha_pago" value="{{ hoy }}">
+            </div>
+            
             <div class="mb-3">
               <label for="metodo_pago" class="form-label">Método de Pago</label>
               <select class="form-select" id="metodo_pago" name="metodo_pago">
@@ -42,7 +59,7 @@
             </div>
             
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-              <a href="{{ url_for('main.usuarios.asistencia') }}" class="btn btn-secondary me-md-2">Cancelar</a>
+              <a href="{{ url_for('main.usuarios.ver_usuario', usuario_id=usuario.id) }}" class="btn btn-secondary me-md-2">Cancelar</a>
               <button type="submit" class="btn btn-success">
                 <i class="fas fa-sync-alt me-1"></i> Renovar Plan
               </button>
